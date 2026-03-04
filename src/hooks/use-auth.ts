@@ -1,0 +1,84 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import type { ApplicantProfile } from "@/types";
+
+export function useAuth() {
+  const router = useRouter();
+  const [user, setUser] = useState<ApplicantProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Login failed");
+          return false;
+        }
+        setUser(data.user);
+        router.push("/dashboard");
+        return true;
+      } catch {
+        setError("Network error. Please try again.");
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const register = useCallback(
+    async (formData: {
+      email: string;
+      password: string;
+      confirmPassword: string;
+      firstName: string;
+      lastName: string;
+      role: string;
+      phone?: string;
+    }) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Registration failed");
+          return false;
+        }
+        setUser(data.user);
+        router.push("/dashboard");
+        return true;
+      } catch {
+        setError("Network error. Please try again.");
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
+    router.push("/");
+  }, [router]);
+
+  return { user, loading, error, login, register, logout, setError };
+}

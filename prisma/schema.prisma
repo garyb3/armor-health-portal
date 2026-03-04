@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  RECRUITER
+  ADMIN_ASSISTANT
+  COUNTY_REPRESENTATIVE
+  HR
+}
+
+enum FormType {
+  DRUG_SCREEN
+  VOLUNTEER_APPLICATION
+  BACKGROUND_CHECK
+  WEB_CHECK
+}
+
+enum FormStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  PENDING_REVIEW
+}
+
+model Applicant {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  password        String
+  firstName       String
+  lastName        String
+  role            Role
+  phone           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  formSubmissions FormSubmission[]
+
+  @@map("applicants")
+}
+
+model FormSubmission {
+  id          String     @id @default(cuid())
+  applicantId String
+  formType    FormType
+  status      FormStatus @default(NOT_STARTED)
+  formData    Json?
+  receiptFile String?
+  submittedAt      DateTime?
+  statusChangedAt  DateTime   @default(now())
+  lastAlertSentAt  DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@unique([applicantId, formType])
+  @@map("form_submissions")
+}

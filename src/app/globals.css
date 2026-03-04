@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: #ffffff;
+  --color-foreground: #171717;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Armor Health brand colors */
+  --color-brand-50: #e8f0f7;
+  --color-brand-100: #c5d9ea;
+  --color-brand-200: #9fc0dc;
+  --color-brand-300: #78a6cd;
+  --color-brand-400: #5b93c2;
+  --color-brand-500: #1B4D7A;
+  --color-brand-600: #174469;
+  --color-brand-700: #133a58;
+  --color-brand-800: #0f3047;
+  --color-brand-900: #0b2636;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Print-friendly styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white;
+    font-size: 12pt;
+  }
+  .print-form {
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+    border: none;
+  }
+}
+
+.print-only {
+  display: none;
 }
