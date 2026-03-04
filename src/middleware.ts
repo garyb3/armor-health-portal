@@ -40,12 +40,25 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  const role = payload.role || "";
+  const isStaff = role === "RECRUITER" || role === "HR";
+
+  // Staff can only access dashboard and pipeline detail (not forms/onboarding)
+  if (isStaff && (pathname.startsWith("/forms") || pathname === "/onboarding")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Applicants cannot access dashboard or pipeline routes
+  if (!isStaff && (pathname === "/dashboard" || pathname.startsWith("/pipeline"))) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-user-id", payload.sub);
   requestHeaders.set("x-user-email", payload.email);
   requestHeaders.set("x-user-first-name", payload.firstName);
   requestHeaders.set("x-user-last-name", payload.lastName);
-  requestHeaders.set("x-user-role", payload.role || "");
+  requestHeaders.set("x-user-role", role);
 
   return NextResponse.next({ request: { headers: requestHeaders } });
 }

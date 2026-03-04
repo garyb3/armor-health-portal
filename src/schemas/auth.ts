@@ -1,6 +1,7 @@
 import { z } from "zod/v4";
 
 export const ROLE_OPTIONS = [
+  { value: "APPLICANT", label: "Applicant" },
   { value: "RECRUITER", label: "Recruiter" },
   { value: "ADMIN_ASSISTANT", label: "Admin Assistant" },
   { value: "COUNTY_REPRESENTATIVE", label: "County Representative" },
@@ -14,7 +15,7 @@ export const registerSchema = z
     confirmPassword: z.string(),
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
-    role: z.enum(["RECRUITER", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE", "HR"], {
+    role: z.enum(["APPLICANT", "RECRUITER", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE", "HR"], {
       message: "Please select a role",
     }),
     phone: z.string().optional(),

@@ -26,7 +26,10 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        router.push("/dashboard");
+        const dest = data.user.role === "RECRUITER" || data.user.role === "HR"
+          ? "/dashboard"
+          : "/onboarding";
+        router.push(dest);
         return true;
       } catch {
         setError("Network error. Please try again.");
@@ -62,7 +65,10 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        router.push("/dashboard");
+        const dest = data.user.role === "RECRUITER" || data.user.role === "HR"
+          ? "/dashboard"
+          : "/onboarding";
+        router.push(dest);
         return true;
       } catch {
         setError("Network error. Please try again.");

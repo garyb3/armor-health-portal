@@ -153,7 +153,7 @@ export default function VolunteerApplicationPage() {
         body: JSON.stringify({ formData: dataWithoutSSN, action: "submit" }),
       });
       if (res.ok) {
-        router.push("/dashboard");
+        router.push("/onboarding");
         return;
       }
     } finally {

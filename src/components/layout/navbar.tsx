@@ -13,6 +13,7 @@ const NAV_LINKS = [
 ];
 
 const ROLE_LABELS: Record<string, string> = {
+  APPLICANT: "Applicant",
   RECRUITER: "Recruiter",
   ADMIN_ASSISTANT: "Admin Assistant",
   COUNTY_REPRESENTATIVE: "County Representative",
@@ -40,8 +41,8 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   const navigateWithConfirm = (href: string) => {
     // Already on this page — do nothing
     if (pathname === href) return;
-    // On dashboard — navigate directly, no unsaved work to lose
-    if (pathname === "/dashboard") {
+    // On dashboard, pipeline, or onboarding — navigate directly, no unsaved work to lose
+    if (pathname === "/dashboard" || pathname === "/onboarding" || pathname.startsWith("/pipeline")) {
       router.push(href);
       return;
     }
@@ -50,7 +51,15 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
     setShowLeaveDialog(true);
   };
 
-  const handleShieldClick = () => navigateWithConfirm("/dashboard");
+  const isStaff = role === "RECRUITER" || role === "HR";
+
+  const navLinks = isStaff
+    ? [{ href: "/dashboard", label: "Dashboard" }]
+    : NAV_LINKS;
+
+  const homeHref = isStaff ? "/dashboard" : "/onboarding";
+
+  const handleShieldClick = () => navigateWithConfirm(homeHref);
 
   const handleConfirmLeave = () => {
     setShowLeaveDialog(false);
@@ -107,7 +116,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-4">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <button
               key={link.href}
               type="button"
@@ -157,7 +166,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-brand-400 px-4 py-3 space-y-1">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <button
               key={link.href}
               type="button"

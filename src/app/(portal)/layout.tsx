@@ -34,17 +34,19 @@ export default function PortalLayout({
           const data = await res.json();
           setUser(data.user);
 
-          // Fetch progress
-          const progressRes = await fetch(
-            `/api/applicants/${data.user.id}/progress`
-          );
-          if (progressRes.ok) {
-            const progressData = await progressRes.json();
-            const map: Record<string, FormStatus> = {};
-            for (const p of progressData.progress) {
-              map[p.formType] = p.status;
+          // Only fetch individual progress for applicant roles
+          if (data.user.role !== "RECRUITER" && data.user.role !== "HR") {
+            const progressRes = await fetch(
+              `/api/applicants/${data.user.id}/progress`
+            );
+            if (progressRes.ok) {
+              const progressData = await progressRes.json();
+              const map: Record<string, FormStatus> = {};
+              for (const p of progressData.progress) {
+                map[p.formType] = p.status;
+              }
+              setProgress(map);
             }
-            setProgress(map);
           }
         }
       } catch {
@@ -87,7 +89,7 @@ export default function PortalLayout({
         </div>
       )}
 
-      <Sidebar progress={progress} />
+      <Sidebar progress={progress} role={user?.role} />
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
         <main className="flex-1 overflow-auto p-4 md:p-6 bg-gray-50">

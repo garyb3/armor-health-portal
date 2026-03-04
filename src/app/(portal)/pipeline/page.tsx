@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PipelineColumn } from "@/components/pipeline/pipeline-column";
@@ -8,7 +9,8 @@ import { PIPELINE_STAGES } from "@/lib/constants";
 import { Loader2, Users } from "lucide-react";
 import type { PipelineApplicant, PipelineSummary } from "@/types";
 
-export default function DashboardPage() {
+export default function PipelinePage() {
+  const router = useRouter();
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);
   const [summary, setSummary] = useState<PipelineSummary>({
     total: 0,
@@ -20,6 +22,15 @@ export default function DashboardPage() {
   useEffect(() => {
     async function load() {
       try {
+        const meRes = await fetch("/api/auth/me");
+        if (!meRes.ok) return;
+        const meData = await meRes.json();
+
+        if (meData.user.role !== "RECRUITER" && meData.user.role !== "HR") {
+          router.push("/dashboard");
+          return;
+        }
+
         const res = await fetch("/api/pipeline");
         if (res.ok) {
           const data = await res.json();
@@ -27,13 +38,13 @@ export default function DashboardPage() {
           setSummary(data.summary);
         }
       } catch (err) {
-        console.error("Failed to load dashboard:", err);
+        console.error("Failed to load pipeline:", err);
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, []);
+  }, [router]);
 
   if (loading) {
     return (
@@ -55,6 +66,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
           Applicant Pipeline
@@ -64,6 +76,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      {/* Summary stats */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -90,6 +103,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
+      {/* Search */}
       <div className="max-w-sm">
         <Input
           placeholder="Search by name or email..."
@@ -98,6 +112,7 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* Pipeline columns */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {PIPELINE_STAGES.map((stage) => (
           <PipelineColumn

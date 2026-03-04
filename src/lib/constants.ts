@@ -51,6 +51,19 @@ export const STATUS_COLORS: Record<string, string> = {
   PENDING_REVIEW: "bg-blue-100 text-blue-700",
 };
 
+export const PIPELINE_STAGES = [
+  ...FORM_STEPS.map((step) => ({
+    key: step.key,
+    title: step.title,
+    icon: step.icon,
+  })),
+  {
+    key: "COMPLETED" as const,
+    title: "Completed",
+    icon: "CheckCircle2" as const,
+  },
+];
+
 export const FORM_TYPE_MAP: Record<string, string> = {
   "drug-screen": "DRUG_SCREEN",
   "volunteer-application": "VOLUNTEER_APPLICATION",

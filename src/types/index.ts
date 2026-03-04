@@ -1,6 +1,6 @@
 export type FormType = "DRUG_SCREEN" | "VOLUNTEER_APPLICATION" | "BACKGROUND_CHECK" | "WEB_CHECK";
 export type FormStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "PENDING_REVIEW";
-export type Role = "RECRUITER" | "ADMIN_ASSISTANT" | "COUNTY_REPRESENTATIVE" | "HR";
+export type Role = "APPLICANT" | "RECRUITER" | "ADMIN_ASSISTANT" | "COUNTY_REPRESENTATIVE" | "HR";
 
 export interface ApplicantProfile {
   id: string;
@@ -37,4 +37,27 @@ export interface FormSubmissionResponse {
 export interface SaveFormRequest {
   formData: Record<string, unknown>;
   action: "save_draft" | "submit";
+}
+
+export interface PipelineApplicant {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  createdAt: string;
+  currentStage: string;
+  completedCount: number;
+  totalCount: number;
+  progress: FormProgress[];
+}
+
+export interface PipelineSummary {
+  total: number;
+  byStage: Record<string, number>;
+}
+
+export interface PipelineResponse {
+  applicants: PipelineApplicant[];
+  summary: PipelineSummary;
 }

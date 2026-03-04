@@ -137,7 +137,7 @@ export default function BackgroundCheckPage() {
         body: JSON.stringify({ formData: data, action: "submit" }),
       });
       if (res.ok) {
-        router.push("/dashboard");
+        router.push("/onboarding");
         return;
       }
     } finally {
