@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { LogOut, Shield, Menu, X } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -103,15 +104,16 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
         <button
           type="button"
           onClick={handleShieldClick}
-          className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+          className="flex items-center hover:opacity-90 transition-opacity"
         >
-          <Shield className="h-8 w-8" />
-          <div className="text-left">
-            <h1 className="text-lg font-bold leading-tight">Armor Health</h1>
-            <p className="text-xs text-brand-200 hidden sm:block">
-              Franklin County Background Screening Portal
-            </p>
-          </div>
+          <Image
+            src="/armor-health-logo.jpg"
+            alt="Armor Health"
+            width={160}
+            height={48}
+            className="h-10 w-auto object-contain"
+            priority
+          />
         </button>
 
         {/* Desktop */}
