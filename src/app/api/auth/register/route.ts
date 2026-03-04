@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
     await prisma.formSubmission.createMany({
       data: [
         { applicantId: applicant.id, formType: "DRUG_SCREEN", status: "NOT_STARTED" },
-        { applicantId: applicant.id, formType: "VOLUNTEER_APPLICATION", status: "NOT_STARTED" },
         { applicantId: applicant.id, formType: "BACKGROUND_CHECK", status: "NOT_STARTED" },
         { applicantId: applicant.id, formType: "WEB_CHECK", status: "NOT_STARTED" },
       ],

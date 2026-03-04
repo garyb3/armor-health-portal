@@ -1,21 +1,12 @@
 export const FORM_STEPS = [
   {
-    key: "VOLUNTEER_APPLICATION" as const,
-    slug: "volunteer-application",
-    title: "Volunteer Application",
-    description: "Franklin County Sheriff's Office volunteer & professional services application",
-    route: "/forms/volunteer-application",
-    icon: "FileText" as const,
-    order: 1,
-  },
-  {
     key: "DRUG_SCREEN" as const,
     slug: "drug-screen",
     title: "LabCorp Drug Screen",
     description: "Complete donor information for your pre-employment drug screening",
     route: "/forms/drug-screen",
     icon: "FlaskConical" as const,
-    order: 2,
+    order: 1,
   },
   {
     key: "BACKGROUND_CHECK" as const,
@@ -24,7 +15,7 @@ export const FORM_STEPS = [
     description: "Complete fingerprinting at the Franklin County CCW Office and upload receipt",
     route: "/forms/background-check",
     icon: "Fingerprint" as const,
-    order: 3,
+    order: 2,
   },
   {
     key: "WEB_CHECK" as const,
@@ -33,7 +24,7 @@ export const FORM_STEPS = [
     description: "Complete the BCI Web Check background form",
     route: "/forms/web-check",
     icon: "Globe" as const,
-    order: 4,
+    order: 3,
   },
 ] as const;
 
@@ -66,7 +57,6 @@ export const PIPELINE_STAGES = [
 
 export const FORM_TYPE_MAP: Record<string, string> = {
   "drug-screen": "DRUG_SCREEN",
-  "volunteer-application": "VOLUNTEER_APPLICATION",
   "background-check": "BACKGROUND_CHECK",
   "web-check": "WEB_CHECK",
 };
