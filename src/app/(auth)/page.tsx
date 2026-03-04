@@ -31,7 +31,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginInput) => {
     setError(null);
     await login(data.email, data.password);
-  };
+  }; 
 
   return (
     <Card className="w-full max-w-md shadow-xl shadow-gray-200/50 border-gray-200/60">
