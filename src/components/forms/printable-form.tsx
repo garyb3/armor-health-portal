@@ -27,7 +27,7 @@ export function PrintableForm({
       </div>
 
       {/* Printable content */}
-      <div className="print-form bg-white p-8 rounded-lg border border-gray-200 max-w-3xl mx-auto">
+      <div className="print-form bg-white p-8 rounded-xl border border-gray-200/80 max-w-3xl mx-auto shadow-sm">
         {/* Header */}
         <div className="text-center mb-8 border-b pb-6">
           <h1 className="text-2xl font-bold text-brand-700">

@@ -164,7 +164,7 @@ export default function VolunteerApplicationPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
       </div>
     );
   }
@@ -283,7 +283,7 @@ export default function VolunteerApplicationPage() {
                   type="password"
                   placeholder="XXX-XX-XXXX"
                   {...register("ssn")}
-                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500"
                 />
                 {errors.ssn && (
                   <p className="mt-1 text-xs text-red-600">{errors.ssn.message}</p>
@@ -313,7 +313,7 @@ export default function VolunteerApplicationPage() {
                 <select
                   id="sex"
                   {...register("sex")}
-                  className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
                 >
                   <option value="">Select...</option>
                   <option value="Male">Male</option>
@@ -338,7 +338,7 @@ export default function VolunteerApplicationPage() {
               <FormField label="ZIP Code" name="primaryZip" required register={register} errors={errors} />
             </div>
             <div className="flex items-center gap-2 mt-4">
-              <input type="checkbox" id="currentAddressDifferent" {...register("currentAddressDifferent")} className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500" />
+              <input type="checkbox" id="currentAddressDifferent" {...register("currentAddressDifferent")} className="h-4 w-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500" />
               <label htmlFor="currentAddressDifferent" className="text-sm text-gray-700">
                 My current address is different from my primary address
               </label>
@@ -405,7 +405,7 @@ export default function VolunteerApplicationPage() {
                     onClick={() => certInputRef.current?.click()}
                   >
                     {certUploading ? (
-                      <Loader2 className="h-6 w-6 animate-spin text-brand-500 mx-auto" />
+                      <Loader2 className="h-6 w-6 animate-spin text-accent-500 mx-auto" />
                     ) : (
                       <Upload className="h-6 w-6 text-gray-400 mx-auto" />
                     )}
@@ -440,11 +440,11 @@ export default function VolunteerApplicationPage() {
               </Label>
               <div className="flex gap-4 mt-2">
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="radio" value="no" {...register("hasIncarceratedAcquaintances")} className="text-brand-500 focus:ring-brand-500" />
+                  <input type="radio" value="no" {...register("hasIncarceratedAcquaintances")} className="text-accent-500 focus:ring-accent-500" />
                   No
                 </label>
                 <label className="flex items-center gap-2 text-sm">
-                  <input type="radio" value="yes" {...register("hasIncarceratedAcquaintances")} className="text-brand-500 focus:ring-brand-500" />
+                  <input type="radio" value="yes" {...register("hasIncarceratedAcquaintances")} className="text-accent-500 focus:ring-accent-500" />
                   Yes
                 </label>
               </div>
@@ -483,7 +483,7 @@ export default function VolunteerApplicationPage() {
                 type="checkbox"
                 id="electronicSignatureConsent"
                 {...register("electronicSignatureConsent")}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500"
               />
               <label htmlFor="electronicSignatureConsent" className="text-sm text-gray-700">
                 I certify that all information provided is true and correct. I consent to electronic signature for this application and authorize the Franklin County Sheriff&apos;s Office to conduct a background and warrant check.

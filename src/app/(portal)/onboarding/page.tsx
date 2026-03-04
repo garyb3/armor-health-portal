@@ -43,7 +43,7 @@ export default function OnboardingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
       </div>
     );
   }
@@ -53,11 +53,11 @@ export default function OnboardingPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+      <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-6 md:p-8 text-white">
+        <h1 className="text-2xl font-bold tracking-tight">
           Welcome back, {userName}!
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-brand-200 mt-1 text-sm">
           Complete the steps below to finish your onboarding process.
         </p>
       </div>
@@ -69,10 +69,10 @@ export default function OnboardingPage() {
       />
 
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 tracking-tight">
           Onboarding Steps
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {FORM_STEPS.map((step) => (
             <StepCard
               key={step.key}

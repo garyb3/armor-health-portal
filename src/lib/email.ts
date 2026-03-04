@@ -36,7 +36,7 @@ export async function sendOverdueAlert({
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #1B4D7A; padding: 20px; border-radius: 8px 8px 0 0;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
         <h1 style="color: white; margin: 0; font-size: 20px;">
           Armor Health — Overdue Step Alert
         </h1>
@@ -108,7 +108,7 @@ export async function sendStepCompletedEmail({
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #1B4D7A; padding: 20px; border-radius: 8px 8px 0 0;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
         <h1 style="color: white; margin: 0; font-size: 20px;">
           Armor Health — Step Completed
         </h1>

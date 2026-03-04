@@ -66,7 +66,7 @@ export default function ApplicantDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
       </div>
     );
   }
@@ -77,7 +77,7 @@ export default function ApplicantDetailPage() {
         <p className="text-gray-500">Applicant not found.</p>
         <Link
           href="/dashboard"
-          className="text-brand-500 text-sm mt-2 inline-block hover:underline"
+          className="text-accent-500 text-sm mt-2 inline-block hover:underline"
         >
           Back to Dashboard
         </Link>
@@ -94,7 +94,7 @@ export default function ApplicantDetailPage() {
       {/* Back link */}
       <Link
         href="/pipeline"
-        className="inline-flex items-center gap-1 text-sm text-brand-500 hover:underline"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Dashboard
@@ -105,7 +105,7 @@ export default function ApplicantDetailPage() {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
                 {applicant.firstName} {applicant.lastName}
               </h1>
               <p className="text-sm text-gray-500 mt-0.5">

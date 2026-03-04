@@ -28,7 +28,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
 
   return (
     <Link href={`/pipeline/${applicant.id}`}>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer">
+      <Card className="hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5">
         <CardContent className="p-3 space-y-2">
           <div>
             <p className="text-sm font-medium text-gray-900 truncate">

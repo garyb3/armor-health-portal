@@ -25,18 +25,21 @@ export function ProgressTracker({
   return (
     <div className="space-y-6">
       {/* Overall progress */}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
           <span className="font-medium text-gray-700">Overall Progress</span>
-          <span className="text-gray-500">
+          <span className="text-gray-400 tabular-nums">
             {completedCount} of {totalCount} steps completed
           </span>
         </div>
         <Progress value={percentage} />
+        <p className="text-right text-xs font-medium text-accent-500 tabular-nums">
+          {percentage}%
+        </p>
       </div>
 
       {/* Step list */}
-      <div className="space-y-3">
+      <div className="space-y-1">
         {FORM_STEPS.map((step, index) => {
           const status = statusMap.get(step.key) || "NOT_STARTED";
 
@@ -46,17 +49,17 @@ export function ProgressTracker({
               <div className="flex flex-col items-center">
                 <div className="flex items-center justify-center">
                   {status === "COMPLETED" ? (
-                    <CheckCircle2 className="h-6 w-6 text-green-500" />
+                    <CheckCircle2 className="h-7 w-7 text-emerald-500" />
                   ) : status === "IN_PROGRESS" || status === "PENDING_REVIEW" ? (
-                    <Clock className="h-6 w-6 text-yellow-500" />
+                    <Clock className="h-7 w-7 text-amber-500" />
                   ) : (
-                    <Circle className="h-6 w-6 text-gray-300" />
+                    <Circle className="h-7 w-7 text-gray-300" />
                   )}
                 </div>
                 {index < FORM_STEPS.length - 1 && (
                   <div
-                    className={`w-0.5 h-8 mt-1 ${
-                      status === "COMPLETED" ? "bg-green-300" : "bg-gray-200"
+                    className={`w-0.5 h-8 mt-1 rounded-full ${
+                      status === "COMPLETED" ? "bg-emerald-300" : "bg-gray-200"
                     }`}
                   />
                 )}
@@ -72,7 +75,7 @@ export function ProgressTracker({
                     {STATUS_LABELS[status]}
                   </Badge>
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {step.description}
                 </p>
               </div>

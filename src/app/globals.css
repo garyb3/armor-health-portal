@@ -6,23 +6,57 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Armor Health brand colors */
-  --color-brand-50: #e8f0f7;
-  --color-brand-100: #c5d9ea;
-  --color-brand-200: #9fc0dc;
-  --color-brand-300: #78a6cd;
-  --color-brand-400: #5b93c2;
-  --color-brand-500: #1B4D7A;
-  --color-brand-600: #174469;
-  --color-brand-700: #133a58;
-  --color-brand-800: #0f3047;
-  --color-brand-900: #0b2636;
+  /* Armor Health brand colors — charcoal (matches logo) */
+  --color-brand-50: #f7f7f7;
+  --color-brand-100: #e3e3e3;
+  --color-brand-200: #c8c8c8;
+  --color-brand-300: #a4a4a4;
+  --color-brand-400: #818181;
+  --color-brand-500: #4a4a4a;
+  --color-brand-600: #3d3d3d;
+  --color-brand-700: #333333;
+  --color-brand-800: #262626;
+  --color-brand-900: #1a1a1a;
+
+  /* Armor Health accent — red (matches logo cross) */
+  --color-accent-50: #fef2f2;
+  --color-accent-100: #fee2e2;
+  --color-accent-200: #f5b8b8;
+  --color-accent-300: #e88a8a;
+  --color-accent-400: #d65858;
+  --color-accent-500: #c4333b;
+  --color-accent-600: #a62b32;
+  --color-accent-700: #8b2329;
+  --color-accent-800: #701c21;
+  --color-accent-900: #5c161a;
 }
 
 body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth transitions globally */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 /* Print-friendly styles */

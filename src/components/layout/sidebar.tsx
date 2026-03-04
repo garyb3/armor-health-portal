@@ -27,11 +27,11 @@ const iconMap = {
 function StatusIcon({ status }: { status: FormStatus }) {
   switch (status) {
     case "COMPLETED":
-      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
     case "IN_PROGRESS":
-      return <Clock className="h-4 w-4 text-yellow-500" />;
+      return <Clock className="h-4 w-4 text-amber-500" />;
     case "PENDING_REVIEW":
-      return <Clock className="h-4 w-4 text-blue-500" />;
+      return <Clock className="h-4 w-4 text-sky-500" />;
     default:
       return <Circle className="h-4 w-4 text-gray-300" />;
   }
@@ -48,15 +48,15 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
 
   if (isStaff) {
     return (
-      <aside className="no-print w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
+      <aside className="no-print w-64 bg-white border-r border-gray-200/60 hidden md:flex flex-col">
         <div className="p-4">
           <Link
             href="/dashboard"
             className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
               pathname === "/dashboard"
-                ? "bg-brand-50 text-brand-700"
-                : "text-gray-600 hover:bg-gray-50"
+                ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
+                : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
             )}
           >
             <LayoutDashboard className="h-5 w-5" />
@@ -65,30 +65,30 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
         </div>
 
         <div className="px-4 pb-2">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">
+          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest px-3">
             Stages
           </p>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1">
+        <nav className="flex-1 px-4 space-y-0.5">
           {FORM_STEPS.map((step) => {
             const Icon = iconMap[step.icon];
             return (
               <Link
                 key={step.key}
                 href="/dashboard"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150 border-l-[3px] border-transparent"
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                <Icon className="h-4.5 w-4.5 shrink-0" />
                 <span className="flex-1 truncate">{step.title}</span>
               </Link>
             );
           })}
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150 border-l-[3px] border-transparent"
           >
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
+            <CheckCircle2 className="h-4.5 w-4.5 shrink-0" />
             <span className="flex-1 truncate">Completed</span>
           </Link>
         </nav>
@@ -97,15 +97,15 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
   }
 
   return (
-    <aside className="no-print w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
+    <aside className="no-print w-64 bg-white border-r border-gray-200/60 hidden md:flex flex-col">
       <div className="p-4">
         <Link
           href="/onboarding"
           className={cn(
-            "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
             pathname === "/onboarding"
-              ? "bg-brand-50 text-brand-700"
-              : "text-gray-600 hover:bg-gray-50"
+              ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
+              : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
           )}
         >
           <LayoutDashboard className="h-5 w-5" />
@@ -114,12 +114,12 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
       </div>
 
       <div className="px-4 pb-2">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">
+        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest px-3">
           Onboarding Steps
         </p>
       </div>
 
-      <nav className="flex-1 px-4 space-y-1">
+      <nav className="flex-1 px-4 space-y-0.5">
         {FORM_STEPS.map((step) => {
           const Icon = iconMap[step.icon];
           const status = progress[step.key] || "NOT_STARTED";
@@ -130,13 +130,13 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
               key={step.key}
               href={step.route}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors",
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 border-l-[3px]",
                 isActive
-                  ? "bg-brand-50 text-brand-700 font-medium"
-                  : "text-gray-600 hover:bg-gray-50"
+                  ? "bg-accent-50 text-accent-700 font-medium border-accent-500"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700 border-transparent"
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
+              <Icon className="h-4.5 w-4.5 shrink-0" />
               <span className="flex-1 truncate">{step.title}</span>
               <StatusIcon status={status} />
             </Link>

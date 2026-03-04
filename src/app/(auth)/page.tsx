@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Shield, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import { loginSchema, type LoginInput } from "@/schemas/auth";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import {
   Card,
   CardHeader,
-  CardTitle,
   CardDescription,
   CardContent,
   CardFooter,
@@ -35,22 +34,26 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <div className="flex justify-center mb-4">
-          <div className="h-16 w-16 rounded-full bg-brand-500 flex items-center justify-center">
-            <Shield className="h-8 w-8 text-white" />
-          </div>
+    <Card className="w-full max-w-md shadow-xl shadow-gray-200/50 border-gray-200/60">
+      <CardHeader className="text-center pb-2">
+        <div className="flex justify-center mb-5">
+          <Image
+            src="/armor-health-logo.jpg"
+            alt="Armor Health"
+            width={220}
+            height={66}
+            className="h-16 w-auto object-contain"
+            priority
+          />
         </div>
-        <CardTitle className="text-2xl">Armor Health of Ohio</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-500">
           Sign in to your onboarding portal
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-4">
           {error && (
-            <div className="bg-red-50 text-red-700 text-sm p-3 rounded-md border border-red-200">
+            <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg border border-red-200/60">
               {error}
             </div>
           )}
@@ -100,7 +103,7 @@ export default function LoginPage() {
             New applicant?{" "}
             <Link
               href="/register"
-              className="text-brand-500 hover:underline font-medium"
+              className="text-accent-500 hover:underline font-medium"
             >
               Register here
             </Link>

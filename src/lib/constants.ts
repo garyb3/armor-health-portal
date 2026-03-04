@@ -78,5 +78,5 @@ export const COMPANY = {
   contactName: "Heather Poarch",
   contactPhone: "786-714-0256",
   contactEmail: "ginny.bick@armorhealthcare.com",
-  brandColor: "#1B4D7A",
+  brandColor: "#4a4a4a",
 };

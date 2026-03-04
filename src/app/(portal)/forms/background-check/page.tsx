@@ -148,7 +148,7 @@ export default function BackgroundCheckPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
       </div>
     );
   }
@@ -189,7 +189,7 @@ export default function BackgroundCheckPage() {
       </div>
 
       {/* Instructions */}
-      <Card className="mb-6 border-brand-200">
+      <Card className="mb-6 border-gray-200">
         <CardHeader>
           <CardTitle className="text-brand-700">
             Fingerprinting Instructions
@@ -198,7 +198,7 @@ export default function BackgroundCheckPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-brand-500 mt-0.5 shrink-0" />
+              <MapPin className="h-5 w-5 text-accent-500 mt-0.5 shrink-0" />
               <div>
                 <p className="font-medium text-sm">Location</p>
                 <p className="text-sm text-gray-600">
@@ -209,14 +209,14 @@ export default function BackgroundCheckPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Phone className="h-5 w-5 text-brand-500 mt-0.5 shrink-0" />
+              <Phone className="h-5 w-5 text-accent-500 mt-0.5 shrink-0" />
               <div>
                 <p className="font-medium text-sm">Phone</p>
                 <p className="text-sm text-gray-600">614-525-5090</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <Clock className="h-5 w-5 text-brand-500 mt-0.5 shrink-0" />
+              <Clock className="h-5 w-5 text-accent-500 mt-0.5 shrink-0" />
               <div>
                 <p className="font-medium text-sm">Walk-in Hours</p>
                 <p className="text-sm text-gray-600">
@@ -229,7 +229,7 @@ export default function BackgroundCheckPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <DollarSign className="h-5 w-5 text-brand-500 mt-0.5 shrink-0" />
+              <DollarSign className="h-5 w-5 text-accent-500 mt-0.5 shrink-0" />
               <div>
                 <p className="font-medium text-sm">Cost: $35</p>
                 <p className="text-sm text-gray-600">
@@ -255,7 +255,7 @@ export default function BackgroundCheckPage() {
                 type="checkbox"
                 id="instructionsRead"
                 {...register("instructionsRead")}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500"
               />
               <label htmlFor="instructionsRead" className="text-sm text-gray-700">
                 I have read and understand the fingerprinting instructions above.
@@ -270,7 +270,7 @@ export default function BackgroundCheckPage() {
                 type="checkbox"
                 id="fingerprintingCompleted"
                 {...register("fingerprintingCompleted")}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500"
               />
               <label htmlFor="fingerprintingCompleted" className="text-sm text-gray-700">
                 I have completed my fingerprinting appointment.
@@ -314,7 +314,7 @@ export default function BackgroundCheckPage() {
                   onClick={() => fileInputRef.current?.click()}
                 >
                   {uploading ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-brand-500 mx-auto" />
+                    <Loader2 className="h-8 w-8 animate-spin text-accent-500 mx-auto" />
                   ) : (
                     <Upload className="h-8 w-8 text-gray-400 mx-auto" />
                   )}

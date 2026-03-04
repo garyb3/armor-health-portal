@@ -102,7 +102,7 @@ export default function DrugScreenPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-brand-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function DrugScreenPage() {
         applicantName={`${submittedData.donorFirstName} ${submittedData.donorLastName}`}
         submittedAt={submittedAt || undefined}
       >
-        <div className="bg-brand-50 p-4 rounded-md mb-6 text-sm">
+        <div className="bg-gray-50 p-4 rounded-md mb-6 text-sm">
           <p className="font-semibold">LabCorp Account #: 034738-NON-DOT</p>
           <p>Account Name: ARMOR HEALTH OF OHIO</p>
           <p>Test: PROFILE 2 (1665870002) — Urine, Non-Federal</p>
@@ -161,7 +161,7 @@ export default function DrugScreenPage() {
       </div>
 
       {/* LabCorp info box */}
-      <Card className="mb-6 border-brand-200 bg-brand-50">
+      <Card className="mb-6 border-gray-200 bg-gray-50">
         <CardContent className="p-4 text-sm">
           <p className="font-semibold text-brand-700">
             LabCorp Account #: 034738-NON-DOT
@@ -280,7 +280,7 @@ export default function DrugScreenPage() {
               <select
                 id="governmentIdType"
                 {...register("governmentIdType")}
-                className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="mt-1 flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
               >
                 <option value="">Select ID type...</option>
                 <option value="drivers_license">Driver&apos;s License</option>
@@ -326,7 +326,7 @@ export default function DrugScreenPage() {
                 type="checkbox"
                 id="consentAcknowledged"
                 {...register("consentAcknowledged")}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-accent-500 focus:ring-accent-500"
               />
               <label
                 htmlFor="consentAcknowledged"

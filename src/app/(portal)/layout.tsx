@@ -60,12 +60,12 @@ export default function PortalLayout({
     <div className="flex h-screen overflow-hidden">
       {/* Back-button confirmation dialog */}
       {showDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-lg shadow-xl p-6 mx-4 max-w-sm w-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl p-6 mx-4 max-w-sm w-full">
             <h2 className="text-lg font-semibold text-gray-900">
               Are you sure you want to go back?
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-500">
               Any unsaved progress on this page may be lost.
             </p>
             <div className="mt-5 flex justify-end gap-3">
@@ -75,14 +75,14 @@ export default function PortalLayout({
                 size="sm"
                 onClick={cancelLeave}
               >
-                No
+                Cancel
               </Button>
               <Button
                 type="button"
                 size="sm"
                 onClick={confirmLeave}
               >
-                Yes
+                Go Back
               </Button>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function PortalLayout({
       <Sidebar progress={progress} role={user?.role} />
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
-        <main className="flex-1 overflow-auto p-4 md:p-6 bg-gray-50">
+        <main className="flex-1 overflow-auto p-4 md:p-8 bg-gray-50/50">
           {children}
         </main>
       </div>

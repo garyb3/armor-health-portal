@@ -18,7 +18,7 @@ export function FormActions({
   isCompleted = false,
 }: FormActionsProps) {
   return (
-    <div className="no-print flex flex-col sm:flex-row items-center gap-3 pt-6 border-t border-gray-200 mt-8">
+    <div className="no-print flex flex-col sm:flex-row items-center gap-3 pt-6 border-t border-gray-100 mt-8">
       <Link href="/dashboard">
         <Button variant="ghost" type="button">
           <ArrowLeft className="h-4 w-4 mr-1" />
