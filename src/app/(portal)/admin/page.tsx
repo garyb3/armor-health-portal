@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2 } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -54,6 +54,14 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to permanently remove this user?")) return;
     setActionLoading(id);
     await fetch(`/api/admin/users/${id}/delete`, { method: "POST" });
+    await loadUsers(filter);
+    setActionLoading(null);
+  }
+
+  async function resetUser(id: string) {
+    if (!confirm("Are you sure you want to reset this applicant? This will clear all their form submissions so they can start over.")) return;
+    setActionLoading(id);
+    await fetch(`/api/admin/users/${id}/reset`, { method: "POST" });
     await loadUsers(filter);
     setActionLoading(null);
   }
@@ -153,6 +161,21 @@ export default function AdminPage() {
                         Deny
                       </Button>
                     </>
+                  )}
+                  {u.role === "APPLICANT" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => resetUser(u.id)}
+                      disabled={actionLoading === u.id}
+                    >
+                      {actionLoading === u.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <RotateCcw className="h-4 w-4 mr-1.5" />
+                      )}
+                      Reset
+                    </Button>
                   )}
                   {(u.approved || u.role === "APPLICANT") && (
                     <Button

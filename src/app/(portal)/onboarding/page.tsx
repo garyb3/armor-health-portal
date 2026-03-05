@@ -5,7 +5,7 @@ import { ProgressTracker } from "@/components/dashboard/progress-tracker";
 import { StepCard } from "@/components/dashboard/step-card";
 import { FORM_STEPS } from "@/lib/constants";
 import type { FormProgress, FormStatus, ProgressResponse } from "@/types";
-import { Loader2 } from "lucide-react";
+import { Loader2, PartyPopper } from "lucide-react";
 
 export default function OnboardingPage() {
   const [progress, setProgress] = useState<FormProgress[]>([]);
@@ -62,6 +62,21 @@ export default function OnboardingPage() {
           Complete the steps below to finish your onboarding process.
         </p>
       </div>
+
+      {completedCount === totalCount && totalCount > 0 && (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-5 flex items-start gap-3">
+          <PartyPopper className="h-6 w-6 text-emerald-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-emerald-900">
+              All forms completed!
+            </p>
+            <p className="text-sm text-emerald-700 mt-0.5">
+              Thank you for completing all of your onboarding forms. We will
+              review your submissions and contact you soon.
+            </p>
+          </div>
+        </div>
+      )}
 
       <ProgressTracker
         progress={progress}
