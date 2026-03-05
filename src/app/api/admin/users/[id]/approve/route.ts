@@ -13,12 +13,17 @@ export async function POST(
   }
 
   const { id } = await params;
-  const updated = await prisma.applicant.update({
-    where: { id },
-    data: { approved: true },
-  });
+  try {
+    const updated = await prisma.applicant.update({
+      where: { id },
+      data: { approved: true },
+    });
 
-  return NextResponse.json({
-    user: { id: updated.id, email: updated.email, approved: updated.approved },
-  });
+    return NextResponse.json({
+      user: { id: updated.id, email: updated.email, approved: updated.approved },
+    });
+  } catch (error) {
+    console.error("Failed to approve user:", error);
+    return NextResponse.json({ error: "Failed to approve user" }, { status: 500 });
+  }
 }

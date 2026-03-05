@@ -37,33 +37,73 @@ export default function AdminPage() {
 
   async function approve(id: string) {
     setActionLoading(id);
-    await fetch(`/api/admin/users/${id}/approve`, { method: "POST" });
-    await loadUsers(filter);
-    setActionLoading(null);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/approve`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to approve: ${data.error || res.statusText}`);
+        return;
+      }
+      await loadUsers(filter);
+    } catch (err) {
+      alert(`Network error: ${err}`);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   async function deny(id: string) {
     if (!confirm("Are you sure you want to deny and remove this user?")) return;
     setActionLoading(id);
-    await fetch(`/api/admin/users/${id}/deny`, { method: "POST" });
-    await loadUsers(filter);
-    setActionLoading(null);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/deny`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to deny: ${data.error || res.statusText}`);
+        return;
+      }
+      await loadUsers(filter);
+    } catch (err) {
+      alert(`Network error: ${err}`);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   async function removeUser(id: string) {
     if (!confirm("Are you sure you want to permanently remove this user?")) return;
     setActionLoading(id);
-    await fetch(`/api/admin/users/${id}/delete`, { method: "POST" });
-    await loadUsers(filter);
-    setActionLoading(null);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/delete`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to remove: ${data.error || res.statusText}`);
+        return;
+      }
+      await loadUsers(filter);
+    } catch (err) {
+      alert(`Network error: ${err}`);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   async function resetUser(id: string) {
     if (!confirm("Are you sure you want to reset this applicant? This will clear all their form submissions so they can start over.")) return;
     setActionLoading(id);
-    await fetch(`/api/admin/users/${id}/reset`, { method: "POST" });
-    await loadUsers(filter);
-    setActionLoading(null);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/reset`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to reset: ${data.error || res.statusText}`);
+        return;
+      }
+      await loadUsers(filter);
+    } catch (err) {
+      alert(`Network error: ${err}`);
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   return (
