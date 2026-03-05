@@ -150,6 +150,77 @@ export async function sendStepCompletedEmail({
   }
 }
 
+interface PendingApprovalParams {
+  userName: string;
+  userEmail: string;
+  userRole: string;
+}
+
+export async function sendPendingApprovalEmail({
+  userName,
+  userEmail,
+  userRole,
+}: PendingApprovalParams): Promise<boolean> {
+  const adminEmail = process.env.ADMIN_ALERT_EMAIL;
+  const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
+
+  if (!adminEmail || !apiKey) {
+    console.warn(
+      `[Email] Skipping pending-approval email — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured. ` +
+        `New user: ${userName} (${userEmail}), role: ${userRole}`
+    );
+    return false;
+  }
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">
+          Armor Health — New Pending Approval Request
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
+          A new user has registered and is <strong>waiting for your approval</strong>:
+        </p>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Name</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${userName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${userEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Role</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #2563eb; font-weight: 600;">${userRole}</td>
+          </tr>
+        </table>
+        <p style="color: #374151; font-size: 14px; margin: 20px 0 8px;">
+          Please visit the <strong>Admin</strong> page to approve or deny this request.
+        </p>
+        <p style="color: #6b7280; font-size: 12px; margin: 12px 0 0;">
+          This is an automated notification from the Franklin County Background Screening Portal.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await sgMail.send({
+      to: adminEmail,
+      from,
+      subject: `New Pending Approval: ${userName} (${userRole})`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send pending-approval email:", error);
+    return false;
+  }
+}
+
 interface BciReceiptParams {
   applicantName: string;
   applicantEmail: string;

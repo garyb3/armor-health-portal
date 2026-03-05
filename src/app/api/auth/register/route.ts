@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword, createToken } from "@/lib/auth";
 import { registerSchema } from "@/schemas/auth";
 import type { Role } from "@/types";
+import { sendPendingApprovalEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,6 +74,15 @@ export async function POST(request: NextRequest) {
           { applicantId: applicant.id, formType: "WEB_CHECK", status: "NOT_STARTED" },
         ],
       });
+    }
+
+    // Notify admin of new pending approval request (fire-and-forget)
+    if (needsApproval) {
+      sendPendingApprovalEmail({
+        userName: `${firstName} ${lastName}`,
+        userEmail: email,
+        userRole: role,
+      }).catch((err) => console.error("[Register] Failed to send pending-approval email:", err));
     }
 
     // Mark invite as used
