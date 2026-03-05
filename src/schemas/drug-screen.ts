@@ -18,7 +18,7 @@ export const drugScreenSchema = z.object({
   governmentIdType: z.enum(["drivers_license", "passport", "state_id", "military_id"]),
   governmentIdNumber: z.string().min(1, "ID number is required"),
   employerName: z.string().optional(),
-  consentAcknowledged: z.boolean(),
+  consentAcknowledged: z.literal(true, { error: "You must acknowledge consent to proceed" }),
 });
 
 export const drugScreenDraftSchema = drugScreenSchema.partial();

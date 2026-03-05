@@ -1,8 +1,8 @@
 import { z } from "zod/v4";
 
 export const backgroundCheckSchema = z.object({
-  instructionsRead: z.boolean(),
-  fingerprintingCompleted: z.boolean(),
+  instructionsRead: z.literal(true, { error: "You must confirm you have read the instructions" }),
+  fingerprintingCompleted: z.literal(true, { error: "You must confirm fingerprinting is completed" }),
   appointmentDate: z.string().optional().or(z.literal("")),
 });
 

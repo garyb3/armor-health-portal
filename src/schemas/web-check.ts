@@ -16,7 +16,7 @@ export const webCheckSchema = z.object({
   acknowledgmentInitials: z.string().min(1, "Initials are required"),
   signature: z.string().optional().or(z.literal("")),
   signatureDate: z.string().min(1, "Signature date is required"),
-  consentAcknowledged: z.boolean(),
+  consentAcknowledged: z.literal(true, { error: "You must acknowledge and consent to proceed" }),
 });
 
 export const webCheckDraftSchema = webCheckSchema.partial();
