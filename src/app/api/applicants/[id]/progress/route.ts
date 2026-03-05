@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 import { FORM_STEPS } from "@/lib/constants";
 
+function safeISOString(date: Date | string | null | undefined): string {
+  if (!date) return new Date().toISOString();
+  if (date instanceof Date) return date.toISOString();
+  // Handle string dates from libsql that may lack timezone
+  const d = new Date(date);
+  return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -35,8 +43,8 @@ export async function GET(
       progress: submissions.map((s) => ({
         formType: s.formType,
         status: s.status,
-        updatedAt: s.updatedAt.toISOString(),
-        statusChangedAt: s.statusChangedAt.toISOString(),
+        updatedAt: safeISOString(s.updatedAt),
+        statusChangedAt: safeISOString(s.statusChangedAt),
       })),
       completedCount,
       totalCount: FORM_STEPS.length,

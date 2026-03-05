@@ -23,7 +23,8 @@ export default function OnboardingPage() {
         setUserName(meData.user.firstName);
 
         const res = await fetch(
-          `/api/applicants/${meData.user.id}/progress`
+          `/api/applicants/${meData.user.id}/progress`,
+          { cache: "no-store" }
         );
         if (res.ok) {
           const data: ProgressResponse = await res.json();

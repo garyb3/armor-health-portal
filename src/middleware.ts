@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
   if (
     publicPaths.some((p) => pathname === p) ||
     pathname.startsWith("/register/invite/") ||
-    pathname.startsWith("/api/auth/") ||
+    (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/me") ||
     pathname.startsWith("/api/cron/") ||
     /^\/api\/invites\/[^/]+$/.test(pathname)
   ) {

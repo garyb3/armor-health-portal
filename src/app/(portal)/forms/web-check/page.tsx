@@ -105,7 +105,7 @@ export default function WebCheckPage() {
         body: JSON.stringify({ formData: dataWithoutSSN, action: "submit" }),
       });
       if (res.ok) {
-        router.push("/onboarding");
+        window.location.href = "/onboarding";
         return;
       }
     } finally {
