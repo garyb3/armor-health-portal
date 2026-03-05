@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Users, Clock } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -50,6 +50,14 @@ export default function AdminPage() {
     setActionLoading(null);
   }
 
+  async function removeUser(id: string) {
+    if (!confirm("Are you sure you want to permanently remove this user?")) return;
+    setActionLoading(id);
+    await fetch(`/api/admin/users/${id}/delete`, { method: "POST" });
+    await loadUsers(filter);
+    setActionLoading(null);
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
@@ -57,7 +65,7 @@ export default function AdminPage() {
           User Management
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Approve or deny staff account requests
+          Manage user accounts and approval requests
         </p>
       </div>
 
@@ -76,7 +84,7 @@ export default function AdminPage() {
           onClick={() => setFilter("all")}
         >
           <Users className="h-4 w-4 mr-1.5" />
-          All Staff
+          All Users
         </Button>
       </div>
 
@@ -91,7 +99,7 @@ export default function AdminPage() {
             <p className="text-gray-500 text-sm">
               {filter === "pending"
                 ? "No pending approval requests"
-                : "No staff accounts found"}
+                : "No user accounts found"}
             </p>
           </CardContent>
         </Card>
@@ -120,7 +128,7 @@ export default function AdminPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 ml-4 shrink-0">
-                  {!u.approved && (
+                  {!u.approved && u.role !== "APPLICANT" && (
                     <>
                       <Button
                         size="sm"
@@ -145,6 +153,22 @@ export default function AdminPage() {
                         Deny
                       </Button>
                     </>
+                  )}
+                  {(u.approved || u.role === "APPLICANT") && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => removeUser(u.id)}
+                      disabled={actionLoading === u.id}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      {actionLoading === u.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-1.5" />
+                      )}
+                      Remove
+                    </Button>
                   )}
                 </div>
               </CardContent>

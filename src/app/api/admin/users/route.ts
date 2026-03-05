@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   const where =
     filter === "pending"
       ? { role: { in: ["RECRUITER" as const, "HR" as const] }, approved: false }
-      : { role: { in: ["RECRUITER" as const, "HR" as const] } };
+      : { role: { in: ["RECRUITER" as const, "HR" as const, "APPLICANT" as const] } };
 
   const users = await prisma.applicant.findMany({
     where,
