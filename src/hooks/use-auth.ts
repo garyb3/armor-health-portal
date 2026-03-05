@@ -26,7 +26,9 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE"].includes(data.user.role)
+        const dest = data.user.role === "COUNTY_REPRESENTATIVE"
+          ? "/registration-complete"
+          : ["RECRUITER", "HR"].includes(data.user.role)
           ? "/dashboard"
           : "/onboarding";
         router.push(dest);
@@ -66,7 +68,9 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE"].includes(data.user.role)
+        const dest = data.user.role === "COUNTY_REPRESENTATIVE"
+          ? "/registration-complete"
+          : ["RECRUITER", "HR"].includes(data.user.role)
           ? "/dashboard"
           : "/onboarding";
         router.push(dest);

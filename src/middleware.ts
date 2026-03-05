@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/api/auth/login", "/api/auth/register"];
+const publicPaths = ["/", "/register", "/registration-complete", "/api/auth/login", "/api/auth/register"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -43,7 +43,12 @@ export async function middleware(request: NextRequest) {
   }
 
   const role = payload.role || "";
-  const isStaff = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE"].includes(role);
+  const isStaff = ["RECRUITER", "HR"].includes(role);
+
+  // County reps don't need portal access — redirect to registration-complete
+  if (role === "COUNTY_REPRESENTATIVE" && pathname !== "/registration-complete") {
+    return NextResponse.redirect(new URL("/registration-complete", request.url));
+  }
 
   // Staff can only access dashboard and pipeline detail (not forms/onboarding)
   if (isStaff && (pathname.startsWith("/forms") || pathname === "/onboarding")) {

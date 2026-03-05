@@ -7,7 +7,7 @@ import {
   stripSsnFields,
 } from "@/lib/api-helpers";
 import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
-import { sendStepCompletedEmail } from "@/lib/email";
+import { sendStepCompletedEmail, sendBciReceiptToCountyRep } from "@/lib/email";
 import type { FormType, Prisma } from "@/generated/prisma/client";
 
 export async function GET(
@@ -140,6 +140,29 @@ export async function POST(
         }).catch((err) =>
           console.error("[Email] Step-completed email failed:", err)
         );
+
+        // Send BCI receipt to county representative(s) when background check is completed
+        if (formType === "BACKGROUND_CHECK") {
+          const bciSubmission = await prisma.formSubmission.findUnique({
+            where: {
+              applicantId_formType: {
+                applicantId: user.userId,
+                formType: "BACKGROUND_CHECK",
+              },
+            },
+            select: { receiptFile: true },
+          });
+
+          if (bciSubmission?.receiptFile) {
+            sendBciReceiptToCountyRep({
+              applicantName,
+              applicantEmail: applicant.email,
+              receiptFilePath: bciSubmission.receiptFile,
+            }).catch((err) =>
+              console.error("[Email] BCI receipt email to county rep failed:", err)
+            );
+          }
+        }
 
         // Seed the next step's timer so the cron job picks it up after 24h
         if (currentStep) {
