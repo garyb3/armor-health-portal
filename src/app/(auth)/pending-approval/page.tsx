@@ -1,8 +1,30 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock } from "lucide-react";
 
 export default function PendingApprovalPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/auth/check-approval");
+        const data = await res.json();
+        if (data.approved) {
+          router.push("/dashboard");
+        }
+      } catch {
+        // Silently retry on next interval
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [router]);
+
   return (
     <Card className="w-full max-w-md shadow-xl shadow-gray-200/50 border-gray-200/60">
       <CardContent className="p-8 text-center space-y-6">
