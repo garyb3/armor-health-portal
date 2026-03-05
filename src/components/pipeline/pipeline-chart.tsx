@@ -44,16 +44,14 @@ export function PipelineChart({ summary }: PipelineChartProps) {
             const pct = max > 0 ? (count / max) * 100 : 0;
 
             return (
-              <div key={stage.key} className="flex-1 flex flex-col items-center gap-1.5 h-full">
-                <span className="text-xs font-semibold text-gray-900 tabular-nums">
+              <div key={stage.key} className="flex-1 flex flex-col items-center h-full justify-end">
+                <span className="text-xs font-semibold text-gray-900 tabular-nums mb-0.5">
                   {count}
                 </span>
-                <div className="flex-1 w-full flex items-end justify-center">
-                  <div
-                    className={`w-3/5 rounded-t-md transition-all duration-500 ease-out ${BAR_COLORS[i % BAR_COLORS.length]}`}
-                    style={{ height: `${Math.max(pct, 4)}%` }}
-                  />
-                </div>
+                <div
+                  className={`w-8 rounded-t-md transition-all duration-500 ease-out ${BAR_COLORS[i % BAR_COLORS.length]}`}
+                  style={{ height: `${Math.max(pct, 4)}%` }}
+                />
                 <span className="text-[10px] font-medium text-gray-500 text-center leading-tight line-clamp-2 w-full">
                   {stage.title}
                 </span>

@@ -1,14 +1,9 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT) || 587,
-  secure: Number(process.env.SMTP_PORT) === 465,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const apiKey = process.env.SENDGRID_API_KEY;
+if (apiKey) {
+  sgMail.setApiKey(apiKey);
+}
 
 interface OverdueAlertParams {
   applicantName: string;
@@ -26,9 +21,9 @@ export async function sendOverdueAlert({
   const adminEmail = process.env.ADMIN_ALERT_EMAIL;
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
 
-  if (!adminEmail || !process.env.SMTP_HOST) {
+  if (!adminEmail || !apiKey) {
     console.warn(
-      `[Email] Skipping alert — ADMIN_ALERT_EMAIL or SMTP_HOST not configured. ` +
+      `[Email] Skipping alert — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured. ` +
         `Overdue: ${applicantName} (${applicantEmail}) on "${formStep}" for ${elapsedTime}`
     );
     return false;
@@ -71,9 +66,9 @@ export async function sendOverdueAlert({
   `;
 
   try {
-    await transporter.sendMail({
-      from,
+    await sgMail.send({
       to: adminEmail,
+      from,
       subject: `Overdue: ${applicantName} stuck on "${formStep}" (${elapsedTime})`,
       html,
     });
@@ -98,9 +93,9 @@ export async function sendStepCompletedEmail({
   const adminEmail = process.env.ADMIN_ALERT_EMAIL;
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
 
-  if (!adminEmail || !process.env.SMTP_HOST) {
+  if (!adminEmail || !apiKey) {
     console.warn(
-      `[Email] Skipping step-completed email — ADMIN_ALERT_EMAIL or SMTP_HOST not configured. ` +
+      `[Email] Skipping step-completed email — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured. ` +
         `${applicantName} (${applicantEmail}) completed "${completedStep}"`
     );
     return false;
@@ -139,9 +134,9 @@ export async function sendStepCompletedEmail({
   `;
 
   try {
-    await transporter.sendMail({
-      from,
+    await sgMail.send({
       to: adminEmail,
+      from,
       subject: `Step Completed: ${applicantName} finished "${completedStep}"`,
       html,
     });
