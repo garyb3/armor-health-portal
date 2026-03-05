@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
-import { registerSchema, ROLE_OPTIONS, type RegisterInput } from "@/schemas/auth";
+import { registerSchema, type RegisterInput } from "@/schemas/auth";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
+    defaultValues: { role: "APPLICANT" },
   });
 
   const onSubmit = async (data: RegisterInput) => {
@@ -113,33 +114,7 @@ export default function RegisterPage() {
               </p>
             )}
           </div>
-          <div>
-            <Label htmlFor="role" required>
-              Role
-            </Label>
-            <select
-              id="role"
-              {...register("role")}
-              defaultValue=""
-              className={`mt-1 flex h-10 w-full rounded-lg border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 focus:shadow-sm transition-all duration-150 ${
-                errors.role ? "border-red-300" : "border-gray-200"
-              }`}
-            >
-              <option value="" disabled>
-                Select your role...
-              </option>
-              {ROLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            {errors.role && (
-              <p className="mt-1 text-xs text-red-600">
-                {errors.role.message}
-              </p>
-            )}
-          </div>
+          <input type="hidden" {...register("role")} />
           <div>
             <Label htmlFor="phone">Phone</Label>
             <Input

@@ -26,7 +26,7 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = data.user.role === "RECRUITER" || data.user.role === "HR"
+        const dest = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE"].includes(data.user.role)
           ? "/dashboard"
           : "/onboarding";
         router.push(dest);
@@ -50,6 +50,7 @@ export function useAuth() {
       lastName: string;
       role: string;
       phone?: string;
+      inviteToken?: string;
     }) => {
       setLoading(true);
       setError(null);
@@ -65,7 +66,7 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = data.user.role === "RECRUITER" || data.user.role === "HR"
+        const dest = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE"].includes(data.user.role)
           ? "/dashboard"
           : "/onboarding";
         router.push(dest);

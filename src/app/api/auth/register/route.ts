@@ -14,7 +14,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password, firstName, lastName, role, phone } = parsed.data;
+    const { email, password, firstName, lastName, phone, inviteToken } = parsed.data;
+
+    // Determine role: from invite or forced to APPLICANT
+    let role: string = "APPLICANT";
+    let invite = null;
+
+    if (inviteToken) {
+      invite = await prisma.invite.findUnique({ where: { token: inviteToken } });
+      if (!invite) {
+        return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
+      }
+      if (invite.used) {
+        return NextResponse.json({ error: "Invite already used" }, { status: 400 });
+      }
+      if (invite.expiresAt < new Date()) {
+        return NextResponse.json({ error: "Invite expired" }, { status: 400 });
+      }
+      if (invite.email.toLowerCase() !== email.toLowerCase()) {
+        return NextResponse.json(
+          { error: "Email does not match invite" },
+          { status: 400 }
+        );
+      }
+      role = invite.role;
+    }
 
     const existing = await prisma.applicant.findUnique({ where: { email } });
     if (existing) {
@@ -32,18 +56,29 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         firstName,
         lastName,
-        role,
+        role: role as any,
         phone: phone || null,
       },
     });
 
-    await prisma.formSubmission.createMany({
-      data: [
-        { applicantId: applicant.id, formType: "DRUG_SCREEN", status: "NOT_STARTED" },
-        { applicantId: applicant.id, formType: "BACKGROUND_CHECK", status: "NOT_STARTED" },
-        { applicantId: applicant.id, formType: "WEB_CHECK", status: "NOT_STARTED" },
-      ],
-    });
+    // Only create form submissions for applicants (staff don't onboard)
+    if (role === "APPLICANT") {
+      await prisma.formSubmission.createMany({
+        data: [
+          { applicantId: applicant.id, formType: "DRUG_SCREEN", status: "NOT_STARTED" },
+          { applicantId: applicant.id, formType: "BACKGROUND_CHECK", status: "NOT_STARTED" },
+          { applicantId: applicant.id, formType: "WEB_CHECK", status: "NOT_STARTED" },
+        ],
+      });
+    }
+
+    // Mark invite as used
+    if (invite) {
+      await prisma.invite.update({
+        where: { id: invite.id },
+        data: { used: true },
+      });
+    }
 
     const token = await createToken({
       sub: applicant.id,

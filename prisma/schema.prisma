@@ -61,3 +61,16 @@ model FormSubmission {
   @@unique([applicantId, formType])
   @@map("form_submissions")
 }
+
+model Invite {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  role      Role
+  used      Boolean  @default(false)
+  expiresAt DateTime
+  createdBy String
+  createdAt DateTime @default(now())
+
+  @@map("invites")
+}

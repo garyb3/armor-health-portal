@@ -27,3 +27,8 @@ export type Applicant = Prisma.ApplicantModel
  * 
  */
 export type FormSubmission = Prisma.FormSubmissionModel
+/**
+ * Model Invite
+ * 
+ */
+export type Invite = Prisma.InviteModel

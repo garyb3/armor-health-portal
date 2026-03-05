@@ -8,6 +8,8 @@ export const ROLE_OPTIONS = [
   { value: "HR", label: "HR" },
 ] as const;
 
+export const STAFF_ROLES = ["RECRUITER", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE", "HR"] as const;
+
 export const registerSchema = z
   .object({
     email: z.email("Please enter a valid email address"),
@@ -19,6 +21,7 @@ export const registerSchema = z
       message: "Please select a role",
     }),
     phone: z.string().optional(),
+    inviteToken: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -30,5 +33,11 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const createInviteSchema = z.object({
+  email: z.email("Please enter a valid email address"),
+  role: z.enum(STAFF_ROLES, { message: "Please select a staff role" }),
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type CreateInviteInput = z.infer<typeof createInviteSchema>;

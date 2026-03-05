@@ -22,7 +22,6 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 export const FormType = {
   DRUG_SCREEN: 'DRUG_SCREEN',
-  VOLUNTEER_APPLICATION: 'VOLUNTEER_APPLICATION',
   BACKGROUND_CHECK: 'BACKGROUND_CHECK',
   WEB_CHECK: 'WEB_CHECK'
 } as const

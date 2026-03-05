@@ -10,4 +10,5 @@
  */
 export type * from './models/Applicant'
 export type * from './models/FormSubmission'
+export type * from './models/Invite'
 export type * from './commonInputTypes'

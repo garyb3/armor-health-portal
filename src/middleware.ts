@@ -8,8 +8,10 @@ export async function middleware(request: NextRequest) {
 
   if (
     publicPaths.some((p) => pathname === p) ||
+    pathname.startsWith("/register/invite/") ||
     pathname.startsWith("/api/auth/") ||
-    pathname.startsWith("/api/cron/")
+    pathname.startsWith("/api/cron/") ||
+    /^\/api\/invites\/[^/]+$/.test(pathname)
   ) {
     return NextResponse.next();
   }
@@ -41,7 +43,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const role = payload.role || "";
-  const isStaff = role === "RECRUITER" || role === "HR";
+  const isStaff = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATIVE"].includes(role);
 
   // Staff can only access dashboard and pipeline detail (not forms/onboarding)
   if (isStaff && (pathname.startsWith("/forms") || pathname === "/onboarding")) {

@@ -385,7 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Applicant: 'Applicant',
-  FormSubmission: 'FormSubmission'
+  FormSubmission: 'FormSubmission',
+  Invite: 'Invite'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "applicant" | "formSubmission"
+    modelProps: "applicant" | "formSubmission" | "invite"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Invite: {
+      payload: Prisma.$InvitePayload<ExtArgs>
+      fields: Prisma.InviteFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InviteFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InviteFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>
+        }
+        findFirst: {
+          args: Prisma.InviteFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InviteFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>
+        }
+        findMany: {
+          args: Prisma.InviteFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>[]
+        }
+        create: {
+          args: Prisma.InviteCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>
+        }
+        createMany: {
+          args: Prisma.InviteCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InviteCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>[]
+        }
+        delete: {
+          args: Prisma.InviteDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>
+        }
+        update: {
+          args: Prisma.InviteUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>
+        }
+        deleteMany: {
+          args: Prisma.InviteDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InviteUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InviteUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>[]
+        }
+        upsert: {
+          args: Prisma.InviteUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitePayload>
+        }
+        aggregate: {
+          args: Prisma.InviteAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateInvite>
+        }
+        groupBy: {
+          args: Prisma.InviteGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InviteGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InviteCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InviteCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -619,6 +694,20 @@ export const FormSubmissionScalarFieldEnum = {
 } as const
 
 export type FormSubmissionScalarFieldEnum = (typeof FormSubmissionScalarFieldEnum)[keyof typeof FormSubmissionScalarFieldEnum]
+
+
+export const InviteScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  email: 'email',
+  role: 'role',
+  used: 'used',
+  expiresAt: 'expiresAt',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof InviteScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -714,6 +803,13 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -820,6 +916,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   applicant?: Prisma.ApplicantOmit
   formSubmission?: Prisma.FormSubmissionOmit
+  invite?: Prisma.InviteOmit
 }
 
 /* Types for Logging */

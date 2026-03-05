@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Applicant: 'Applicant',
-  FormSubmission: 'FormSubmission'
+  FormSubmission: 'FormSubmission',
+  Invite: 'Invite'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -98,6 +99,20 @@ export const FormSubmissionScalarFieldEnum = {
 } as const
 
 export type FormSubmissionScalarFieldEnum = (typeof FormSubmissionScalarFieldEnum)[keyof typeof FormSubmissionScalarFieldEnum]
+
+
+export const InviteScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  email: 'email',
+  role: 'role',
+  used: 'used',
+  expiresAt: 'expiresAt',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof InviteScalarFieldEnum]
 
 
 export const SortOrder = {
