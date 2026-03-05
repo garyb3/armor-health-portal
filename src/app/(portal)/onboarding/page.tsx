@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 export default function OnboardingPage() {
   const [progress, setProgress] = useState<FormProgress[]>([]);
   const [completedCount, setCompletedCount] = useState(0);
-  const [totalCount, setTotalCount] = useState(4);
+  const [totalCount, setTotalCount] = useState<number>(FORM_STEPS.length);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("");
 

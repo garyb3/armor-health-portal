@@ -100,16 +100,28 @@ export function StepCard({
             <h3 className="text-base font-semibold text-gray-900 tracking-tight">{title}</h3>
             <p className="text-sm text-gray-500 mt-0.5">{description}</p>
           </div>
-          <Link href={route} className="shrink-0">
+          {status === "PENDING_REVIEW" ? (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled
+              className="shrink-0"
+            >
+              {buttonText}
+            </Button>
+          ) : (
             <Button
               variant={status === "COMPLETED" ? "outline" : "default"}
               size="sm"
-              disabled={status === "PENDING_REVIEW"}
+              asChild
+              className="shrink-0"
             >
-              {buttonText}
-              <ButtonIcon className="h-4 w-4 ml-1" />
+              <Link href={route}>
+                {buttonText}
+                <ButtonIcon className="h-4 w-4 ml-1" />
+              </Link>
             </Button>
-          </Link>
+          )}
         </div>
       </CardContent>
     </Card>
