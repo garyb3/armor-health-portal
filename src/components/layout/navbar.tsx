@@ -64,7 +64,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   };
 
   return (
-    <nav className="no-print bg-white/80 backdrop-blur-md border-b border-gray-200/60 sticky top-0 z-30">
+    <nav className="no-print bg-gradient-to-b from-gray-100 to-gray-300 backdrop-blur-md border-b border-gray-400/40 sticky top-0 z-30">
       {/* Leave confirmation dialog */}
       {showLeaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
