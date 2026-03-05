@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 import type { Role } from "@/types";
 
-const STAFF_ROLES: Role[] = ["RECRUITER", "HR"];
+const STAFF_ROLES: Role[] = ["RECRUITER", "HR", "ADMIN"];
 
 function getCurrentStage(
   submissions: { formType: string; status: string }[]

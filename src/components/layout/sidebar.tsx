@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Circle,
   Clock,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FORM_STEPS } from "@/lib/constants";
@@ -43,7 +44,7 @@ interface SidebarProps {
 
 export function Sidebar({ progress = {}, role }: SidebarProps) {
   const pathname = usePathname();
-  const isStaff = role === "RECRUITER" || role === "HR";
+  const isStaff = role === "RECRUITER" || role === "HR" || role === "ADMIN";
 
   if (isStaff) {
     return (
@@ -61,6 +62,20 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
             <LayoutDashboard className="h-5 w-5" />
             Dashboard
           </Link>
+          {role === "ADMIN" && (
+            <Link
+              href="/admin"
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 mt-0.5",
+                pathname === "/admin"
+                  ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
+                  : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
+              )}
+            >
+              <Users className="h-5 w-5" />
+              User Management
+            </Link>
+          )}
         </div>
 
         <div className="px-4 pb-2">

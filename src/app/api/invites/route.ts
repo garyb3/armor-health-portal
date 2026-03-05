@@ -4,7 +4,7 @@ import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { createInviteSchema } from "@/schemas/auth";
 
-const INVITE_ROLES = ["HR"];
+const INVITE_ROLES = ["HR", "ADMIN"];
 
 export async function POST(request: NextRequest) {
   const user = getUserFromRequest(request);

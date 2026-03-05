@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/registration-complete", "/api/auth/login", "/api/auth/register"];
+const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/api/auth/login", "/api/auth/register"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -43,20 +43,42 @@ export async function middleware(request: NextRequest) {
   }
 
   const role = payload.role || "";
-  const isStaff = ["RECRUITER", "HR"].includes(role);
+  const approved = payload.approved ?? false;
+  const isStaff = ["RECRUITER", "HR", "ADMIN"].includes(role);
 
   // County reps don't need portal access — redirect to registration-complete
   if (role === "COUNTY_REPRESENTATIVE" && pathname !== "/registration-complete") {
     return NextResponse.redirect(new URL("/registration-complete", request.url));
   }
 
-  // Staff can only access dashboard and pipeline detail (not forms/onboarding)
+  // Unapproved staff (RECRUITER/HR) — block everything except pending-approval and logout
+  if (["RECRUITER", "HR"].includes(role) && !approved) {
+    if (pathname === "/pending-approval") {
+      // allow through
+    } else if (pathname === "/api/auth/logout") {
+      // allow logout
+    } else if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Account pending approval" }, { status: 403 });
+    } else {
+      return NextResponse.redirect(new URL("/pending-approval", request.url));
+    }
+  }
+
+  // Staff can only access dashboard, pipeline, and admin (not forms/onboarding)
   if (isStaff && (pathname.startsWith("/forms") || pathname === "/onboarding")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Applicants cannot access dashboard or pipeline routes
-  if (!isStaff && (pathname === "/dashboard" || pathname.startsWith("/pipeline"))) {
+  // Only ADMIN can access /admin routes
+  if (pathname.startsWith("/admin") && role !== "ADMIN") {
+    if (pathname.startsWith("/api/admin")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  // Applicants cannot access dashboard, pipeline, or admin routes
+  if (!isStaff && (pathname === "/dashboard" || pathname.startsWith("/pipeline") || pathname.startsWith("/admin"))) {
     return NextResponse.redirect(new URL("/onboarding", request.url));
   }
 
@@ -66,6 +88,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-first-name", payload.firstName);
   requestHeaders.set("x-user-last-name", payload.lastName);
   requestHeaders.set("x-user-role", role);
+  requestHeaders.set("x-user-approved", String(approved));
 
   return NextResponse.next({ request: { headers: requestHeaders } });
 }

@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
       firstName: request.headers.get("x-user-first-name") || "",
       lastName: request.headers.get("x-user-last-name") || "",
       role: request.headers.get("x-user-role") || "",
+      approved: request.headers.get("x-user-approved") === "true",
     },
   });
 }

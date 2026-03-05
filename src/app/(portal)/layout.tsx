@@ -35,7 +35,7 @@ export default function PortalLayout({
           setUser(data.user);
 
           // Only fetch individual progress for applicant roles
-          if (data.user.role !== "RECRUITER" && data.user.role !== "HR") {
+          if (data.user.role !== "RECRUITER" && data.user.role !== "HR" && data.user.role !== "ADMIN") {
             const progressRes = await fetch(
               `/api/applicants/${data.user.id}/progress`
             );

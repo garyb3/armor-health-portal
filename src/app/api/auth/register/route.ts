@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
+    const needsApproval = ["RECRUITER", "HR"].includes(role);
     const applicant = await prisma.applicant.create({
       data: {
         email,
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
         firstName,
         lastName,
         role: role as Role,
+        approved: !needsApproval,
         phone: phone || null,
       },
     });
@@ -87,6 +89,7 @@ export async function POST(request: NextRequest) {
       firstName: applicant.firstName,
       lastName: applicant.lastName,
       role: applicant.role,
+      approved: applicant.approved,
     });
 
     const response = NextResponse.json({
@@ -97,6 +100,7 @@ export async function POST(request: NextRequest) {
         lastName: applicant.lastName,
         role: applicant.role,
         phone: applicant.phone,
+        approved: applicant.approved,
       },
     });
 

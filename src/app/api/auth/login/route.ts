@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       firstName: applicant.firstName,
       lastName: applicant.lastName,
       role: applicant.role,
+      approved: applicant.approved,
     });
 
     const response = NextResponse.json({
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
         lastName: applicant.lastName,
         role: applicant.role,
         phone: applicant.phone,
+        approved: applicant.approved,
       },
     });
 

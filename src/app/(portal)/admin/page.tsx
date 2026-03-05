@@ -1,0 +1,157 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { CheckCircle2, XCircle, Loader2, Users, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface StaffUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  approved: boolean;
+  createdAt: string;
+}
+
+export default function AdminPage() {
+  const [users, setUsers] = useState<StaffUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"pending" | "all">("pending");
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  async function loadUsers(f: string) {
+    setLoading(true);
+    const res = await fetch(`/api/admin/users?filter=${f}`);
+    if (res.ok) {
+      const data = await res.json();
+      setUsers(data.users);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadUsers(filter);
+  }, [filter]);
+
+  async function approve(id: string) {
+    setActionLoading(id);
+    await fetch(`/api/admin/users/${id}/approve`, { method: "POST" });
+    await loadUsers(filter);
+    setActionLoading(null);
+  }
+
+  async function deny(id: string) {
+    if (!confirm("Are you sure you want to deny and remove this user?")) return;
+    setActionLoading(id);
+    await fetch(`/api/admin/users/${id}/deny`, { method: "POST" });
+    await loadUsers(filter);
+    setActionLoading(null);
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+          User Management
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Approve or deny staff account requests
+        </p>
+      </div>
+
+      <div className="flex gap-2">
+        <Button
+          variant={filter === "pending" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("pending")}
+        >
+          <Clock className="h-4 w-4 mr-1.5" />
+          Pending
+        </Button>
+        <Button
+          variant={filter === "all" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setFilter("all")}
+        >
+          <Users className="h-4 w-4 mr-1.5" />
+          All Staff
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      ) : users.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 text-sm">
+              {filter === "pending"
+                ? "No pending approval requests"
+                : "No staff accounts found"}
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-3">
+          {users.map((u) => (
+            <Card key={u.id}>
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-gray-900 truncate">
+                      {u.firstName} {u.lastName}
+                    </p>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-accent-50 text-accent-700">
+                      {u.role}
+                    </span>
+                    {u.approved && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700">
+                        Approved
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-500 truncate">{u.email}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Registered {new Date(u.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 ml-4 shrink-0">
+                  {!u.approved && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => approve(u.id)}
+                        disabled={actionLoading === u.id}
+                      >
+                        {actionLoading === u.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                        )}
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => deny(u.id)}
+                        disabled={actionLoading === u.id}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <XCircle className="h-4 w-4 mr-1.5" />
+                        Deny
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

@@ -28,6 +28,10 @@ export function useAuth() {
         setUser(data.user);
         const dest = data.user.role === "COUNTY_REPRESENTATIVE"
           ? "/registration-complete"
+          : data.user.role === "ADMIN"
+          ? "/admin"
+          : ["RECRUITER", "HR"].includes(data.user.role) && !data.user.approved
+          ? "/pending-approval"
           : ["RECRUITER", "HR"].includes(data.user.role)
           ? "/dashboard"
           : "/onboarding";
@@ -70,6 +74,10 @@ export function useAuth() {
         setUser(data.user);
         const dest = data.user.role === "COUNTY_REPRESENTATIVE"
           ? "/registration-complete"
+          : data.user.role === "ADMIN"
+          ? "/admin"
+          : ["RECRUITER", "HR"].includes(data.user.role) && !data.user.approved
+          ? "/pending-approval"
           : ["RECRUITER", "HR"].includes(data.user.role)
           ? "/dashboard"
           : "/onboarding";
