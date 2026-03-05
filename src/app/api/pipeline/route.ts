@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       createdAt: a.createdAt.toISOString(),
       currentStage,
       completedCount,
-      totalCount: 4,
+      totalCount: FORM_STEPS.length,
       progress: a.formSubmissions.map((s) => ({
         formType: s.formType,
         status: s.status,

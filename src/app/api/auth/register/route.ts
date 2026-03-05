@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createToken } from "@/lib/auth";
 import { registerSchema } from "@/schemas/auth";
+import type { Role } from "@/types";
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         firstName,
         lastName,
-        role: role as any,
+        role: role as Role,
         phone: phone || null,
       },
     });

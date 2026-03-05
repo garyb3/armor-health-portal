@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { FORM_STEPS } from "@/lib/constants";
 
 export async function GET(
   request: NextRequest,
@@ -38,7 +39,7 @@ export async function GET(
         statusChangedAt: s.statusChangedAt.toISOString(),
       })),
       completedCount,
-      totalCount: 4,
+      totalCount: FORM_STEPS.length,
     });
   } catch (error) {
     console.error("Progress fetch error:", error);

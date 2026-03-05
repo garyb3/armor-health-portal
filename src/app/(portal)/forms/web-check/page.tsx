@@ -45,7 +45,7 @@ export default function WebCheckPage() {
     formType: "web-check",
     getValues: useCallback(() => {
       const vals = getValues();
-      const { ssn, ...rest } = vals;
+      const { ssn: _ssn, ...rest } = vals;
       return rest;
     }, [getValues]),
     enabled: !isCompleted && !isSubmitting,
@@ -78,7 +78,7 @@ export default function WebCheckPage() {
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      const { ssn, ...dataWithoutSSN } = getValues();
+      const { ssn: _ssn, ...dataWithoutSSN } = getValues();
       await fetch("/api/forms/web-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,7 +97,7 @@ export default function WebCheckPage() {
     try {
       // Store SSN in client state for printing only
       setSsnForPrint(data.ssn);
-      const { ssn, ...dataWithoutSSN } = data;
+      const { ssn: _ssn, ...dataWithoutSSN } = data;
 
       const res = await fetch("/api/forms/web-check", {
         method: "POST",

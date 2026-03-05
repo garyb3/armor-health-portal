@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { PipelineCard } from "./pipeline-card";
 import type { PipelineApplicant } from "@/types";
 

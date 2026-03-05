@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { PipelineColumn } from "@/components/pipeline/pipeline-column";
 import { PipelineChart } from "@/components/pipeline/pipeline-chart";
@@ -10,7 +9,6 @@ import { Loader2 } from "lucide-react";
 import type { PipelineApplicant, PipelineSummary } from "@/types";
 
 export default function PipelinePage() {
-  const router = useRouter();
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);
   const [summary, setSummary] = useState<PipelineSummary>({
     total: 0,
@@ -22,21 +20,11 @@ export default function PipelinePage() {
   useEffect(() => {
     async function load() {
       try {
-        const meRes = await fetch("/api/auth/me");
-        if (!meRes.ok) return;
-        const meData = await meRes.json();
-
-        if (meData.user.role !== "RECRUITER" && meData.user.role !== "HR") {
-          router.push("/dashboard");
-          return;
-        }
-
         const res = await fetch("/api/pipeline");
-        if (res.ok) {
-          const data = await res.json();
-          setApplicants(data.applicants);
-          setSummary(data.summary);
-        }
+        if (!res.ok) return;
+        const data = await res.json();
+        setApplicants(data.applicants);
+        setSummary(data.summary);
       } catch (err) {
         console.error("Failed to load pipeline:", err);
       } finally {
@@ -44,7 +32,7 @@ export default function PipelinePage() {
       }
     }
     load();
-  }, [router]);
+  }, []);
 
   if (loading) {
     return (

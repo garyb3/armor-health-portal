@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   Circle,
   Clock,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FORM_STEPS } from "@/lib/constants";

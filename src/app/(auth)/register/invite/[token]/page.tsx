@@ -123,7 +123,7 @@ export default function InviteRegisterPage() {
         </div>
         <CardTitle className="text-2xl font-bold text-gray-900">Staff Registration</CardTitle>
         <CardDescription className="text-gray-500">
-          You've been invited to join as{" "}
+          You&apos;ve been invited to join as{" "}
           <span className="font-semibold text-gray-700">
             {ROLE_LABELS[inviteData!.role] || inviteData!.role}
           </span>

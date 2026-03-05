@@ -64,7 +64,7 @@ export async function GET(
     createdAt: applicant.createdAt.toISOString(),
     currentStage,
     completedCount,
-    totalCount: 4,
+    totalCount: FORM_STEPS.length,
     progress: applicant.formSubmissions.map((s) => ({
       formType: s.formType,
       status: s.status,

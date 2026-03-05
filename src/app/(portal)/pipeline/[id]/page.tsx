@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProgressTracker } from "@/components/dashboard/progress-tracker";
-import { STATUS_LABELS, STATUS_COLORS, PIPELINE_STAGES } from "@/lib/constants";
+import { STATUS_COLORS, PIPELINE_STAGES } from "@/lib/constants";
 import { ArrowLeft, Loader2, Mail, Phone, Calendar } from "lucide-react";
 import type { FormProgress } from "@/types";
 
@@ -34,26 +34,15 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function ApplicantDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [applicant, setApplicant] = useState<ApplicantDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const meRes = await fetch("/api/auth/me");
-        if (!meRes.ok) return;
-        const meData = await meRes.json();
-
-        if (meData.user.role !== "RECRUITER" && meData.user.role !== "HR") {
-          router.push("/dashboard");
-          return;
-        }
-
         const res = await fetch(`/api/pipeline/${params.id}`);
-        if (res.ok) {
-          setApplicant(await res.json());
-        }
+        if (!res.ok) return;
+        setApplicant(await res.json());
       } catch (err) {
         console.error("Failed to load applicant:", err);
       } finally {
@@ -61,7 +50,7 @@ export default function ApplicantDetailPage() {
       }
     }
     load();
-  }, [params.id, router]);
+  }, [params.id]);
 
   if (loading) {
     return (
