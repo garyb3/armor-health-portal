@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/api/auth/login", "/api/auth/register"];
+const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/api/auth/login", "/api/auth/register"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
   if (
     publicPaths.some((p) => pathname === p) ||
     pathname.startsWith("/register/invite/") ||
-    (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/me") ||
+    (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/me" && pathname !== "/api/auth/resend-verification") ||
     pathname.startsWith("/api/cron/") ||
     /^\/api\/invites\/[^/]+$/.test(pathname)
   ) {
@@ -44,7 +44,21 @@ export async function middleware(request: NextRequest) {
 
   const role = payload.role || "";
   const approved = payload.approved ?? false;
+  const emailVerified = payload.emailVerified ?? false;
   const isStaff = ["RECRUITER", "HR", "ADMIN"].includes(role);
+
+  // Unverified email — block everything except verify-email page and logout
+  if (!emailVerified) {
+    if (pathname === "/verify-email") {
+      // allow through
+    } else if (pathname === "/api/auth/logout" || pathname === "/api/auth/resend-verification") {
+      // allow logout and resend
+    } else if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Email not verified" }, { status: 403 });
+    } else {
+      return NextResponse.redirect(new URL("/verify-email", request.url));
+    }
+  }
 
   // County reps don't need portal access — redirect to registration-complete
   if (role === "COUNTY_REPRESENTATIVE" && pathname !== "/registration-complete") {

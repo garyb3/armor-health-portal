@@ -32,6 +32,8 @@ export type ApplicantMinAggregateOutputType = {
   lastName: string | null
   role: $Enums.Role | null
   approved: boolean | null
+  emailVerified: boolean | null
+  verificationToken: string | null
   phone: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -45,6 +47,8 @@ export type ApplicantMaxAggregateOutputType = {
   lastName: string | null
   role: $Enums.Role | null
   approved: boolean | null
+  emailVerified: boolean | null
+  verificationToken: string | null
   phone: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -58,6 +62,8 @@ export type ApplicantCountAggregateOutputType = {
   lastName: number
   role: number
   approved: number
+  emailVerified: number
+  verificationToken: number
   phone: number
   createdAt: number
   updatedAt: number
@@ -73,6 +79,8 @@ export type ApplicantMinAggregateInputType = {
   lastName?: true
   role?: true
   approved?: true
+  emailVerified?: true
+  verificationToken?: true
   phone?: true
   createdAt?: true
   updatedAt?: true
@@ -86,6 +94,8 @@ export type ApplicantMaxAggregateInputType = {
   lastName?: true
   role?: true
   approved?: true
+  emailVerified?: true
+  verificationToken?: true
   phone?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +109,8 @@ export type ApplicantCountAggregateInputType = {
   lastName?: true
   role?: true
   approved?: true
+  emailVerified?: true
+  verificationToken?: true
   phone?: true
   createdAt?: true
   updatedAt?: true
@@ -185,6 +197,8 @@ export type ApplicantGroupByOutputType = {
   lastName: string
   role: $Enums.Role
   approved: boolean
+  emailVerified: boolean
+  verificationToken: string | null
   phone: string | null
   createdAt: Date
   updatedAt: Date
@@ -219,6 +233,8 @@ export type ApplicantWhereInput = {
   lastName?: Prisma.StringFilter<"Applicant"> | string
   role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
+  emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
+  verificationToken?: Prisma.StringNullableFilter<"Applicant"> | string | null
   phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
@@ -233,6 +249,8 @@ export type ApplicantOrderByWithRelationInput = {
   lastName?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  verificationToken?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -242,6 +260,7 @@ export type ApplicantOrderByWithRelationInput = {
 export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  verificationToken?: string
   AND?: Prisma.ApplicantWhereInput | Prisma.ApplicantWhereInput[]
   OR?: Prisma.ApplicantWhereInput[]
   NOT?: Prisma.ApplicantWhereInput | Prisma.ApplicantWhereInput[]
@@ -250,11 +269,12 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   lastName?: Prisma.StringFilter<"Applicant"> | string
   role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
+  emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
   phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
-}, "id" | "email">
+}, "id" | "email" | "verificationToken">
 
 export type ApplicantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -264,6 +284,8 @@ export type ApplicantOrderByWithAggregationInput = {
   lastName?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  verificationToken?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -283,6 +305,8 @@ export type ApplicantScalarWhereWithAggregatesInput = {
   lastName?: Prisma.StringWithAggregatesFilter<"Applicant"> | string
   role?: Prisma.EnumRoleWithAggregatesFilter<"Applicant"> | $Enums.Role
   approved?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
+  emailVerified?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
+  verificationToken?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
@@ -296,6 +320,8 @@ export type ApplicantCreateInput = {
   lastName: string
   role: $Enums.Role
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -310,6 +336,8 @@ export type ApplicantUncheckedCreateInput = {
   lastName: string
   role: $Enums.Role
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -324,6 +352,8 @@ export type ApplicantUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -338,6 +368,8 @@ export type ApplicantUncheckedUpdateInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -352,6 +384,8 @@ export type ApplicantCreateManyInput = {
   lastName: string
   role: $Enums.Role
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -365,6 +399,8 @@ export type ApplicantUpdateManyMutationInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -378,6 +414,8 @@ export type ApplicantUncheckedUpdateManyInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -391,6 +429,8 @@ export type ApplicantCountOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  verificationToken?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -404,6 +444,8 @@ export type ApplicantMaxOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  verificationToken?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -417,6 +459,8 @@ export type ApplicantMinOrderByAggregateInput = {
   lastName?: Prisma.SortOrder
   role?: Prisma.SortOrder
   approved?: Prisma.SortOrder
+  emailVerified?: Prisma.SortOrder
+  verificationToken?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -469,6 +513,8 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   lastName: string
   role: $Enums.Role
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -482,6 +528,8 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   lastName: string
   role: $Enums.Role
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -511,6 +559,8 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -524,6 +574,8 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,6 +620,8 @@ export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   lastName?: boolean
   role?: boolean
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -583,6 +637,8 @@ export type ApplicantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   lastName?: boolean
   role?: boolean
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -596,6 +652,8 @@ export type ApplicantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   lastName?: boolean
   role?: boolean
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -609,12 +667,14 @@ export type ApplicantSelectScalar = {
   lastName?: boolean
   role?: boolean
   approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
+export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "emailVerified" | "verificationToken" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
 export type ApplicantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
@@ -635,6 +695,8 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     lastName: string
     role: $Enums.Role
     approved: boolean
+    emailVerified: boolean
+    verificationToken: string | null
     phone: string | null
     createdAt: Date
     updatedAt: Date
@@ -1069,6 +1131,8 @@ export interface ApplicantFieldRefs {
   readonly lastName: Prisma.FieldRef<"Applicant", 'String'>
   readonly role: Prisma.FieldRef<"Applicant", 'Role'>
   readonly approved: Prisma.FieldRef<"Applicant", 'Boolean'>
+  readonly emailVerified: Prisma.FieldRef<"Applicant", 'Boolean'>
+  readonly verificationToken: Prisma.FieldRef<"Applicant", 'String'>
   readonly phone: Prisma.FieldRef<"Applicant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Applicant", 'DateTime'>

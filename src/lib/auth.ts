@@ -24,6 +24,7 @@ export async function createToken(payload: {
   lastName: string;
   role: string;
   approved: boolean;
+  emailVerified: boolean;
 }): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
@@ -42,6 +43,7 @@ export async function verifyToken(token: string) {
       lastName: string;
       role: string;
       approved: boolean;
+      emailVerified: boolean;
     };
   } catch {
     return null;

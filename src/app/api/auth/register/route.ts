@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createToken } from "@/lib/auth";
 import { registerSchema } from "@/schemas/auth";
 import type { Role } from "@/types";
-import { sendPendingApprovalEmail } from "@/lib/email";
+import { sendPendingApprovalEmail, sendVerificationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(password);
 
     const needsApproval = ["RECRUITER", "HR"].includes(role);
+    const verificationToken = randomUUID();
     const applicant = await prisma.applicant.create({
       data: {
         email,
@@ -61,6 +63,8 @@ export async function POST(request: NextRequest) {
         lastName,
         role: role as Role,
         approved: !needsApproval,
+        emailVerified: false,
+        verificationToken,
         phone: phone || null,
       },
     });
@@ -75,6 +79,13 @@ export async function POST(request: NextRequest) {
         ],
       });
     }
+
+    // Send verification email (fire-and-forget)
+    sendVerificationEmail({
+      userName: `${firstName} ${lastName}`,
+      userEmail: email,
+      verificationToken,
+    }).catch((err) => console.error("[Register] Failed to send verification email:", err));
 
     // Notify admin of new pending approval request (fire-and-forget)
     if (needsApproval) {
@@ -100,6 +111,7 @@ export async function POST(request: NextRequest) {
       lastName: applicant.lastName,
       role: applicant.role,
       approved: applicant.approved,
+      emailVerified: applicant.emailVerified,
     });
 
     const response = NextResponse.json({
@@ -111,6 +123,7 @@ export async function POST(request: NextRequest) {
         role: applicant.role,
         phone: applicant.phone,
         approved: applicant.approved,
+        emailVerified: applicant.emailVerified,
       },
     });
 

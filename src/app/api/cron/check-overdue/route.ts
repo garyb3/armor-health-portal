@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendOverdueAlert } from "@/lib/email";
+import { sendOverdueAlert, sendOverdueAlertToStaff } from "@/lib/email";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { FORM_STEPS } from "@/lib/constants";
 
-const OVERDUE_HOURS = 24;
+const OVERDUE_HOURS = 12;
 
 const STEP_TITLE_MAP: Record<string, string> = Object.fromEntries(
   FORM_STEPS.map((s) => [s.key, s.title])
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
   try {
     const cutoff = new Date(Date.now() - OVERDUE_HOURS * 60 * 60 * 1000);
 
-    // Find all overdue form submissions (not completed, status changed > 24h ago)
+    // Find all overdue form submissions (not completed, status changed > 12h ago)
     const overdueSubmissions = await prisma.formSubmission.findMany({
       where: {
         status: { in: ["NOT_STARTED", "IN_PROGRESS"] },
@@ -48,7 +48,8 @@ export async function GET(request: NextRequest) {
       email: string;
       step: string;
       elapsed: string;
-      alertSent: boolean;
+      adminAlertSent: boolean;
+      staffAlertSent: boolean;
     }> = [];
 
     for (const sub of overdueSubmissions) {
@@ -56,12 +57,17 @@ export async function GET(request: NextRequest) {
       const stepTitle = STEP_TITLE_MAP[sub.formType] || sub.formType;
       const elapsed = formatElapsed(sub.statusChangedAt.toISOString());
 
-      const sent = await sendOverdueAlert({
+      const alertParams = {
         applicantName,
         applicantEmail: sub.applicant.email,
         formStep: stepTitle,
         elapsedTime: elapsed,
-      });
+      };
+
+      const [adminSent, staffSent] = await Promise.all([
+        sendOverdueAlert(alertParams),
+        sendOverdueAlertToStaff(alertParams),
+      ]);
 
       // Update lastAlertSentAt regardless of email success (to prevent retrying every second)
       await prisma.formSubmission.update({
@@ -74,7 +80,8 @@ export async function GET(request: NextRequest) {
         email: sub.applicant.email,
         step: stepTitle,
         elapsed,
-        alertSent: sent,
+        adminAlertSent: adminSent,
+        staffAlertSent: staffSent,
       });
     }
 

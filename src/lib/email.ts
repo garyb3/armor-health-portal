@@ -8,6 +8,73 @@ if (apiKey) {
   sgMail.setApiKey(apiKey);
 }
 
+interface VerificationEmailParams {
+  userName: string;
+  userEmail: string;
+  verificationToken: string;
+}
+
+export async function sendVerificationEmail({
+  userName,
+  userEmail,
+  verificationToken,
+}: VerificationEmailParams): Promise<boolean> {
+  const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  if (!apiKey) {
+    console.warn(
+      `[Email] Skipping verification email — SENDGRID_API_KEY not configured. ` +
+        `User: ${userName} (${userEmail})`
+    );
+    return false;
+  }
+
+  const verifyUrl = `${appUrl}/api/auth/verify-email?token=${verificationToken}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">
+          Armor Health — Verify Your Email
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
+          Hi <strong>${userName}</strong>, thanks for registering! Please verify your email address by clicking the button below:
+        </p>
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${verifyUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">
+            Verify Email Address
+          </a>
+        </div>
+        <p style="color: #6b7280; font-size: 12px; margin: 16px 0 0;">
+          If the button doesn't work, copy and paste this link into your browser:
+        </p>
+        <p style="color: #2563eb; font-size: 12px; word-break: break-all; margin: 4px 0 0;">
+          ${verifyUrl}
+        </p>
+        <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
+          This is an automated email from the Franklin County Background Screening Portal.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await sgMail.send({
+      to: userEmail,
+      from,
+      subject: "Verify your email — Armor Health",
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send verification email:", error);
+    return false;
+  }
+}
+
 interface OverdueAlertParams {
   applicantName: string;
   applicantEmail: string;
@@ -41,7 +108,7 @@ export async function sendOverdueAlert({
       </div>
       <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
         <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
-          An applicant has been on a step for longer than <strong>24 hours</strong>:
+          An applicant has been on a step for longer than <strong>12 hours</strong>:
         </p>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
@@ -217,6 +284,87 @@ export async function sendPendingApprovalEmail({
     return true;
   } catch (error) {
     console.error("[Email] Failed to send pending-approval email:", error);
+    return false;
+  }
+}
+
+export async function sendOverdueAlertToStaff({
+  applicantName,
+  applicantEmail,
+  formStep,
+  elapsedTime,
+}: OverdueAlertParams): Promise<boolean> {
+  const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
+
+  if (!apiKey) {
+    console.warn(
+      `[Email] Skipping staff overdue alert — SENDGRID_API_KEY not configured. ` +
+        `Overdue: ${applicantName} (${applicantEmail}) on "${formStep}" for ${elapsedTime}`
+    );
+    return false;
+  }
+
+  // Find all approved HR and Recruiter users
+  const staffUsers = await prisma.applicant.findMany({
+    where: {
+      role: { in: ["HR", "RECRUITER"] },
+      approved: true,
+    },
+    select: { email: true },
+  });
+
+  if (staffUsers.length === 0) {
+    console.warn("[Email] No approved HR/Recruiter users found — skipping staff overdue alert");
+    return false;
+  }
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">
+          Armor Health — Applicant Incomplete Form Reminder
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
+          An applicant has an incomplete form for <strong>${elapsedTime}</strong>:
+        </p>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Applicant</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Incomplete Step</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #dc2626; font-weight: 600;">${formStep}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Time Elapsed</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${elapsedTime}</td>
+          </tr>
+        </table>
+        <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
+          This is an automated reminder from the Franklin County Background Screening Portal.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const recipients = staffUsers.map((u) => u.email);
+    await sgMail.sendMultiple({
+      to: recipients,
+      from,
+      subject: `Reminder: ${applicantName} incomplete on "${formStep}" (${elapsedTime})`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send staff overdue alert:", error);
     return false;
   }
 }

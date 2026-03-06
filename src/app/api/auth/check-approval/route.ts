@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     lastName: payload.lastName,
     role: payload.role,
     approved: true,
+    emailVerified: payload.emailVerified ?? false,
   });
 
   const response = NextResponse.json({ approved: true });
