@@ -94,6 +94,16 @@ function VerifyEmailContent() {
               Please wait a minute before requesting another email.
             </p>
           )}
+          <Button
+            variant="ghost"
+            className="w-full text-gray-500"
+            onClick={async () => {
+              await fetch("/api/auth/logout", { method: "POST" });
+              window.location.href = "/";
+            }}
+          >
+            Back to Login
+          </Button>
         </div>
       </CardContent>
     </Card>
