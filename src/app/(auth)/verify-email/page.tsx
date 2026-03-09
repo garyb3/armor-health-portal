@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,24 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  // Poll for verification status every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/auth/check-verification");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.emailVerified) {
+            window.location.href = "/dashboard";
+          }
+        }
+      } catch {
+        // ignore errors, will retry
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleResend = async () => {
     setResendStatus("sending");

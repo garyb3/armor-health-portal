@@ -51,8 +51,8 @@ export async function middleware(request: NextRequest) {
   if (!emailVerified) {
     if (pathname === "/verify-email") {
       // allow through
-    } else if (pathname === "/api/auth/logout" || pathname === "/api/auth/resend-verification") {
-      // allow logout and resend
+    } else if (pathname === "/api/auth/logout" || pathname === "/api/auth/resend-verification" || pathname === "/api/auth/check-verification") {
+      // allow logout, resend, and check-verification
     } else if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Email not verified" }, { status: 403 });
     } else {

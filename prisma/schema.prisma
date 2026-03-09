@@ -43,6 +43,7 @@ model Applicant {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   formSubmissions FormSubmission[]
+  sensitiveData   SensitiveData?
 
   @@map("applicants")
 }
@@ -77,4 +78,32 @@ model Invite {
   createdAt DateTime @default(now())
 
   @@map("invites")
+}
+
+model SensitiveData {
+  id           String   @id @default(cuid())
+  applicantId  String   @unique
+  encryptedSsn String
+  ssnLastFour  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@map("sensitive_data")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  targetId  String
+  metadata  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([targetId])
+  @@index([action])
+  @@map("audit_logs")
 }
