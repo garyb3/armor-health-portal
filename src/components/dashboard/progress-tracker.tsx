@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, XCircle } from "lucide-react";
 import type { FormProgress } from "@/types";
 import { FORM_STEPS } from "@/lib/constants";
 
@@ -8,6 +8,10 @@ interface ProgressTrackerProps {
   progress: FormProgress[];
   completedCount: number;
   totalCount: number;
+}
+
+function isApproved(status: string): boolean {
+  return status === "APPROVED" || status === "COMPLETED";
 }
 
 export function ProgressTracker({
@@ -21,19 +25,16 @@ export function ProgressTracker({
     (step) => statusMap.get(step.key) || "NOT_STARTED"
   );
 
-  // Find the index of the last completed step to fill the bar up to that point
-  let lastCompletedIndex = -1;
+  // Find the index of the last approved step to fill the bar up to that point
+  let lastApprovedIndex = -1;
   statuses.forEach((s, i) => {
-    if (s === "COMPLETED") lastCompletedIndex = i;
+    if (isApproved(s)) lastApprovedIndex = i;
   });
 
-  // Calculate fill percentage based on completed steps
-  // Each step sits at an evenly spaced point along the bar
   const totalSteps = FORM_STEPS.length;
   let fillPercent = 0;
-  if (lastCompletedIndex >= 0) {
-    // Fill to the position of the last completed step
-    fillPercent = ((lastCompletedIndex + 1) / totalSteps) * 100;
+  if (lastApprovedIndex >= 0) {
+    fillPercent = ((lastApprovedIndex + 1) / totalSteps) * 100;
   }
 
   return (
@@ -72,8 +73,10 @@ export function ProgressTracker({
               }}
             >
               <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white border-2 border-white shadow-sm">
-                {status === "COMPLETED" ? (
+                {isApproved(status) ? (
                   <CheckCircle2 className="h-6 w-6 text-emerald-500" />
+                ) : status === "DENIED" ? (
+                  <XCircle className="h-6 w-6 text-red-500" />
                 ) : status === "IN_PROGRESS" || status === "PENDING_REVIEW" ? (
                   <Clock className="h-6 w-6 text-amber-500" />
                 ) : (
@@ -103,8 +106,10 @@ export function ProgressTracker({
             >
               <p
                 className={`text-xs font-medium truncate ${
-                  status === "COMPLETED"
+                  isApproved(status)
                     ? "text-emerald-600"
+                    : status === "DENIED"
+                    ? "text-red-600"
                     : status === "IN_PROGRESS" || status === "PENDING_REVIEW"
                     ? "text-amber-600"
                     : "text-gray-400"

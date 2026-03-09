@@ -13,6 +13,8 @@ import {
   Upload,
   FileCheck,
   X,
+  Download,
+  AlertTriangle,
 } from "lucide-react";
 import {
   backgroundCheckSchema,
@@ -62,7 +64,11 @@ export default function BackgroundCheckPage() {
           if (data.receiptFile) {
             setReceiptFile(data.receiptFile);
           }
-          if (data.status === "COMPLETED") {
+          if (
+            data.status === "COMPLETED" ||
+            data.status === "PENDING_REVIEW" ||
+            data.status === "APPROVED"
+          ) {
             setIsCompleted(true);
           }
         }
@@ -137,7 +143,7 @@ export default function BackgroundCheckPage() {
         body: JSON.stringify({ formData: data, action: "submit" }),
       });
       if (res.ok) {
-        window.location.href = "/onboarding";
+        window.location.href = "/background-clearance";
         return;
       }
     } finally {
@@ -180,13 +186,54 @@ export default function BackgroundCheckPage() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          BCI Fingerprinting
-        </h1>
+        <div className="flex items-center gap-2 mb-1">
+          <h1 className="text-2xl font-bold text-gray-900">
+            Schedule Fingerprinting (BCI)
+          </h1>
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-bold bg-red-100 text-red-700">
+            <AlertTriangle className="h-3 w-3" />
+            URGENT
+          </span>
+        </div>
         <p className="text-gray-500 mt-1">
           Complete your fingerprinting at the location below, then confirm and upload your receipt.
         </p>
       </div>
+
+      {/* PDF Downloads */}
+      <Card className="mb-6 border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="text-blue-800 flex items-center gap-2">
+            <Download className="h-5 w-5" />
+            Required Documents
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-blue-700">
+            Download and review these documents before your fingerprinting appointment:
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button asChild variant="outline" className="gap-2">
+              <a
+                href="/forms/Complete_Your_Background_Check__3_.pdf"
+                download
+              >
+                <Download className="h-4 w-4" />
+                BCI Instructions (PDF)
+              </a>
+            </Button>
+            <Button asChild variant="outline" className="gap-2">
+              <a
+                href="/forms/Nurses_Jail_Armor-Web_Check_Form__1_.pdf"
+                download
+              >
+                <Download className="h-4 w-4" />
+                Web Check Form (PDF)
+              </a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Instructions */}
       <Card className="mb-6 border-gray-200">

@@ -79,7 +79,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Staff can only access dashboard, pipeline, and admin (not forms/onboarding)
-  if (isStaff && (pathname.startsWith("/forms") || pathname === "/onboarding")) {
+  if (isStaff && (pathname.startsWith("/forms") || pathname === "/background-clearance")) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -93,7 +93,7 @@ export async function middleware(request: NextRequest) {
 
   // Applicants cannot access dashboard, pipeline, or admin routes
   if (!isStaff && (pathname === "/dashboard" || pathname.startsWith("/pipeline") || pathname.startsWith("/admin"))) {
-    return NextResponse.redirect(new URL("/onboarding", request.url));
+    return NextResponse.redirect(new URL("/background-clearance", request.url));
   }
 
   const requestHeaders = new Headers(request.headers);

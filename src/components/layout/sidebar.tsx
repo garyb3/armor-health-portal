@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   FlaskConical,
   FileText,
+  FileCheck,
   Fingerprint,
   Globe,
   LayoutDashboard,
@@ -12,6 +13,7 @@ import {
   Circle,
   Clock,
   Users,
+  XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FORM_STEPS } from "@/lib/constants";
@@ -20,14 +22,18 @@ import type { FormStatus } from "@/types";
 const iconMap = {
   FlaskConical,
   FileText,
+  FileCheck,
   Fingerprint,
   Globe,
 };
 
 function StatusIcon({ status }: { status: FormStatus }) {
   switch (status) {
+    case "APPROVED":
     case "COMPLETED":
       return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+    case "DENIED":
+      return <XCircle className="h-4 w-4 text-red-500" />;
     case "IN_PROGRESS":
       return <Clock className="h-4 w-4 text-amber-500" />;
     case "PENDING_REVIEW":
@@ -114,22 +120,22 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
     <aside className="no-print w-64 bg-white border-r border-gray-200/60 hidden md:flex flex-col">
       <div className="p-4">
         <Link
-          href="/onboarding"
+          href="/background-clearance"
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
-            pathname === "/onboarding"
+            pathname === "/background-clearance"
               ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
               : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
           )}
         >
           <LayoutDashboard className="h-5 w-5" />
-          Onboarding
+          Background Clearance
         </Link>
       </div>
 
       <div className="px-4 pb-2">
         <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest px-3">
-          Onboarding Steps
+          Clearance Steps
         </p>
       </div>
 

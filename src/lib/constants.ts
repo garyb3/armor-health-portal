@@ -1,30 +1,47 @@
 export const FORM_STEPS = [
   {
+    key: "VOLUNTEER_APP" as const,
+    slug: "volunteer-app",
+    title: "Complete & Return the Clearance Form",
+    description:
+      "Download, complete, and send the Volunteer & Professional Services Application to Franklin County",
+    route: "/forms/volunteer-app",
+    icon: "FileText" as const,
+    order: 1,
+    urgent: false,
+  },
+  {
+    key: "PROFESSIONAL_LICENSE" as const,
+    slug: "professional-license",
+    title: "Send a Copy of Your License",
+    description:
+      "Email a copy of your nursing or social worker license to the Franklin County Sheriff's Office",
+    route: "/forms/professional-license",
+    icon: "FileCheck" as const,
+    order: 2,
+    urgent: false,
+  },
+  {
     key: "DRUG_SCREEN" as const,
     slug: "drug-screen",
-    title: "LabCorp Drug Screen",
-    description: "Complete donor information for your pre-employment drug screening",
+    title: "Complete the UDS (Urine Drug Screen)",
+    description:
+      "Download the UDS form and take it to any LabCorp location to complete your drug screening",
     route: "/forms/drug-screen",
     icon: "FlaskConical" as const,
-    order: 1,
+    order: 3,
+    urgent: false,
   },
   {
     key: "BACKGROUND_CHECK" as const,
     slug: "background-check",
-    title: "BCI Fingerprinting",
-    description: "Complete fingerprinting at the Franklin County CCW Office and upload receipt",
+    title: "Schedule Fingerprinting (BCI)",
+    description:
+      "Download instructions and the Web Check form, then complete BCI fingerprinting at the Franklin County CCW Office",
     route: "/forms/background-check",
     icon: "Fingerprint" as const,
-    order: 2,
-  },
-  {
-    key: "WEB_CHECK" as const,
-    slug: "web-check",
-    title: "Web Check Form",
-    description: "Complete the BCI Web Check background form",
-    route: "/forms/web-check",
-    icon: "Globe" as const,
-    order: 3,
+    order: 4,
+    urgent: true,
   },
 ] as const;
 
@@ -33,6 +50,8 @@ export const STATUS_LABELS: Record<string, string> = {
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
   PENDING_REVIEW: "Pending Review",
+  APPROVED: "Approved",
+  DENIED: "Denied",
 };
 
 export const STATUS_COLORS: Record<string, string> = {
@@ -40,6 +59,8 @@ export const STATUS_COLORS: Record<string, string> = {
   IN_PROGRESS: "bg-yellow-100 text-yellow-700",
   COMPLETED: "bg-green-100 text-green-700",
   PENDING_REVIEW: "bg-blue-100 text-blue-700",
+  APPROVED: "bg-emerald-100 text-emerald-700",
+  DENIED: "bg-red-100 text-red-700",
 };
 
 export const PIPELINE_STAGES = [
@@ -56,9 +77,10 @@ export const PIPELINE_STAGES = [
 ];
 
 export const FORM_TYPE_MAP: Record<string, string> = {
+  "volunteer-app": "VOLUNTEER_APP",
+  "professional-license": "PROFESSIONAL_LICENSE",
   "drug-screen": "DRUG_SCREEN",
   "background-check": "BACKGROUND_CHECK",
-  "web-check": "WEB_CHECK",
 };
 
 export const COMPANY = {

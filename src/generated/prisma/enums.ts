@@ -22,6 +22,8 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 
 export const FormType = {
+  VOLUNTEER_APP: 'VOLUNTEER_APP',
+  PROFESSIONAL_LICENSE: 'PROFESSIONAL_LICENSE',
   DRUG_SCREEN: 'DRUG_SCREEN',
   BACKGROUND_CHECK: 'BACKGROUND_CHECK',
   WEB_CHECK: 'WEB_CHECK'
@@ -34,7 +36,9 @@ export const FormStatus = {
   NOT_STARTED: 'NOT_STARTED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
-  PENDING_REVIEW: 'PENDING_REVIEW'
+  PENDING_REVIEW: 'PENDING_REVIEW',
+  APPROVED: 'APPROVED',
+  DENIED: 'DENIED'
 } as const
 
 export type FormStatus = (typeof FormStatus)[keyof typeof FormStatus]

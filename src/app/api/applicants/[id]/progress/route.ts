@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 import { FORM_STEPS } from "@/lib/constants";
+import { isApprovedOrCompleted, isStepUnlocked } from "@/lib/pipeline-helpers";
+import type { FormType as AppFormType, FormStatus as AppFormStatus } from "@/types";
 
 function safeISOString(date: Date | string | null | undefined): string {
   if (!date) return new Date().toISOString();
@@ -31,12 +33,20 @@ export async function GET(
         status: true,
         updatedAt: true,
         statusChangedAt: true,
+        reviewedBy: true,
+        reviewedAt: true,
+        reviewNote: true,
       },
       orderBy: { createdAt: "asc" },
     });
 
-    const completedCount = submissions.filter(
-      (s) => s.status === "COMPLETED"
+    const mapped = submissions.map((s) => ({
+      formType: s.formType as unknown as AppFormType,
+      status: s.status as unknown as AppFormStatus,
+    }));
+
+    const completedCount = submissions.filter((s) =>
+      isApprovedOrCompleted(s.status as unknown as AppFormStatus)
     ).length;
 
     return NextResponse.json({
@@ -45,6 +55,13 @@ export async function GET(
         status: s.status,
         updatedAt: safeISOString(s.updatedAt),
         statusChangedAt: safeISOString(s.statusChangedAt),
+        reviewedBy: s.reviewedBy,
+        reviewedAt: s.reviewedAt ? safeISOString(s.reviewedAt) : null,
+        reviewNote: s.reviewNote,
+        isLocked: !isStepUnlocked(
+          s.formType as unknown as AppFormType,
+          mapped
+        ),
       })),
       completedCount,
       totalCount: FORM_STEPS.length,

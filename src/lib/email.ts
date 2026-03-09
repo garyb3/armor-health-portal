@@ -470,3 +470,132 @@ export async function sendBciReceiptToCountyRep({
     return false;
   }
 }
+
+interface StepApprovedParams {
+  applicantName: string;
+  applicantEmail: string;
+  approvedStep: string;
+  nextStep?: string;
+}
+
+export async function sendStepApprovedEmail({
+  applicantName,
+  applicantEmail,
+  approvedStep,
+  nextStep,
+}: StepApprovedParams): Promise<boolean> {
+  const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
+
+  if (!apiKey) {
+    console.warn(
+      `[Email] Skipping step-approved email — SENDGRID_API_KEY not configured. ` +
+        `${applicantName} (${applicantEmail}) approved "${approvedStep}"`
+    );
+    return false;
+  }
+
+  const nextStepText = nextStep
+    ? `<p style="color: #374151; font-size: 14px; margin: 16px 0 0;">
+        Your next step is: <strong>${nextStep}</strong>. Please log in to continue your background clearance process.
+      </p>`
+    : `<p style="color: #16a34a; font-size: 14px; font-weight: 600; margin: 16px 0 0;">
+        Congratulations! All background clearance steps are now complete. Someone from our Employee Experience Team will contact you about your orientation and start date.
+      </p>`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">
+          Armor Health — Step Approved
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
+          Hi <strong>${applicantName}</strong>, your <strong>${approvedStep}</strong> step has been <span style="color: #16a34a; font-weight: 600;">approved</span>.
+        </p>
+        ${nextStepText}
+        <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
+          This is an automated notification from the Franklin County Background Screening Portal.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await sgMail.send({
+      to: applicantEmail,
+      from,
+      subject: `Step Approved: ${approvedStep} — Armor Health`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send step-approved email:", error);
+    return false;
+  }
+}
+
+interface StepDeniedParams {
+  applicantName: string;
+  applicantEmail: string;
+  deniedStep: string;
+  note?: string;
+}
+
+export async function sendStepDeniedEmail({
+  applicantName,
+  applicantEmail,
+  deniedStep,
+  note,
+}: StepDeniedParams): Promise<boolean> {
+  const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
+
+  if (!apiKey) {
+    console.warn(
+      `[Email] Skipping step-denied email — SENDGRID_API_KEY not configured. ` +
+        `${applicantName} (${applicantEmail}) denied "${deniedStep}"`
+    );
+    return false;
+  }
+
+  const noteText = note
+    ? `<p style="color: #374151; font-size: 14px; margin: 16px 0 0;">
+        <strong>Note from reviewer:</strong> ${note}
+      </p>`
+    : "";
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">
+          Armor Health — Step Requires Attention
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
+          Hi <strong>${applicantName}</strong>, your <strong>${deniedStep}</strong> step <span style="color: #dc2626; font-weight: 600;">requires attention</span>.
+        </p>
+        ${noteText}
+        <p style="color: #374151; font-size: 14px; margin: 16px 0 0;">
+          Please log in to the portal for more details and to address any issues.
+        </p>
+        <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
+          This is an automated notification from the Franklin County Background Screening Portal.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await sgMail.send({
+      to: applicantEmail,
+      from,
+      subject: `Action Required: ${deniedStep} — Armor Health`,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send step-denied email:", error);
+    return false;
+  }
+}

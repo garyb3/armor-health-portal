@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, RotateCcw } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, RotateCcw, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -12,6 +12,7 @@ interface StaffUser {
   lastName: string;
   role: string;
   approved: boolean;
+  emailVerified: boolean;
   createdAt: string;
 }
 
@@ -78,6 +79,23 @@ export default function AdminPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to remove: ${data.error || res.statusText}`);
+        return;
+      }
+      await loadUsers(filter);
+    } catch (err) {
+      alert(`Network error: ${err}`);
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  async function verifyEmail(id: string) {
+    setActionLoading(id);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/verify-email`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to verify email: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
@@ -169,6 +187,15 @@ export default function AdminPage() {
                         Approved
                       </span>
                     )}
+                    {u.emailVerified ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700">
+                        Email Verified
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700">
+                        Unverified
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-gray-500 truncate">{u.email}</p>
                   <p className="text-xs text-gray-400 mt-0.5">
@@ -176,6 +203,22 @@ export default function AdminPage() {
                   </p>
                 </div>
                 <div className="flex items-center gap-2 ml-4 shrink-0">
+                  {!u.emailVerified && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => verifyEmail(u.id)}
+                      disabled={actionLoading === u.id}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      {actionLoading === u.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <MailCheck className="h-4 w-4 mr-1.5" />
+                      )}
+                      Verify Email
+                    </Button>
+                  )}
                   {!u.approved && u.role !== "APPLICANT" && (
                     <>
                       <Button

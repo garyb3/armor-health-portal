@@ -53,7 +53,9 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   Applicant: 'Applicant',
   FormSubmission: 'FormSubmission',
-  Invite: 'Invite'
+  Invite: 'Invite',
+  SensitiveData: 'SensitiveData',
+  AuditLog: 'AuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -94,6 +96,9 @@ export const FormSubmissionScalarFieldEnum = {
   status: 'status',
   formData: 'formData',
   receiptFile: 'receiptFile',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
   submittedAt: 'submittedAt',
   statusChangedAt: 'statusChangedAt',
   lastAlertSentAt: 'lastAlertSentAt',
@@ -116,6 +121,31 @@ export const InviteScalarFieldEnum = {
 } as const
 
 export type InviteScalarFieldEnum = (typeof InviteScalarFieldEnum)[keyof typeof InviteScalarFieldEnum]
+
+
+export const SensitiveDataScalarFieldEnum = {
+  id: 'id',
+  applicantId: 'applicantId',
+  encryptedSsn: 'encryptedSsn',
+  ssnLastFour: 'ssnLastFour',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SensitiveDataScalarFieldEnum = (typeof SensitiveDataScalarFieldEnum)[keyof typeof SensitiveDataScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  targetId: 'targetId',
+  metadata: 'metadata',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -13,19 +13,17 @@ export async function POST(
   }
 
   const { id } = await params;
-
-  // Delete existing submissions
-  await prisma.formSubmission.deleteMany({
-    where: { applicantId: id },
-  });
-
-  // Re-create all 4 pipeline steps
-  const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
-  for (const formType of formTypes) {
-    await prisma.formSubmission.create({
-      data: { applicantId: id, formType, status: "NOT_STARTED" },
+  try {
+    const updated = await prisma.applicant.update({
+      where: { id },
+      data: { emailVerified: true, verificationToken: null },
     });
-  }
 
-  return NextResponse.json({ success: true });
+    return NextResponse.json({
+      user: { id: updated.id, email: updated.email, emailVerified: updated.emailVerified },
+    });
+  } catch (error) {
+    console.error("Failed to verify user email:", error);
+    return NextResponse.json({ error: "Failed to verify email" }, { status: 500 });
+  }
 }

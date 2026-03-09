@@ -3,11 +3,26 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ProgressTracker } from "@/components/dashboard/progress-tracker";
-import { STATUS_COLORS, PIPELINE_STAGES } from "@/lib/constants";
-import { ArrowLeft, Loader2, Mail, Phone, Calendar } from "lucide-react";
+import {
+  STATUS_COLORS,
+  STATUS_LABELS,
+  PIPELINE_STAGES,
+  FORM_STEPS,
+} from "@/lib/constants";
+import {
+  ArrowLeft,
+  Loader2,
+  Mail,
+  Phone,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  Clock,
+} from "lucide-react";
 import type { FormProgress } from "@/types";
 
 interface ApplicantDetail {
@@ -21,7 +36,11 @@ interface ApplicantDetail {
   currentStage: string;
   completedCount: number;
   totalCount: number;
-  progress: FormProgress[];
+  progress: (FormProgress & {
+    reviewedBy?: string;
+    reviewedAt?: string;
+    reviewNote?: string;
+  })[];
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -36,21 +55,53 @@ export default function ApplicantDetailPage() {
   const params = useParams();
   const [applicant, setApplicant] = useState<ApplicantDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [denyNote, setDenyNote] = useState<string>("");
+  const [denyingStep, setDenyingStep] = useState<string | null>(null);
+
+  const loadApplicant = async () => {
+    try {
+      const res = await fetch(`/api/pipeline/${params.id}`);
+      if (!res.ok) return;
+      setApplicant(await res.json());
+    } catch (err) {
+      console.error("Failed to load applicant:", err);
+    }
+  };
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch(`/api/pipeline/${params.id}`);
-        if (!res.ok) return;
-        setApplicant(await res.json());
-      } catch (err) {
-        console.error("Failed to load applicant:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadApplicant().finally(() => setLoading(false));
   }, [params.id]);
+
+  const handleStepAction = async (
+    formType: string,
+    action: "approve" | "deny",
+    note?: string
+  ) => {
+    const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
+    if (!slug) return;
+
+    setActionLoading(`${formType}-${action}`);
+    try {
+      const res = await fetch(
+        `/api/pipeline/${params.id}/step/${slug}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, note }),
+        }
+      );
+      if (res.ok) {
+        setDenyingStep(null);
+        setDenyNote("");
+        await loadApplicant();
+      }
+    } catch (err) {
+      console.error("Step action failed:", err);
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -147,6 +198,151 @@ export default function ApplicantDetailPage() {
         completedCount={applicant.completedCount}
         totalCount={applicant.totalCount}
       />
+
+      {/* Step-by-step admin controls */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pipeline Steps</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {FORM_STEPS.map((step) => {
+            const prog = applicant.progress.find(
+              (p) => p.formType === step.key
+            );
+            const status = prog?.status || "NOT_STARTED";
+
+            return (
+              <div
+                key={step.key}
+                className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border border-gray-200"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-medium text-gray-400 uppercase">
+                      Step {step.order}
+                    </span>
+                    <Badge className={STATUS_COLORS[status] || ""}>
+                      {STATUS_LABELS[status] || status}
+                    </Badge>
+                  </div>
+                  <p className="font-medium text-gray-900 text-sm">
+                    {step.title}
+                  </p>
+
+                  {/* Review info */}
+                  {prog?.reviewedAt && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {status === "APPROVED" ? "Approved" : "Denied"} on{" "}
+                      {new Date(prog.reviewedAt).toLocaleString()}
+                      {prog.reviewNote && (
+                        <span className="block text-gray-400 mt-0.5">
+                          Note: {prog.reviewNote}
+                        </span>
+                      )}
+                    </p>
+                  )}
+
+                  {/* Elapsed time */}
+                  {prog?.statusChangedAt &&
+                    status !== "APPROVED" &&
+                    status !== "COMPLETED" && (
+                      <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Since{" "}
+                        {new Date(prog.statusChangedAt).toLocaleString()}
+                      </p>
+                    )}
+                </div>
+
+                {/* Admin actions */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {status === "PENDING_REVIEW" && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleStepAction(step.key, "approve")
+                        }
+                        disabled={actionLoading !== null}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
+                      >
+                        {actionLoading === `${step.key}-approve` ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="h-3 w-3" />
+                        )}
+                        Approve
+                      </Button>
+                      {denyingStep === step.key ? (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            placeholder="Optional note..."
+                            value={denyNote}
+                            onChange={(e) => setDenyNote(e.target.value)}
+                            className="text-sm border border-gray-300 rounded px-2 py-1 w-40"
+                          />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() =>
+                              handleStepAction(step.key, "deny", denyNote)
+                            }
+                            disabled={actionLoading !== null}
+                            className="gap-1"
+                          >
+                            {actionLoading === `${step.key}-deny` ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <XCircle className="h-3 w-3" />
+                            )}
+                            Deny
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setDenyingStep(null);
+                              setDenyNote("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setDenyingStep(step.key)}
+                          disabled={actionLoading !== null}
+                          className="text-red-600 border-red-200 hover:bg-red-50 gap-1"
+                        >
+                          <XCircle className="h-3 w-3" />
+                          Deny
+                        </Button>
+                      )}
+                    </>
+                  )}
+
+                  {(status === "APPROVED" || status === "COMPLETED") && (
+                    <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Approved
+                    </span>
+                  )}
+
+                  {status === "DENIED" && (
+                    <span className="inline-flex items-center gap-1 text-sm text-red-600">
+                      <XCircle className="h-4 w-4" />
+                      Denied
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
     </div>
   );
 }

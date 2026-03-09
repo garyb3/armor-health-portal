@@ -34,7 +34,7 @@ export function useAuth() {
           ? "/pending-approval"
           : ["RECRUITER", "HR"].includes(data.user.role)
           ? "/dashboard"
-          : "/onboarding";
+          : "/background-clearance";
         router.push(dest);
         return true;
       } catch {
@@ -80,7 +80,7 @@ export function useAuth() {
           ? "/pending-approval"
           : ["RECRUITER", "HR"].includes(data.user.role)
           ? "/dashboard"
-          : "/onboarding";
+          : "/background-clearance";
         router.push(dest);
         return true;
       } catch {

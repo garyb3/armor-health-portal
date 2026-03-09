@@ -11,4 +11,6 @@
 export type * from './models/Applicant'
 export type * from './models/FormSubmission'
 export type * from './models/Invite'
+export type * from './models/SensitiveData'
+export type * from './models/AuditLog'
 export type * from './commonInputTypes'

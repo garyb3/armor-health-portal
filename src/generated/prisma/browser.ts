@@ -32,3 +32,13 @@ export type FormSubmission = Prisma.FormSubmissionModel
  * 
  */
 export type Invite = Prisma.InviteModel
+/**
+ * Model SensitiveData
+ * 
+ */
+export type SensitiveData = Prisma.SensitiveDataModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel

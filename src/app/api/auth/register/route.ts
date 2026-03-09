@@ -71,13 +71,12 @@ export async function POST(request: NextRequest) {
 
     // Only create form submissions for applicants (staff don't onboard)
     if (role === "APPLICANT") {
-      await prisma.formSubmission.createMany({
-        data: [
-          { applicantId: applicant.id, formType: "DRUG_SCREEN", status: "NOT_STARTED" },
-          { applicantId: applicant.id, formType: "BACKGROUND_CHECK", status: "NOT_STARTED" },
-          { applicantId: applicant.id, formType: "WEB_CHECK", status: "NOT_STARTED" },
-        ],
-      });
+      const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
+      for (const formType of formTypes) {
+        await prisma.formSubmission.create({
+          data: { applicantId: applicant.id, formType, status: "NOT_STARTED" },
+        });
+      }
     }
 
     // Send verification email (fire-and-forget)
@@ -136,10 +135,11 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch (error) {
-    console.error("Registration error:", error);
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error));
+    console.error("Registration error:", err.message, err.stack);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", detail: err.message },
       { status: 500 }
     );
   }

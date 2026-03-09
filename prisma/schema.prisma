@@ -17,6 +17,8 @@ enum Role {
 }
 
 enum FormType {
+  VOLUNTEER_APP
+  PROFESSIONAL_LICENSE
   DRUG_SCREEN
   BACKGROUND_CHECK
   WEB_CHECK
@@ -27,6 +29,8 @@ enum FormStatus {
   IN_PROGRESS
   COMPLETED
   PENDING_REVIEW
+  APPROVED
+  DENIED
 }
 
 model Applicant {
@@ -55,6 +59,9 @@ model FormSubmission {
   status      FormStatus @default(NOT_STARTED)
   formData    Json?
   receiptFile String?
+  reviewedBy   String?
+  reviewedAt   DateTime?
+  reviewNote   String?
   submittedAt      DateTime?
   statusChangedAt  DateTime   @default(now())
   lastAlertSentAt  DateTime?

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
-import type { Role } from "@/types";
+import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
+import type { Role, FormStatus as AppFormStatus } from "@/types";
 
 const STAFF_ROLES: Role[] = ["RECRUITER", "HR", "ADMIN"];
 
@@ -12,7 +13,8 @@ function getCurrentStage(
   const statusMap = new Map(submissions.map((s) => [s.formType, s.status]));
 
   for (const step of FORM_STEPS) {
-    if (statusMap.get(step.key) !== "COMPLETED") {
+    const status = statusMap.get(step.key) as AppFormStatus | undefined;
+    if (!status || !isApprovedOrCompleted(status)) {
       return step.key;
     }
   }
@@ -49,6 +51,9 @@ export async function GET(request: NextRequest) {
           status: true,
           updatedAt: true,
           statusChangedAt: true,
+          reviewedBy: true,
+          reviewedAt: true,
+          reviewNote: true,
         },
         orderBy: { createdAt: "asc" },
       },
@@ -66,8 +71,8 @@ export async function GET(request: NextRequest) {
     const currentStage = getCurrentStage(a.formSubmissions);
     byStage[currentStage] = (byStage[currentStage] || 0) + 1;
 
-    const completedCount = a.formSubmissions.filter(
-      (s) => s.status === "COMPLETED"
+    const completedCount = a.formSubmissions.filter((s) =>
+      isApprovedOrCompleted(s.status as AppFormStatus)
     ).length;
 
     return {
@@ -85,6 +90,9 @@ export async function GET(request: NextRequest) {
         status: s.status,
         updatedAt: s.updatedAt.toISOString(),
         statusChangedAt: s.statusChangedAt.toISOString(),
+        reviewedBy: s.reviewedBy,
+        reviewedAt: s.reviewedAt?.toISOString() ?? null,
+        reviewNote: s.reviewNote,
       })),
     };
   });

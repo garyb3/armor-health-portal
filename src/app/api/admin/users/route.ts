@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
       lastName: true,
       role: true,
       approved: true,
+      emailVerified: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { sendOverdueAlert, sendOverdueAlertToStaff } from "@/lib/email";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { FORM_STEPS } from "@/lib/constants";
+import { isStepUnlocked } from "@/lib/pipeline-helpers";
+import type { FormType as AppFormType, FormStatus as AppFormStatus } from "@/types";
 
 const OVERDUE_HOURS = 12;
 
@@ -53,6 +55,20 @@ export async function GET(request: NextRequest) {
     }> = [];
 
     for (const sub of overdueSubmissions) {
+      // Only alert if this step is currently unlocked (previous step approved)
+      const siblingSubmissions = await prisma.formSubmission.findMany({
+        where: { applicantId: sub.applicantId },
+        select: { formType: true, status: true },
+      });
+      const unlocked = isStepUnlocked(
+        sub.formType as unknown as AppFormType,
+        siblingSubmissions.map((s) => ({
+          formType: s.formType as unknown as AppFormType,
+          status: s.status as unknown as AppFormStatus,
+        }))
+      );
+      if (!unlocked) continue;
+
       const applicantName = `${sub.applicant.firstName} ${sub.applicant.lastName}`;
       const stepTitle = STEP_TITLE_MAP[sub.formType] || sub.formType;
       const elapsed = formatElapsed(sub.statusChangedAt.toISOString());

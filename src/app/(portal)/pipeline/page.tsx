@@ -60,7 +60,7 @@ export default function PipelinePage() {
           Applicant Pipeline
         </h1>
         <p className="text-gray-400 mt-1 text-sm">
-          Track where applicants are in the onboarding process.
+          Track where applicants are in the background clearance process.
         </p>
       </div>
 

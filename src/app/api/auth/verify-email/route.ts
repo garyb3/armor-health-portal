@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     // Determine redirect based on role
     const role = applicant.role;
     const approved = applicant.approved;
-    let redirectPath = "/onboarding";
+    let redirectPath = "/background-clearance";
 
     if (role === "COUNTY_REPRESENTATIVE") {
       redirectPath = "/registration-complete";

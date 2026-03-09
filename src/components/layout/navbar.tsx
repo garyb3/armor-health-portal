@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 const NAV_LINKS = [
+  { href: "/forms/volunteer-app", label: "Clearance Form" },
+  { href: "/forms/professional-license", label: "License" },
   { href: "/forms/drug-screen", label: "Drug Screen" },
   { href: "/forms/background-check", label: "BCI Fingerprint" },
-  { href: "/forms/web-check", label: "Web Check" },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -40,7 +41,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
 
   const navigateWithConfirm = (href: string) => {
     if (pathname === href) return;
-    if (pathname === "/dashboard" || pathname === "/onboarding" || pathname.startsWith("/pipeline")) {
+    if (pathname === "/dashboard" || pathname === "/background-clearance" || pathname.startsWith("/pipeline")) {
       router.push(href);
       return;
     }
@@ -54,7 +55,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
     ? [{ href: "/dashboard", label: "Dashboard" }]
     : NAV_LINKS;
 
-  const homeHref = isStaff ? "/dashboard" : "/onboarding";
+  const homeHref = isStaff ? "/dashboard" : "/background-clearance";
 
   const handleShieldClick = () => navigateWithConfirm(homeHref);
 

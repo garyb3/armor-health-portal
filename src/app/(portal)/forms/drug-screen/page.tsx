@@ -54,7 +54,11 @@ export default function DrugScreenPage() {
           if (data.formData) {
             reset({ ...data.formData, employerName: "Armor Health of Ohio" });
           }
-          if (data.status === "COMPLETED") {
+          if (
+            data.status === "COMPLETED" ||
+            data.status === "PENDING_REVIEW" ||
+            data.status === "APPROVED"
+          ) {
             setIsCompleted(true);
             setSubmittedData(data.formData);
             setSubmittedAt(data.submittedAt);
@@ -91,7 +95,7 @@ export default function DrugScreenPage() {
         body: JSON.stringify({ formData: data, action: "submit" }),
       });
       if (res.ok) {
-        window.location.href = "/onboarding";
+        window.location.href = "/background-clearance";
         return;
       }
     } finally {

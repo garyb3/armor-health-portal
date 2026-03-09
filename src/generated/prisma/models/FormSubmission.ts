@@ -30,6 +30,9 @@ export type FormSubmissionMinAggregateOutputType = {
   formType: $Enums.FormType | null
   status: $Enums.FormStatus | null
   receiptFile: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+  reviewNote: string | null
   submittedAt: Date | null
   statusChangedAt: Date | null
   lastAlertSentAt: Date | null
@@ -43,6 +46,9 @@ export type FormSubmissionMaxAggregateOutputType = {
   formType: $Enums.FormType | null
   status: $Enums.FormStatus | null
   receiptFile: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+  reviewNote: string | null
   submittedAt: Date | null
   statusChangedAt: Date | null
   lastAlertSentAt: Date | null
@@ -57,6 +63,9 @@ export type FormSubmissionCountAggregateOutputType = {
   status: number
   formData: number
   receiptFile: number
+  reviewedBy: number
+  reviewedAt: number
+  reviewNote: number
   submittedAt: number
   statusChangedAt: number
   lastAlertSentAt: number
@@ -72,6 +81,9 @@ export type FormSubmissionMinAggregateInputType = {
   formType?: true
   status?: true
   receiptFile?: true
+  reviewedBy?: true
+  reviewedAt?: true
+  reviewNote?: true
   submittedAt?: true
   statusChangedAt?: true
   lastAlertSentAt?: true
@@ -85,6 +97,9 @@ export type FormSubmissionMaxAggregateInputType = {
   formType?: true
   status?: true
   receiptFile?: true
+  reviewedBy?: true
+  reviewedAt?: true
+  reviewNote?: true
   submittedAt?: true
   statusChangedAt?: true
   lastAlertSentAt?: true
@@ -99,6 +114,9 @@ export type FormSubmissionCountAggregateInputType = {
   status?: true
   formData?: true
   receiptFile?: true
+  reviewedBy?: true
+  reviewedAt?: true
+  reviewNote?: true
   submittedAt?: true
   statusChangedAt?: true
   lastAlertSentAt?: true
@@ -186,6 +204,9 @@ export type FormSubmissionGroupByOutputType = {
   status: $Enums.FormStatus
   formData: runtime.JsonValue | null
   receiptFile: string | null
+  reviewedBy: string | null
+  reviewedAt: Date | null
+  reviewNote: string | null
   submittedAt: Date | null
   statusChangedAt: Date
   lastAlertSentAt: Date | null
@@ -221,6 +242,9 @@ export type FormSubmissionWhereInput = {
   status?: Prisma.EnumFormStatusFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableFilter<"FormSubmission">
   receiptFile?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
+  reviewedBy?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  reviewNote?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
@@ -236,6 +260,9 @@ export type FormSubmissionOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   formData?: Prisma.SortOrderInput | Prisma.SortOrder
   receiptFile?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewNote?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -255,6 +282,9 @@ export type FormSubmissionWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumFormStatusFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableFilter<"FormSubmission">
   receiptFile?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
+  reviewedBy?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  reviewNote?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
@@ -270,6 +300,9 @@ export type FormSubmissionOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   formData?: Prisma.SortOrderInput | Prisma.SortOrder
   receiptFile?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewNote?: Prisma.SortOrderInput | Prisma.SortOrder
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -290,6 +323,9 @@ export type FormSubmissionScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumFormStatusWithAggregatesFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableWithAggregatesFilter<"FormSubmission">
   receiptFile?: Prisma.StringNullableWithAggregatesFilter<"FormSubmission"> | string | null
+  reviewedBy?: Prisma.StringNullableWithAggregatesFilter<"FormSubmission"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
+  reviewNote?: Prisma.StringNullableWithAggregatesFilter<"FormSubmission"> | string | null
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeWithAggregatesFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
@@ -303,6 +339,9 @@ export type FormSubmissionCreateInput = {
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
@@ -318,6 +357,9 @@ export type FormSubmissionUncheckedCreateInput = {
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
@@ -331,6 +373,9 @@ export type FormSubmissionUpdateInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -346,6 +391,9 @@ export type FormSubmissionUncheckedUpdateInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -360,6 +408,9 @@ export type FormSubmissionCreateManyInput = {
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
@@ -373,6 +424,9 @@ export type FormSubmissionUpdateManyMutationInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -387,6 +441,9 @@ export type FormSubmissionUncheckedUpdateManyInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -416,6 +473,9 @@ export type FormSubmissionCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   formData?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
+  reviewedBy?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewNote?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrder
@@ -429,6 +489,9 @@ export type FormSubmissionMaxOrderByAggregateInput = {
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
+  reviewedBy?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewNote?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrder
@@ -442,6 +505,9 @@ export type FormSubmissionMinOrderByAggregateInput = {
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
+  reviewedBy?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
+  reviewNote?: Prisma.SortOrder
   submittedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrder
@@ -509,6 +575,9 @@ export type FormSubmissionCreateWithoutApplicantInput = {
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
@@ -522,6 +591,9 @@ export type FormSubmissionUncheckedCreateWithoutApplicantInput = {
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
@@ -564,6 +636,9 @@ export type FormSubmissionScalarWhereInput = {
   status?: Prisma.EnumFormStatusFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableFilter<"FormSubmission">
   receiptFile?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
+  reviewedBy?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  reviewNote?: Prisma.StringNullableFilter<"FormSubmission"> | string | null
   submittedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
@@ -577,6 +652,9 @@ export type FormSubmissionCreateManyApplicantInput = {
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
@@ -590,6 +668,9 @@ export type FormSubmissionUpdateWithoutApplicantInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -603,6 +684,9 @@ export type FormSubmissionUncheckedUpdateWithoutApplicantInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -616,6 +700,9 @@ export type FormSubmissionUncheckedUpdateManyWithoutApplicantInput = {
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -632,6 +719,9 @@ export type FormSubmissionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   status?: boolean
   formData?: boolean
   receiptFile?: boolean
+  reviewedBy?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
@@ -647,6 +737,9 @@ export type FormSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   formData?: boolean
   receiptFile?: boolean
+  reviewedBy?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
@@ -662,6 +755,9 @@ export type FormSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   status?: boolean
   formData?: boolean
   receiptFile?: boolean
+  reviewedBy?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
@@ -677,6 +773,9 @@ export type FormSubmissionSelectScalar = {
   status?: boolean
   formData?: boolean
   receiptFile?: boolean
+  reviewedBy?: boolean
+  reviewedAt?: boolean
+  reviewNote?: boolean
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
@@ -684,7 +783,7 @@ export type FormSubmissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FormSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicantId" | "formType" | "status" | "formData" | "receiptFile" | "submittedAt" | "statusChangedAt" | "lastAlertSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["formSubmission"]>
+export type FormSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicantId" | "formType" | "status" | "formData" | "receiptFile" | "reviewedBy" | "reviewedAt" | "reviewNote" | "submittedAt" | "statusChangedAt" | "lastAlertSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["formSubmission"]>
 export type FormSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
 }
@@ -707,6 +806,9 @@ export type $FormSubmissionPayload<ExtArgs extends runtime.Types.Extensions.Inte
     status: $Enums.FormStatus
     formData: runtime.JsonValue | null
     receiptFile: string | null
+    reviewedBy: string | null
+    reviewedAt: Date | null
+    reviewNote: string | null
     submittedAt: Date | null
     statusChangedAt: Date
     lastAlertSentAt: Date | null
@@ -1142,6 +1244,9 @@ export interface FormSubmissionFieldRefs {
   readonly status: Prisma.FieldRef<"FormSubmission", 'FormStatus'>
   readonly formData: Prisma.FieldRef<"FormSubmission", 'Json'>
   readonly receiptFile: Prisma.FieldRef<"FormSubmission", 'String'>
+  readonly reviewedBy: Prisma.FieldRef<"FormSubmission", 'String'>
+  readonly reviewedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
+  readonly reviewNote: Prisma.FieldRef<"FormSubmission", 'String'>
   readonly submittedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
   readonly statusChangedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
   readonly lastAlertSentAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>

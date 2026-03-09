@@ -8,7 +8,9 @@ import {
 } from "@/lib/api-helpers";
 import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
 import { sendStepCompletedEmail, sendBciReceiptToCountyRep } from "@/lib/email";
+import { isStepUnlocked } from "@/lib/pipeline-helpers";
 import type { FormType, Prisma } from "@/generated/prisma/client";
+import type { FormType as AppFormType, FormStatus as AppFormStatus } from "@/types";
 
 export async function GET(
   request: NextRequest,
@@ -78,10 +80,31 @@ export async function POST(
       return badRequestResponse("Missing formData or action");
     }
 
+    // Check step is unlocked (previous step must be approved)
+    const allSubmissions = await prisma.formSubmission.findMany({
+      where: { applicantId: user.userId },
+      select: { formType: true, status: true },
+    });
+
+    const unlocked = isStepUnlocked(
+      formType as unknown as AppFormType,
+      allSubmissions.map((s) => ({
+        formType: s.formType as unknown as AppFormType,
+        status: s.status as unknown as AppFormStatus,
+      }))
+    );
+
+    if (!unlocked) {
+      return NextResponse.json(
+        { error: "This step is locked. Complete the previous step first." },
+        { status: 403 }
+      );
+    }
+
     // CRITICAL: Strip SSN fields before storing in database
     const cleanedData = stripSsnFields(formData) as Prisma.InputJsonValue;
 
-    const newStatus = action === "submit" ? "COMPLETED" : "IN_PROGRESS";
+    const newStatus = action === "submit" ? "PENDING_REVIEW" : "IN_PROGRESS";
     const submittedAt = action === "submit" ? new Date() : undefined;
 
     // Check current status to determine if statusChangedAt should update
@@ -120,7 +143,7 @@ export async function POST(
       },
     });
 
-    // On submission, send completion email and seed next step's 24h timer
+    // On submission, send completion email to admin
     if (action === "submit") {
       const applicant = await prisma.applicant.findUnique({
         where: { id: user.userId },
@@ -132,7 +155,7 @@ export async function POST(
         const stepTitle = currentStep?.title || formType;
         const applicantName = `${applicant.firstName} ${applicant.lastName}`;
 
-        // Send immediate completion notification (fire-and-forget)
+        // Send immediate completion notification to admin (fire-and-forget)
         sendStepCompletedEmail({
           applicantName,
           applicantEmail: applicant.email,
@@ -141,7 +164,7 @@ export async function POST(
           console.error("[Email] Step-completed email failed:", err)
         );
 
-        // Send BCI receipt to county representative(s) when background check is completed
+        // Send BCI receipt to county representative(s) when background check is submitted
         if (formType === "BACKGROUND_CHECK") {
           const bciSubmission = await prisma.formSubmission.findUnique({
             where: {
@@ -161,46 +184,6 @@ export async function POST(
             }).catch((err) =>
               console.error("[Email] BCI receipt email to county rep failed:", err)
             );
-          }
-        }
-
-        // Seed the next step's timer so the cron job picks it up after 24h
-        if (currentStep) {
-          const nextStep = FORM_STEPS.find(
-            (s) => s.order === currentStep.order + 1
-          );
-          if (nextStep) {
-            const nextSubmission = await prisma.formSubmission.findUnique({
-              where: {
-                applicantId_formType: {
-                  applicantId: user.userId,
-                  formType: nextStep.key as FormType,
-                },
-              },
-              select: { status: true },
-            });
-
-            // Only reset the clock if the next step hasn't been started yet
-            if (!nextSubmission || nextSubmission.status === "NOT_STARTED") {
-              await prisma.formSubmission.upsert({
-                where: {
-                  applicantId_formType: {
-                    applicantId: user.userId,
-                    formType: nextStep.key as FormType,
-                  },
-                },
-                update: {
-                  statusChangedAt: new Date(),
-                  lastAlertSentAt: null,
-                },
-                create: {
-                  applicantId: user.userId,
-                  formType: nextStep.key as FormType,
-                  status: "NOT_STARTED",
-                  statusChangedAt: new Date(),
-                },
-              });
-            }
           }
         }
       }

@@ -239,6 +239,7 @@ export type ApplicantWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
+  sensitiveData?: Prisma.XOR<Prisma.SensitiveDataNullableScalarRelationFilter, Prisma.SensitiveDataWhereInput> | null
 }
 
 export type ApplicantOrderByWithRelationInput = {
@@ -255,6 +256,7 @@ export type ApplicantOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   formSubmissions?: Prisma.FormSubmissionOrderByRelationAggregateInput
+  sensitiveData?: Prisma.SensitiveDataOrderByWithRelationInput
 }
 
 export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
@@ -274,6 +276,7 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
+  sensitiveData?: Prisma.XOR<Prisma.SensitiveDataNullableScalarRelationFilter, Prisma.SensitiveDataWhereInput> | null
 }, "id" | "email" | "verificationToken">
 
 export type ApplicantOrderByWithAggregationInput = {
@@ -326,6 +329,7 @@ export type ApplicantCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateInput = {
@@ -342,6 +346,7 @@ export type ApplicantUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
 }
 
 export type ApplicantUpdateInput = {
@@ -358,6 +363,7 @@ export type ApplicantUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateInput = {
@@ -374,6 +380,7 @@ export type ApplicantUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
 }
 
 export type ApplicantCreateManyInput = {
@@ -505,6 +512,20 @@ export type ApplicantUpdateOneRequiredWithoutFormSubmissionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicantUpdateToOneWithWhereWithoutFormSubmissionsInput, Prisma.ApplicantUpdateWithoutFormSubmissionsInput>, Prisma.ApplicantUncheckedUpdateWithoutFormSubmissionsInput>
 }
 
+export type ApplicantCreateNestedOneWithoutSensitiveDataInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutSensitiveDataInput, Prisma.ApplicantUncheckedCreateWithoutSensitiveDataInput>
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutSensitiveDataInput
+  connect?: Prisma.ApplicantWhereUniqueInput
+}
+
+export type ApplicantUpdateOneRequiredWithoutSensitiveDataNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutSensitiveDataInput, Prisma.ApplicantUncheckedCreateWithoutSensitiveDataInput>
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutSensitiveDataInput
+  upsert?: Prisma.ApplicantUpsertWithoutSensitiveDataInput
+  connect?: Prisma.ApplicantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicantUpdateToOneWithWhereWithoutSensitiveDataInput, Prisma.ApplicantUpdateWithoutSensitiveDataInput>, Prisma.ApplicantUncheckedUpdateWithoutSensitiveDataInput>
+}
+
 export type ApplicantCreateWithoutFormSubmissionsInput = {
   id?: string
   email: string
@@ -518,6 +539,7 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
@@ -533,6 +555,7 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
 }
 
 export type ApplicantCreateOrConnectWithoutFormSubmissionsInput = {
@@ -564,6 +587,7 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
@@ -579,6 +603,87 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
+}
+
+export type ApplicantCreateWithoutSensitiveDataInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
+}
+
+export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  phone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
+}
+
+export type ApplicantCreateOrConnectWithoutSensitiveDataInput = {
+  where: Prisma.ApplicantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutSensitiveDataInput, Prisma.ApplicantUncheckedCreateWithoutSensitiveDataInput>
+}
+
+export type ApplicantUpsertWithoutSensitiveDataInput = {
+  update: Prisma.XOR<Prisma.ApplicantUpdateWithoutSensitiveDataInput, Prisma.ApplicantUncheckedUpdateWithoutSensitiveDataInput>
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutSensitiveDataInput, Prisma.ApplicantUncheckedCreateWithoutSensitiveDataInput>
+  where?: Prisma.ApplicantWhereInput
+}
+
+export type ApplicantUpdateToOneWithWhereWithoutSensitiveDataInput = {
+  where?: Prisma.ApplicantWhereInput
+  data: Prisma.XOR<Prisma.ApplicantUpdateWithoutSensitiveDataInput, Prisma.ApplicantUncheckedUpdateWithoutSensitiveDataInput>
+}
+
+export type ApplicantUpdateWithoutSensitiveDataInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
+}
+
+export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
 }
 
 
@@ -626,6 +731,7 @@ export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
+  sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["applicant"]>
 
@@ -677,6 +783,7 @@ export type ApplicantSelectScalar = {
 export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "emailVerified" | "verificationToken" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
 export type ApplicantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
+  sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ApplicantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -686,6 +793,7 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Applicant"
   objects: {
     formSubmissions: Prisma.$FormSubmissionPayload<ExtArgs>[]
+    sensitiveData: Prisma.$SensitiveDataPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1095,6 +1203,7 @@ readonly fields: ApplicantFieldRefs;
 export interface Prisma__ApplicantClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   formSubmissions<T extends Prisma.Applicant$formSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$formSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sensitiveData<T extends Prisma.Applicant$sensitiveDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$sensitiveDataArgs<ExtArgs>>): Prisma.Prisma__SensitiveDataClient<runtime.Types.Result.GetResult<Prisma.$SensitiveDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1543,6 +1652,25 @@ export type Applicant$formSubmissionsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.FormSubmissionScalarFieldEnum | Prisma.FormSubmissionScalarFieldEnum[]
+}
+
+/**
+ * Applicant.sensitiveData
+ */
+export type Applicant$sensitiveDataArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SensitiveData
+   */
+  select?: Prisma.SensitiveDataSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SensitiveData
+   */
+  omit?: Prisma.SensitiveDataOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SensitiveDataInclude<ExtArgs> | null
+  where?: Prisma.SensitiveDataWhereInput
 }
 
 /**
