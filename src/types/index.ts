@@ -56,9 +56,15 @@ export interface PipelineApplicant {
   progress: FormProgress[];
 }
 
+export interface StageSummary {
+  count: number;
+  names: string[];
+}
+
 export interface PipelineSummary {
   total: number;
-  byStage: Record<string, number>;
+  byStage: Record<string, StageSummary>;
+  completedByStage: Record<string, StageSummary>;
 }
 
 export interface PipelineResponse {

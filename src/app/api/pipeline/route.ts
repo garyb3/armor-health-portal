@@ -61,15 +61,33 @@ export async function GET(request: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  const byStage: Record<string, number> = {};
+  const byStage: Record<string, { count: number; names: string[] }> = {};
+  const completedByStage: Record<string, { count: number; names: string[] }> = {};
   for (const step of FORM_STEPS) {
-    byStage[step.key] = 0;
+    byStage[step.key] = { count: 0, names: [] };
+    completedByStage[step.key] = { count: 0, names: [] };
   }
-  byStage["COMPLETED"] = 0;
+  byStage["COMPLETED"] = { count: 0, names: [] };
 
   const mapped = applicants.map((a) => {
     const currentStage = getCurrentStage(a.formSubmissions);
-    byStage[currentStage] = (byStage[currentStage] || 0) + 1;
+    const name = `${a.firstName} ${a.lastName}`;
+
+    if (!byStage[currentStage]) {
+      byStage[currentStage] = { count: 0, names: [] };
+    }
+    byStage[currentStage].count++;
+    byStage[currentStage].names.push(name);
+
+    a.formSubmissions.forEach((s) => {
+      if (
+        isApprovedOrCompleted(s.status as AppFormStatus) &&
+        completedByStage[s.formType]
+      ) {
+        completedByStage[s.formType].count++;
+        completedByStage[s.formType].names.push(name);
+      }
+    });
 
     const completedCount = a.formSubmissions.filter((s) =>
       isApprovedOrCompleted(s.status as AppFormStatus)
@@ -102,6 +120,7 @@ export async function GET(request: NextRequest) {
     summary: {
       total: mapped.length,
       byStage,
+      completedByStage,
     },
   });
 }

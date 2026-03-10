@@ -13,6 +13,7 @@ export default function DashboardPage() {
   const [summary, setSummary] = useState<PipelineSummary>({
     total: 0,
     byStage: {},
+    completedByStage: {},
   });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
