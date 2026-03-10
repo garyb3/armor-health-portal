@@ -1,7 +1,8 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, Download, Loader2 } from "lucide-react";
 
 interface PrintableFormProps {
   title: string;
@@ -16,18 +17,52 @@ export function PrintableForm({
   applicantName,
   submittedAt,
 }: PrintableFormProps) {
+  const formRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    if (!formRef.current) return;
+    setDownloading(true);
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+      const filename = `${title.replace(/[^a-zA-Z0-9]/g, "_")}_${applicantName.replace(/\s+/g, "_")}.pdf`;
+      await html2pdf()
+        .set({
+          margin: [0.5, 0.5, 0.5, 0.5],
+          filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        })
+        .from(formRef.current)
+        .save();
+    } catch (err) {
+      console.error("PDF download failed:", err);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div>
-      {/* Print button */}
-      <div className="no-print mb-6 flex justify-end">
+      {/* Action buttons */}
+      <div className="no-print mb-6 flex justify-end gap-2">
         <Button variant="outline" onClick={() => window.print()}>
           <Printer className="h-4 w-4 mr-2" />
           Print Form
         </Button>
+        <Button onClick={handleDownloadPDF} disabled={downloading}>
+          {downloading ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4 mr-2" />
+          )}
+          {downloading ? "Generating..." : "Download PDF"}
+        </Button>
       </div>
 
       {/* Printable content */}
-      <div className="print-form bg-white p-8 rounded-xl border border-gray-200/80 max-w-3xl mx-auto shadow-sm">
+      <div ref={formRef} className="print-form bg-white p-8 rounded-xl border border-gray-200/80 max-w-3xl mx-auto shadow-sm">
         {/* Header */}
         <div className="text-center mb-8 border-b pb-6">
           <h1 className="text-2xl font-bold text-brand-700">
