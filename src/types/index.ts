@@ -56,9 +56,15 @@ export interface PipelineApplicant {
   progress: FormProgress[];
 }
 
+export interface StageApplicant {
+  name: string;
+  since: string; // ISO date – when they entered this status
+}
+
 export interface StageSummary {
   count: number;
   names: string[];
+  applicants: StageApplicant[];
 }
 
 export interface PipelineSummary {

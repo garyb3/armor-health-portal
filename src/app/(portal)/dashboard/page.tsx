@@ -55,21 +55,31 @@ export default function DashboardPage() {
     : applicants;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-          Applicant Pipeline
-        </h1>
-        <p className="text-gray-400 mt-1 text-sm">
-          Track where applicants are in the onboarding process.
-        </p>
+    <div className="space-y-6 max-w-[1400px]">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
+            Applicant Pipeline
+          </h1>
+          <p className="text-gray-400 mt-0.5 text-sm">
+            Track where applicants are in the onboarding process.
+          </p>
+        </div>
+        <div className="max-w-xs w-full relative hidden md:block">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
       </div>
 
-      <div className="max-w-5xl">
-        <PipelineChart summary={summary} />
-      </div>
+      <PipelineChart summary={summary} />
 
-      <div className="max-w-sm relative">
+      {/* Mobile search */}
+      <div className="relative md:hidden">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Search by name or email..."

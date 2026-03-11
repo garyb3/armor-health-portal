@@ -61,23 +61,32 @@ export async function GET(request: NextRequest) {
     orderBy: { createdAt: "desc" },
   });
 
-  const byStage: Record<string, { count: number; names: string[] }> = {};
-  const completedByStage: Record<string, { count: number; names: string[] }> = {};
+  const emptySummary = () => ({ count: 0, names: [] as string[], applicants: [] as { name: string; since: string }[] });
+  const byStage: Record<string, ReturnType<typeof emptySummary>> = {};
+  const completedByStage: Record<string, ReturnType<typeof emptySummary>> = {};
   for (const step of FORM_STEPS) {
-    byStage[step.key] = { count: 0, names: [] };
-    completedByStage[step.key] = { count: 0, names: [] };
+    byStage[step.key] = emptySummary();
+    completedByStage[step.key] = emptySummary();
   }
-  byStage["COMPLETED"] = { count: 0, names: [] };
+  byStage["COMPLETED"] = emptySummary();
 
   const mapped = applicants.map((a) => {
     const currentStage = getCurrentStage(a.formSubmissions);
     const name = `${a.firstName} ${a.lastName}`;
 
     if (!byStage[currentStage]) {
-      byStage[currentStage] = { count: 0, names: [] };
+      byStage[currentStage] = emptySummary();
     }
     byStage[currentStage].count++;
     byStage[currentStage].names.push(name);
+
+    // "since" for pending = when they entered this stage.
+    // Use statusChangedAt of the current stage's submission, or account createdAt if none.
+    const currentSub = a.formSubmissions.find((s) => s.formType === currentStage);
+    const pendingSince = currentSub
+      ? currentSub.statusChangedAt.toISOString()
+      : a.createdAt.toISOString();
+    byStage[currentStage].applicants.push({ name, since: pendingSince });
 
     a.formSubmissions.forEach((s) => {
       if (
@@ -86,6 +95,10 @@ export async function GET(request: NextRequest) {
       ) {
         completedByStage[s.formType].count++;
         completedByStage[s.formType].names.push(name);
+        completedByStage[s.formType].applicants.push({
+          name,
+          since: s.statusChangedAt.toISOString(),
+        });
       }
     });
 

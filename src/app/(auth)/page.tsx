@@ -34,18 +34,19 @@ export default function LoginPage() {
   }; 
 
   return (
-    <Card className="w-full max-w-md shadow-xl shadow-gray-200/50 border-gray-200/60">
+    <Card className="w-full max-w-md shadow-2xl shadow-gray-300/40 border-0 ring-1 ring-gray-200/50">
       <CardHeader className="text-center pb-2">
-        <div className="flex justify-center mb-5">
+        <div className="flex justify-center mb-4">
           <Image
             src="/armor-health-logo.jpg"
             alt="Armor Health"
             width={220}
             height={66}
-            className="h-16 w-auto object-contain"
+            className="h-14 w-auto object-contain"
             priority
           />
         </div>
+        <p className="text-lg font-semibold text-gray-900">Welcome back</p>
         <CardDescription className="text-gray-500">
           Sign in to your onboarding portal
         </CardDescription>

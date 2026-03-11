@@ -54,61 +54,61 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
 
   if (isStaff) {
     return (
-      <aside className="no-print w-64 bg-white border-r border-gray-200/60 hidden md:flex flex-col">
-        <div className="p-4">
+      <aside className="no-print w-60 bg-white border-r border-gray-100 hidden md:flex flex-col">
+        <div className="p-3 pt-4">
           <Link
             href="/dashboard"
             className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
               pathname === "/dashboard"
-                ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
-                : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
+                ? "bg-brand-900 text-white shadow-sm"
+                : "text-gray-600 hover:bg-gray-50"
             )}
           >
-            <LayoutDashboard className="h-5 w-5" />
+            <LayoutDashboard className="h-4.5 w-4.5" />
             Dashboard
           </Link>
           {role === "ADMIN" && (
             <Link
               href="/admin"
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 mt-0.5",
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 mt-0.5",
                 pathname === "/admin"
-                  ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
-                  : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
+                  ? "bg-brand-900 text-white shadow-sm"
+                  : "text-gray-600 hover:bg-gray-50"
               )}
             >
-              <Users className="h-5 w-5" />
+              <Users className="h-4.5 w-4.5" />
               User Management
             </Link>
           )}
         </div>
 
-        <div className="px-4 pb-2">
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest px-3">
+        <div className="px-6 pt-4 pb-2">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
             Stages
           </p>
         </div>
 
-        <nav className="flex-1 px-4 space-y-0.5">
+        <nav className="flex-1 px-3 space-y-0.5 pb-4">
           {FORM_STEPS.map((step) => {
             const Icon = iconMap[step.icon];
             return (
               <Link
                 key={step.key}
                 href="/dashboard"
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150 border-l-[3px] border-transparent"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150"
               >
-                <Icon className="h-4.5 w-4.5 shrink-0" />
+                <Icon className="h-4 w-4 shrink-0 text-gray-400" />
                 <span className="flex-1 truncate">{step.title}</span>
               </Link>
             );
           })}
           <Link
             href="/dashboard"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150 border-l-[3px] border-transparent"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-all duration-150"
           >
-            <CheckCircle2 className="h-4.5 w-4.5 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-gray-400" />
             <span className="flex-1 truncate">Completed</span>
           </Link>
         </nav>
@@ -117,29 +117,29 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
   }
 
   return (
-    <aside className="no-print w-64 bg-white border-r border-gray-200/60 hidden md:flex flex-col">
-      <div className="p-4">
+    <aside className="no-print w-60 bg-white border-r border-gray-100 hidden md:flex flex-col">
+      <div className="p-3 pt-4">
         <Link
           href="/background-clearance"
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+            "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
             pathname === "/background-clearance"
-              ? "bg-accent-50 text-accent-700 border-l-[3px] border-accent-500"
-              : "text-gray-600 hover:bg-gray-50 border-l-[3px] border-transparent"
+              ? "bg-brand-900 text-white shadow-sm"
+              : "text-gray-600 hover:bg-gray-50"
           )}
         >
-          <LayoutDashboard className="h-5 w-5" />
+          <LayoutDashboard className="h-4.5 w-4.5" />
           Background Clearance
         </Link>
       </div>
 
-      <div className="px-4 pb-2">
-        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest px-3">
+      <div className="px-6 pt-4 pb-2">
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
           Clearance Steps
         </p>
       </div>
 
-      <nav className="flex-1 px-4 space-y-0.5">
+      <nav className="flex-1 px-3 space-y-0.5 pb-4">
         {FORM_STEPS.map((step) => {
           const Icon = iconMap[step.icon];
           const status = progress[step.key] || "NOT_STARTED";
@@ -150,15 +150,15 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
               key={step.key}
               href={step.route}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150 border-l-[3px]",
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all duration-150",
                 isActive
-                  ? "bg-accent-50 text-accent-700 font-medium border-accent-500"
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700 border-transparent"
+                  ? "bg-brand-900 text-white font-medium shadow-sm"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
               )}
             >
-              <Icon className="h-4.5 w-4.5 shrink-0" />
+              <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white/70" : "text-gray-400")} />
               <span className="flex-1 truncate">{step.title}</span>
-              <StatusIcon status={status} />
+              {!isActive && <StatusIcon status={status} />}
             </Link>
           );
         })}

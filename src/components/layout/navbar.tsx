@@ -65,7 +65,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   };
 
   return (
-    <nav className="no-print bg-gradient-to-b from-gray-100 to-gray-300 backdrop-blur-md border-b border-gray-400/40 sticky top-0 z-30">
+    <nav className="no-print bg-brand-900 shadow-lg sticky top-0 z-30">
       {/* Leave confirmation dialog */}
       {showLeaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -103,14 +103,16 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
           onClick={handleShieldClick}
           className="flex items-center hover:opacity-80 transition-opacity"
         >
-          <Image
-            src="/armor-health-logo.jpg"
-            alt="Armor Health"
-            width={160}
-            height={48}
-            className="h-9 w-auto object-contain"
-            priority
-          />
+          <div className="bg-white rounded-lg px-3 py-1.5">
+            <Image
+              src="/armor-health-logo.jpg"
+              alt="Armor Health"
+              width={160}
+              height={48}
+              className="h-8 w-auto object-contain"
+              priority
+            />
+          </div>
         </button>
 
         {/* Desktop */}
@@ -120,23 +122,23 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
               key={link.href}
               type="button"
               onClick={() => navigateWithConfirm(link.href)}
-              className={`text-sm px-3 py-1.5 rounded-lg transition-all duration-150 ${
+              className={`text-sm px-3 py-1.5 rounded-md transition-all duration-150 ${
                 pathname === link.href
-                  ? "text-accent-600 bg-accent-50 font-semibold"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                  ? "text-white bg-white/15 font-semibold"
+                  : "text-brand-300 hover:text-white hover:bg-white/10"
               }`}
             >
               {link.label}
             </button>
           ))}
-          <div className="w-px h-5 bg-gray-200 mx-2" />
+          <div className="w-px h-5 bg-brand-700 mx-2" />
           {firstName && (
             <div className="text-right mr-1">
-              <span className="text-sm text-gray-700 block leading-tight font-medium">
+              <span className="text-sm text-white block leading-tight font-medium">
                 {firstName} {lastName}
               </span>
               {role && (
-                <span className="text-xs text-gray-400 block leading-tight">
+                <span className="text-xs text-brand-400 block leading-tight">
                   {ROLE_LABELS[role] || role}
                 </span>
               )}
@@ -146,7 +148,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="text-brand-400 hover:text-white hover:bg-white/10"
           >
             <LogOut className="h-4 w-4" />
           </Button>
@@ -154,16 +156,16 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
 
         {/* Mobile menu button */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          {mobileMenuOpen ? <X className="h-5 w-5 text-gray-600" /> : <Menu className="h-5 w-5 text-gray-600" />}
+          {mobileMenuOpen ? <X className="h-5 w-5 text-white" /> : <Menu className="h-5 w-5 text-white" />}
         </button>
       </div>
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 px-4 py-3 space-y-1 bg-white">
+        <div className="md:hidden border-t border-brand-700 px-4 py-3 space-y-1 bg-brand-800">
           {navLinks.map((link) => (
             <button
               key={link.href}
@@ -174,21 +176,21 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
               }}
               className={`block w-full text-left text-sm px-3 py-2.5 rounded-lg transition-colors ${
                 pathname === link.href
-                  ? "text-accent-600 bg-accent-50 font-semibold"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  ? "text-white bg-white/15 font-semibold"
+                  : "text-brand-300 hover:text-white hover:bg-white/10"
               }`}
             >
               {link.label}
             </button>
           ))}
-          <div className="border-t border-gray-100 my-2" />
+          <div className="border-t border-brand-700 my-2" />
           {firstName && (
             <div className="px-3 py-2">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-white">
                 {firstName} {lastName}
               </p>
               {role && (
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-brand-400">
                   {ROLE_LABELS[role] || role}
                 </p>
               )}
@@ -196,7 +198,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 w-full text-left text-sm px-3 py-2.5 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            className="flex items-center gap-2 w-full text-left text-sm px-3 py-2.5 rounded-lg text-brand-300 hover:text-white hover:bg-white/10 transition-colors"
           >
             <LogOut className="h-4 w-4" />
             Sign Out

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { PIPELINE_STAGES } from "@/lib/constants";
-import { Users, X } from "lucide-react";
-import type { PipelineSummary, StageSummary } from "@/types";
+import { Users, X, Clock } from "lucide-react";
+import type { PipelineSummary, StageSummary, StageApplicant } from "@/types";
 
 const PENDING_COLOR = "bg-[#C8A951]";
 const APPROVAL_COLOR = "bg-red-700";
@@ -16,13 +16,32 @@ interface PipelineChartProps {
 interface SelectedBar {
   stageTitle: string;
   label: string;
-  names: string[];
+  applicants: StageApplicant[];
   colorClass: string;
+}
+
+function formatDuration(since: string): string {
+  const diff = Date.now() - new Date(since).getTime();
+  const minutes = Math.floor(diff / 60_000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) return `${days}d`;
+  if (hours > 0) return `${hours}h`;
+  if (minutes > 0) return `${minutes}m`;
+  return "just now";
+}
+
+function durationColor(since: string): string {
+  const days = Math.floor((Date.now() - new Date(since).getTime()) / 86_400_000);
+  if (days >= 7) return "text-red-600";
+  if (days >= 3) return "text-amber-600";
+  return "text-gray-400";
 }
 
 function BarWithTooltip({
   count,
-  names,
+  applicants,
   pct,
   colorClass,
   label,
@@ -30,7 +49,7 @@ function BarWithTooltip({
   onSelect,
 }: {
   count: number;
-  names: string[];
+  applicants: StageApplicant[];
   pct: number;
   colorClass: string;
   label: string;
@@ -43,13 +62,15 @@ function BarWithTooltip({
         {count}
       </span>
       <div
-        className={`w-5 rounded-t-md transition-all duration-500 ease-out cursor-pointer hover:opacity-80 ${colorClass}`}
+        className={`w-7 rounded-t-md transition-all duration-500 ease-out cursor-pointer hover:opacity-80 ${colorClass}`}
         style={{ height: `${Math.max(pct, 4)}%` }}
-        onClick={() => onSelect({ stageTitle, label, names, colorClass })}
+        onClick={() => onSelect({ stageTitle, label, applicants, colorClass })}
       />
     </div>
   );
 }
+
+const emptySummary: StageSummary = { count: 0, names: [], applicants: [] };
 
 export function PipelineChart({ summary }: PipelineChartProps) {
   const [selected, setSelected] = useState<SelectedBar | null>(null);
@@ -93,13 +114,8 @@ export function PipelineChart({ summary }: PipelineChartProps) {
 
         <div className="flex items-end gap-5 h-44">
           {PIPELINE_STAGES.map((stage) => {
-            const inStage: StageSummary = summary.byStage[stage.key] || {
-              count: 0,
-              names: [],
-            };
-            const completed: StageSummary = summary.completedByStage?.[
-              stage.key
-            ] || { count: 0, names: [] };
+            const inStage: StageSummary = summary.byStage[stage.key] || emptySummary;
+            const completed: StageSummary = summary.completedByStage?.[stage.key] || emptySummary;
             const inPct = max > 0 ? (inStage.count / max) * 100 : 0;
             const completedPct = max > 0 ? (completed.count / max) * 100 : 0;
             const isCompletedStage = stage.key === "COMPLETED";
@@ -109,10 +125,10 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                 key={stage.key}
                 className="flex-1 flex flex-col items-center h-full justify-end"
               >
-                <div className="flex items-end gap-1 h-full">
+                <div className="flex items-end gap-3 h-full">
                   <BarWithTooltip
                     count={inStage.count}
-                    names={inStage.names}
+                    applicants={inStage.applicants || []}
                     pct={inPct}
                     colorClass={PENDING_COLOR}
                     label="Pending"
@@ -120,15 +136,18 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                     onSelect={setSelected}
                   />
                   {!isCompletedStage && (
-                    <BarWithTooltip
-                      count={completed.count}
-                      names={completed.names}
-                      pct={completedPct}
-                      colorClass={APPROVAL_COLOR}
-                      label="Pending Approval"
-                      stageTitle={stage.title}
-                      onSelect={setSelected}
-                    />
+                    <>
+                      <div className="w-px h-3/4 bg-gray-200" />
+                      <BarWithTooltip
+                        count={completed.count}
+                        applicants={completed.applicants || []}
+                        pct={completedPct}
+                        colorClass={APPROVAL_COLOR}
+                        label="Pending Approval"
+                        stageTitle={stage.title}
+                        onSelect={setSelected}
+                      />
+                    </>
                   )}
                 </div>
                 <span className="text-[10px] font-medium text-gray-500 text-center leading-tight line-clamp-2 w-full mt-1">
@@ -149,7 +168,7 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                   {selected.stageTitle}
                 </h3>
                 <span className="text-xs text-gray-400">
-                  — {selected.label} ({selected.names.length})
+                  — {selected.label} ({selected.applicants.length})
                 </span>
               </div>
               <button
@@ -159,16 +178,20 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            {selected.names.length === 0 ? (
+            {selected.applicants.length === 0 ? (
               <p className="text-sm text-gray-400">No applicants</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {selected.names.map((name, i) => (
+                {selected.applicants.map((a, i) => (
                   <div
                     key={i}
-                    className="text-sm text-gray-700 bg-gray-50 rounded-md px-3 py-1.5"
+                    className="flex items-center justify-between text-sm bg-gray-50 rounded-md px-3 py-1.5"
                   >
-                    {name}
+                    <span className="text-gray-700 truncate mr-2">{a.name}</span>
+                    <span className={`flex items-center gap-0.5 text-xs font-medium shrink-0 ${durationColor(a.since)}`}>
+                      <Clock className="h-3 w-3" />
+                      {formatDuration(a.since)}
+                    </span>
                   </div>
                 ))}
               </div>

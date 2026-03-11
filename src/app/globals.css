@@ -37,6 +37,12 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
+}
+
+::selection {
+  background: var(--color-accent-100);
+  color: var(--color-accent-900);
 }
 
 /* Smooth transitions globally */
