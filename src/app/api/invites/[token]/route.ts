@@ -25,14 +25,10 @@ export async function GET(
 
   const invite = await prisma.invite.findUnique({ where: { token } });
 
-  if (!invite) {
-    return NextResponse.json({ error: "Invalid invite" }, { status: 404 });
-  }
-  if (invite.used) {
-    return NextResponse.json({ error: "Invite already used" }, { status: 410 });
-  }
-  if (invite.expiresAt < new Date()) {
-    return NextResponse.json({ error: "Invite expired" }, { status: 410 });
+  // Return the same generic error for invalid, used, and expired invites
+  // to prevent invite token enumeration attacks.
+  if (!invite || invite.used || invite.expiresAt < new Date()) {
+    return NextResponse.json({ error: "This invite link is not valid" }, { status: 404 });
   }
 
   return NextResponse.json({

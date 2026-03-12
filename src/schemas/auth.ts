@@ -13,7 +13,13 @@ export const STAFF_ROLES = ["RECRUITER", "ADMIN_ASSISTANT", "COUNTY_REPRESENTATI
 export const registerSchema = z
   .object({
     email: z.email("Please enter a valid email address"),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .refine((p) => /[A-Z]/.test(p), "Password must include an uppercase letter")
+      .refine((p) => /[a-z]/.test(p), "Password must include a lowercase letter")
+      .refine((p) => /[0-9]/.test(p), "Password must include a number")
+      .refine((p) => /[^A-Za-z0-9]/.test(p), "Password must include a special character"),
     confirmPassword: z.string(),
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),

@@ -1,3 +1,6 @@
+// TODO: Implement password reset flow (email-based token + rate limiting)
+// This is a known gap — users currently cannot recover locked accounts.
+
 import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
 import bcrypt from "bcryptjs";
 
@@ -110,7 +113,7 @@ export async function verifyRefreshToken(token: string): Promise<TokenPayload | 
 export const ACCESS_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  sameSite: "strict" as const,
   maxAge: 15 * 60, // 15 minutes
   path: "/",
 };
@@ -119,7 +122,7 @@ export const ACCESS_COOKIE_OPTIONS = {
 export const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  sameSite: "strict" as const,
   maxAge: 60 * 60 * 24 * 7, // 7 days
   path: "/",
 };

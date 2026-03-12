@@ -43,7 +43,7 @@ export async function GET(
       id: submission.id,
       status: submission.status,
       formData: submission.formData,
-      receiptFile: submission.receiptFile,
+      receiptFile: submission.receiptFile ? `/api/uploads/${submission.receiptFile}` : null,
       submittedAt: submission.submittedAt?.toISOString() ?? null,
       updatedAt: submission.updatedAt.toISOString(),
     });

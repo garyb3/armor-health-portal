@@ -4,6 +4,7 @@ import {
   getUserFromRequest,
   unauthorizedResponse,
   badRequestResponse,
+  getClientIp,
 } from "@/lib/api-helpers";
 import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
 import { getNextStep } from "@/lib/pipeline-helpers";
@@ -14,7 +15,7 @@ import {
 import type { FormType } from "@/generated/prisma/client";
 import type { FormType as AppFormType } from "@/types";
 
-const STAFF_ROLES = ["ADMIN", "HR", "RECRUITER"];
+const STAFF_ROLES = ["ADMIN", "HR", "RECRUITER", "ADMIN_ASSISTANT"];
 
 export async function POST(
   request: NextRequest,
@@ -27,6 +28,8 @@ export async function POST(
     if (!STAFF_ROLES.includes(user.userRole)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const clientIp = getClientIp(request);
 
     const { id: applicantId, formType: slug } = await params;
     const formType = FORM_TYPE_MAP[slug] as FormType | undefined;
@@ -130,6 +133,7 @@ export async function POST(
           action: "STEP_APPROVED",
           targetId: applicantId,
           metadata: { formType, stepTitle, note },
+          ipAddress: clientIp,
         },
       });
     } else {
@@ -161,6 +165,7 @@ export async function POST(
           action: "STEP_DENIED",
           targetId: applicantId,
           metadata: { formType, stepTitle, note },
+          ipAddress: clientIp,
         },
       });
     }

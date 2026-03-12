@@ -1,6 +1,9 @@
 /**
  * Simple in-memory rate limiter using a sliding window.
- * Not suitable for multi-instance deployments — use Redis-backed rate limiting in that case.
+ *
+ * PRODUCTION TODO: Replace with Redis-backed rate limiting (e.g. @upstash/ratelimit
+ * or ioredis) for multi-instance deployments. The in-memory store is per-process and
+ * will not share state across server instances.
  */
 
 interface RateLimitEntry {

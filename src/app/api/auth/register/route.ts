@@ -5,9 +5,21 @@ import { hashPassword, createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, R
 import { registerSchema } from "@/schemas/auth";
 import type { Role } from "@/types";
 import { sendPendingApprovalEmail, sendVerificationEmail } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 3 registration attempts per minute per IP
+    const ip = getClientIp(request);
+    const { limited, retryAfterMs } = rateLimit(`register:${ip}`, 3, 60_000);
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many registration attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs || 60_000) / 1000)) } }
+      );
+    }
+
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
@@ -17,9 +29,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Destructure only safe fields — `role` from the request body is intentionally ignored.
+    // Role is determined exclusively by invite token (if present) or defaults to APPLICANT.
     const { email, password, firstName, lastName, phone, inviteToken } = parsed.data;
 
-    // Determine role: from invite or forced to APPLICANT
     let role: string = "APPLICANT";
     let invite = null;
 
@@ -53,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    const needsApproval = ["RECRUITER", "HR"].includes(role);
+    const needsApproval = ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role);
     const verificationToken = randomUUID();
     const applicant = await prisma.applicant.create({
       data: {
@@ -140,7 +153,7 @@ export async function POST(request: NextRequest) {
     const err = error instanceof Error ? error : new Error(String(error));
     console.error("Registration error:", err.message, err.stack);
     return NextResponse.json(
-      { error: "Internal server error", detail: err.message },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

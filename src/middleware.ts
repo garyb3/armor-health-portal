@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken, verifyRefreshToken, createToken, ACCESS_COOKIE_OPTIONS } from "@/lib/auth";
+import { verifyToken, verifyRefreshToken } from "@/lib/auth";
 import type { TokenPayload } from "@/lib/auth";
 
 const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/api/auth/login", "/api/auth/register", "/api/auth/refresh"];
@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Static files — only allow known safe extensions
-  if (pathname.startsWith("/_next") || pathname.startsWith("/uploads") || pathname.startsWith("/images")) {
+  if (pathname.startsWith("/_next") || pathname.startsWith("/images")) {
     return NextResponse.next({ request: { headers: cleanHeaders } });
   }
   if (isStaticFile(pathname)) {
@@ -103,31 +103,19 @@ export async function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get("refresh-token")?.value;
 
   let payload: TokenPayload | null = null;
-  let tokenRefreshed = false;
-  let newAccessToken: string | null = null;
 
   if (accessToken) {
     payload = await verifyToken(accessToken);
   }
 
-  // Access token expired/invalid — try refresh token
+  // Access token expired/invalid — try refresh token to allow this request through.
+  // We do NOT issue a new access token here because middleware (Edge runtime) cannot
+  // check tokenVersion against the DB. The client-side apiFetch wrapper will detect
+  // the subsequent 401 and call /api/auth/refresh, which performs the full DB check.
   if (!payload && refreshToken) {
     const refreshPayload = await verifyRefreshToken(refreshToken);
     if (refreshPayload) {
-      // Issue new access token from refresh token claims
-      newAccessToken = await createToken({
-        sub: refreshPayload.sub,
-        email: refreshPayload.email,
-        firstName: refreshPayload.firstName,
-        lastName: refreshPayload.lastName,
-        role: refreshPayload.role,
-        approved: refreshPayload.approved,
-        emailVerified: refreshPayload.emailVerified,
-        tokenVersion: refreshPayload.tokenVersion,
-      });
-
       payload = refreshPayload;
-      tokenRefreshed = true;
     }
   }
 
@@ -144,7 +132,7 @@ export async function middleware(request: NextRequest) {
   const role = payload.role || "";
   const approved = payload.approved ?? false;
   const emailVerified = payload.emailVerified ?? false;
-  const isStaff = ["RECRUITER", "HR", "ADMIN"].includes(role);
+  const isStaff = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role);
 
   // Unverified email — block everything except verify-email page and logout
   if (!emailVerified) {
@@ -165,7 +153,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Unapproved staff (RECRUITER/HR) — block everything except pending-approval and logout
-  if (["RECRUITER", "HR"].includes(role) && !approved) {
+  if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
     if (pathname === "/pending-approval") {
       // allow through
     } else if (pathname === "/api/auth/logout") {
@@ -204,14 +192,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-user-approved", String(approved));
 
-  const response = NextResponse.next({ request: { headers: requestHeaders } });
-
-  // If we refreshed the access token, set the new cookie
-  if (tokenRefreshed && newAccessToken) {
-    response.cookies.set("auth-token", newAccessToken, ACCESS_COOKIE_OPTIONS);
-  }
-
-  return response;
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

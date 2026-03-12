@@ -2,9 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword, createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { loginSchema } from "@/schemas/auth";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 5 login attempts per minute per IP
+    const ip = getClientIp(request);
+    const { limited, retryAfterMs } = rateLimit(`login:${ip}`, 5, 60_000);
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many login attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs || 60_000) / 1000)) } }
+      );
+    }
+
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {
@@ -72,7 +84,7 @@ export async function POST(request: NextRequest) {
     const err = error instanceof Error ? error : new Error(String(error));
     console.error("Login error:", err.message, err.stack);
     return NextResponse.json(
-      { error: "Internal server error", detail: err.message },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

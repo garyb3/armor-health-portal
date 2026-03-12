@@ -372,7 +372,7 @@ export async function sendOverdueAlertToStaff({
 interface BciReceiptParams {
   applicantName: string;
   applicantEmail: string;
-  receiptFilePath: string; // relative path e.g. /uploads/receipts/xyz.pdf
+  receiptFilePath: string; // relative path e.g. receipts/xyz.pdf
 }
 
 export async function sendBciReceiptToCountyRep({
@@ -402,7 +402,7 @@ export async function sendBciReceiptToCountyRep({
   }
 
   // Read the receipt file and base64-encode it for SendGrid attachment
-  const absolutePath = path.join(process.cwd(), "public", receiptFilePath);
+  const absolutePath = path.join(process.cwd(), "uploads", receiptFilePath);
   let fileBuffer: Buffer;
   try {
     fileBuffer = await readFile(absolutePath);
