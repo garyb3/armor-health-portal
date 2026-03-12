@@ -43,6 +43,7 @@ model Applicant {
   approved          Boolean          @default(false)
   emailVerified     Boolean          @default(false)
   verificationToken String?          @unique
+  tokenVersion      Int              @default(0)
   phone             String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt

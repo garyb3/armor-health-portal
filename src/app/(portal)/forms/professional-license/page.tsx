@@ -10,6 +10,7 @@ import {
 } from "@/schemas/professional-license";
 import { FormActions } from "@/components/forms/form-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api-client";
 
 export default function ProfessionalLicensePage() {
   const [loading, setLoading] = useState(true);
@@ -30,7 +31,7 @@ export default function ProfessionalLicensePage() {
   useEffect(() => {
     async function loadSaved() {
       try {
-        const res = await fetch("/api/forms/professional-license");
+        const res = await apiFetch("/api/forms/professional-license");
         if (res.ok) {
           const data = await res.json();
           if (data.formData) {
@@ -56,7 +57,7 @@ export default function ProfessionalLicensePage() {
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      await fetch("/api/forms/professional-license", {
+      await apiFetch("/api/forms/professional-license", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: getValues(), action: "save_draft" }),
@@ -69,7 +70,7 @@ export default function ProfessionalLicensePage() {
   const onSubmit = async (data: ProfessionalLicenseInput) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/forms/professional-license", {
+      const res = await apiFetch("/api/forms/professional-license", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data, action: "submit" }),

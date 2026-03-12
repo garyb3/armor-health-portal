@@ -20,6 +20,7 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api-client";
 
 const ROLE_LABELS: Record<string, string> = {
   RECRUITER: "Recruiter",
@@ -47,7 +48,7 @@ export default function InviteRegisterPage() {
   useEffect(() => {
     async function validate() {
       try {
-        const res = await fetch(`/api/invites/${token}`);
+        const res = await apiFetch(`/api/invites/${token}`);
         const data = await res.json();
         if (!res.ok) {
           setInviteError(data.error || "Invalid invite link");

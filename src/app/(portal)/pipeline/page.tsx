@@ -7,6 +7,7 @@ import { PipelineChart } from "@/components/pipeline/pipeline-chart";
 import { PIPELINE_STAGES } from "@/lib/constants";
 import { Loader2 } from "lucide-react";
 import type { PipelineApplicant, PipelineSummary } from "@/types";
+import { apiFetch } from "@/lib/api-client";
 
 export default function PipelinePage() {
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);
@@ -21,7 +22,7 @@ export default function PipelinePage() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/pipeline");
+        const res = await apiFetch("/api/pipeline");
         if (!res.ok) return;
         const data = await res.json();
         setApplicants(data.applicants);

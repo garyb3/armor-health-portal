@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import { apiFetch } from "@/lib/api-client";
 
 interface UseAutoSaveOptions {
   formType: string;
@@ -26,7 +27,7 @@ export function useAutoSave({
 
       isSavingRef.current = true;
       try {
-        await fetch(`/api/forms/${formType}`, {
+        await apiFetch(`/api/forms/${formType}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ formData: data, action: "save_draft" }),

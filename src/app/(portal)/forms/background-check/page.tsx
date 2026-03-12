@@ -24,6 +24,7 @@ import { FormActions } from "@/components/forms/form-actions";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api-client";
 
 export default function BackgroundCheckPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function BackgroundCheckPage() {
   useEffect(() => {
     async function loadSaved() {
       try {
-        const res = await fetch("/api/forms/background-check");
+        const res = await apiFetch("/api/forms/background-check");
         if (res.ok) {
           const data = await res.json();
           if (data.formData) {
@@ -84,7 +85,7 @@ export default function BackgroundCheckPage() {
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      await fetch("/api/forms/background-check", {
+      await apiFetch("/api/forms/background-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: getValues(), action: "save_draft" }),
@@ -115,7 +116,7 @@ export default function BackgroundCheckPage() {
       const formData = new FormData();
       formData.append("receipt", file);
 
-      const res = await fetch(
+      const res = await apiFetch(
         "/api/forms/background-check/upload-receipt",
         { method: "POST", body: formData }
       );
@@ -137,7 +138,7 @@ export default function BackgroundCheckPage() {
   const onSubmit = async (data: BackgroundCheckInput) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/forms/background-check", {
+      const res = await apiFetch("/api/forms/background-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data, action: "submit" }),

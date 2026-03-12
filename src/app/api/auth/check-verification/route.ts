@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken, createToken } from "@/lib/auth";
+import { verifyToken, createToken, ACCESS_COOKIE_OPTIONS } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   // Token says unverified — check DB for updated status
   const user = await prisma.applicant.findUnique({
     where: { id: payload.sub },
-    select: { emailVerified: true, approved: true },
+    select: { emailVerified: true, approved: true, tokenVersion: true },
   });
 
   if (!user || !user.emailVerified) {
@@ -37,16 +37,11 @@ export async function GET(request: NextRequest) {
     role: payload.role,
     approved: user.approved,
     emailVerified: true,
+    tokenVersion: user.tokenVersion,
   });
 
   const response = NextResponse.json({ emailVerified: true });
-  response.cookies.set("auth-token", newToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
-    path: "/",
-  });
+  response.cookies.set("auth-token", newToken, ACCESS_COOKIE_OPTIONS);
 
   return response;
 }

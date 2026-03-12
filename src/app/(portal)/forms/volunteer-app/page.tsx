@@ -11,6 +11,7 @@ import {
 import { FormActions } from "@/components/forms/form-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { apiFetch } from "@/lib/api-client";
 
 export default function VolunteerAppPage() {
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,7 @@ export default function VolunteerAppPage() {
   useEffect(() => {
     async function loadSaved() {
       try {
-        const res = await fetch("/api/forms/volunteer-app");
+        const res = await apiFetch("/api/forms/volunteer-app");
         if (res.ok) {
           const data = await res.json();
           if (data.formData) {
@@ -57,7 +58,7 @@ export default function VolunteerAppPage() {
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      await fetch("/api/forms/volunteer-app", {
+      await apiFetch("/api/forms/volunteer-app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: getValues(), action: "save_draft" }),
@@ -70,7 +71,7 @@ export default function VolunteerAppPage() {
   const onSubmit = async (data: VolunteerAppInput) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/forms/volunteer-app", {
+      const res = await apiFetch("/api/forms/volunteer-app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data, action: "submit" }),

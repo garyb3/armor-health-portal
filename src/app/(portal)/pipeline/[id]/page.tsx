@@ -24,6 +24,7 @@ import {
   Clock,
 } from "lucide-react";
 import type { FormProgress } from "@/types";
+import { apiFetch } from "@/lib/api-client";
 
 interface ApplicantDetail {
   id: string;
@@ -61,7 +62,7 @@ export default function ApplicantDetailPage() {
 
   const loadApplicant = async () => {
     try {
-      const res = await fetch(`/api/pipeline/${params.id}`);
+      const res = await apiFetch(`/api/pipeline/${params.id}`);
       if (!res.ok) return;
       setApplicant(await res.json());
     } catch (err) {
@@ -83,7 +84,7 @@ export default function ApplicantDetailPage() {
 
     setActionLoading(`${formType}-${action}`);
     try {
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/pipeline/${params.id}/step/${slug}`,
         {
           method: "POST",

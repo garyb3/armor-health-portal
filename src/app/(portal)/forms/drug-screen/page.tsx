@@ -9,6 +9,7 @@ import { FormField } from "@/components/forms/form-field";
 import { FormActions } from "@/components/forms/form-actions";
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api-client";
 
 const LABCORP_PDF_URL = "/Labcorp. New hire drug screen (4) (5).pdf";
 
@@ -40,7 +41,7 @@ export default function DrugScreenPage() {
   useEffect(() => {
     async function loadSaved() {
       try {
-        const res = await fetch("/api/forms/drug-screen");
+        const res = await apiFetch("/api/forms/drug-screen");
         if (res.ok) {
           const data = await res.json();
           if (data.formData) {
@@ -66,7 +67,7 @@ export default function DrugScreenPage() {
   const saveDraft = async () => {
     setIsSaving(true);
     try {
-      await fetch("/api/forms/drug-screen", {
+      await apiFetch("/api/forms/drug-screen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: getValues(), action: "save_draft" }),
@@ -79,7 +80,7 @@ export default function DrugScreenPage() {
   const onSubmit = async (data: DrugScreenInput) => {
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/forms/drug-screen", {
+      const res = await apiFetch("/api/forms/drug-screen", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: data, action: "submit" }),

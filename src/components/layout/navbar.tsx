@@ -5,6 +5,7 @@ import { LogOut, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { apiFetch } from "@/lib/api-client";
 
 const NAV_LINKS = [
   { href: "/forms/volunteer-app", label: "Clearance Form" },
@@ -35,7 +36,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   const [pendingHref, setPendingHref] = useState<string>("/dashboard");
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await apiFetch("/api/auth/logout", { method: "POST" });
     router.push("/");
   };
 

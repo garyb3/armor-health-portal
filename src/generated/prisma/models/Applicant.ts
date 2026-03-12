@@ -20,8 +20,18 @@ export type ApplicantModel = runtime.Types.Result.DefaultSelection<Prisma.$Appli
 
 export type AggregateApplicant = {
   _count: ApplicantCountAggregateOutputType | null
+  _avg: ApplicantAvgAggregateOutputType | null
+  _sum: ApplicantSumAggregateOutputType | null
   _min: ApplicantMinAggregateOutputType | null
   _max: ApplicantMaxAggregateOutputType | null
+}
+
+export type ApplicantAvgAggregateOutputType = {
+  tokenVersion: number | null
+}
+
+export type ApplicantSumAggregateOutputType = {
+  tokenVersion: number | null
 }
 
 export type ApplicantMinAggregateOutputType = {
@@ -34,6 +44,7 @@ export type ApplicantMinAggregateOutputType = {
   approved: boolean | null
   emailVerified: boolean | null
   verificationToken: string | null
+  tokenVersion: number | null
   phone: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +60,7 @@ export type ApplicantMaxAggregateOutputType = {
   approved: boolean | null
   emailVerified: boolean | null
   verificationToken: string | null
+  tokenVersion: number | null
   phone: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -64,12 +76,21 @@ export type ApplicantCountAggregateOutputType = {
   approved: number
   emailVerified: number
   verificationToken: number
+  tokenVersion: number
   phone: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type ApplicantAvgAggregateInputType = {
+  tokenVersion?: true
+}
+
+export type ApplicantSumAggregateInputType = {
+  tokenVersion?: true
+}
 
 export type ApplicantMinAggregateInputType = {
   id?: true
@@ -81,6 +102,7 @@ export type ApplicantMinAggregateInputType = {
   approved?: true
   emailVerified?: true
   verificationToken?: true
+  tokenVersion?: true
   phone?: true
   createdAt?: true
   updatedAt?: true
@@ -96,6 +118,7 @@ export type ApplicantMaxAggregateInputType = {
   approved?: true
   emailVerified?: true
   verificationToken?: true
+  tokenVersion?: true
   phone?: true
   createdAt?: true
   updatedAt?: true
@@ -111,6 +134,7 @@ export type ApplicantCountAggregateInputType = {
   approved?: true
   emailVerified?: true
   verificationToken?: true
+  tokenVersion?: true
   phone?: true
   createdAt?: true
   updatedAt?: true
@@ -155,6 +179,18 @@ export type ApplicantAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inte
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ApplicantAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ApplicantSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ApplicantMinAggregateInputType
@@ -185,6 +221,8 @@ export type ApplicantGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   _count?: ApplicantCountAggregateInputType | true
+  _avg?: ApplicantAvgAggregateInputType
+  _sum?: ApplicantSumAggregateInputType
   _min?: ApplicantMinAggregateInputType
   _max?: ApplicantMaxAggregateInputType
 }
@@ -199,10 +237,13 @@ export type ApplicantGroupByOutputType = {
   approved: boolean
   emailVerified: boolean
   verificationToken: string | null
+  tokenVersion: number
   phone: string | null
   createdAt: Date
   updatedAt: Date
   _count: ApplicantCountAggregateOutputType | null
+  _avg: ApplicantAvgAggregateOutputType | null
+  _sum: ApplicantSumAggregateOutputType | null
   _min: ApplicantMinAggregateOutputType | null
   _max: ApplicantMaxAggregateOutputType | null
 }
@@ -235,6 +276,7 @@ export type ApplicantWhereInput = {
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
   verificationToken?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  tokenVersion?: Prisma.IntFilter<"Applicant"> | number
   phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
@@ -252,6 +294,7 @@ export type ApplicantOrderByWithRelationInput = {
   approved?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   verificationToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -272,6 +315,7 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
+  tokenVersion?: Prisma.IntFilter<"Applicant"> | number
   phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
@@ -289,12 +333,15 @@ export type ApplicantOrderByWithAggregationInput = {
   approved?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   verificationToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApplicantCountOrderByAggregateInput
+  _avg?: Prisma.ApplicantAvgOrderByAggregateInput
   _max?: Prisma.ApplicantMaxOrderByAggregateInput
   _min?: Prisma.ApplicantMinOrderByAggregateInput
+  _sum?: Prisma.ApplicantSumOrderByAggregateInput
 }
 
 export type ApplicantScalarWhereWithAggregatesInput = {
@@ -310,6 +357,7 @@ export type ApplicantScalarWhereWithAggregatesInput = {
   approved?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
   verificationToken?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
+  tokenVersion?: Prisma.IntWithAggregatesFilter<"Applicant"> | number
   phone?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
@@ -325,6 +373,7 @@ export type ApplicantCreateInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -342,6 +391,7 @@ export type ApplicantUncheckedCreateInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -359,6 +409,7 @@ export type ApplicantUpdateInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +427,7 @@ export type ApplicantUncheckedUpdateInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -393,6 +445,7 @@ export type ApplicantCreateManyInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -408,6 +461,7 @@ export type ApplicantUpdateManyMutationInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -423,6 +477,7 @@ export type ApplicantUncheckedUpdateManyInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -438,9 +493,14 @@ export type ApplicantCountOrderByAggregateInput = {
   approved?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   verificationToken?: Prisma.SortOrder
+  tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ApplicantAvgOrderByAggregateInput = {
+  tokenVersion?: Prisma.SortOrder
 }
 
 export type ApplicantMaxOrderByAggregateInput = {
@@ -453,6 +513,7 @@ export type ApplicantMaxOrderByAggregateInput = {
   approved?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   verificationToken?: Prisma.SortOrder
+  tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -468,9 +529,14 @@ export type ApplicantMinOrderByAggregateInput = {
   approved?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
   verificationToken?: Prisma.SortOrder
+  tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ApplicantSumOrderByAggregateInput = {
+  tokenVersion?: Prisma.SortOrder
 }
 
 export type ApplicantScalarRelationFilter = {
@@ -492,6 +558,14 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -536,6 +610,7 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -552,6 +627,7 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -584,6 +660,7 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -600,6 +677,7 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -616,6 +694,7 @@ export type ApplicantCreateWithoutSensitiveDataInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -632,6 +711,7 @@ export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: string | null
+  tokenVersion?: number
   phone?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -664,6 +744,7 @@ export type ApplicantUpdateWithoutSensitiveDataInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -680,6 +761,7 @@ export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -727,6 +809,7 @@ export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: boolean
+  tokenVersion?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -745,6 +828,7 @@ export type ApplicantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: boolean
+  tokenVersion?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -760,6 +844,7 @@ export type ApplicantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: boolean
+  tokenVersion?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -775,12 +860,13 @@ export type ApplicantSelectScalar = {
   approved?: boolean
   emailVerified?: boolean
   verificationToken?: boolean
+  tokenVersion?: boolean
   phone?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "emailVerified" | "verificationToken" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
+export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "emailVerified" | "verificationToken" | "tokenVersion" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
 export type ApplicantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
@@ -805,6 +891,7 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     approved: boolean
     emailVerified: boolean
     verificationToken: string | null
+    tokenVersion: number
     phone: string | null
     createdAt: Date
     updatedAt: Date
@@ -1242,6 +1329,7 @@ export interface ApplicantFieldRefs {
   readonly approved: Prisma.FieldRef<"Applicant", 'Boolean'>
   readonly emailVerified: Prisma.FieldRef<"Applicant", 'Boolean'>
   readonly verificationToken: Prisma.FieldRef<"Applicant", 'String'>
+  readonly tokenVersion: Prisma.FieldRef<"Applicant", 'Int'>
   readonly phone: Prisma.FieldRef<"Applicant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Applicant", 'DateTime'>

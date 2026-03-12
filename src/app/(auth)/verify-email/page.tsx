@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mail, AlertCircle, CheckCircle2 } from "lucide-react";
+import { apiFetch } from "@/lib/api-client";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
@@ -16,7 +17,7 @@ function VerifyEmailContent() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/auth/check-verification");
+        const res = await apiFetch("/api/auth/check-verification");
         if (res.ok) {
           const data = await res.json();
           if (data.emailVerified) {
@@ -33,7 +34,7 @@ function VerifyEmailContent() {
   const handleResend = async () => {
     setResendStatus("sending");
     try {
-      const res = await fetch("/api/auth/resend-verification", { method: "POST" });
+      const res = await apiFetch("/api/auth/resend-verification", { method: "POST" });
       if (res.ok) {
         setResendStatus("sent");
       } else {
@@ -116,7 +117,7 @@ function VerifyEmailContent() {
             variant="ghost"
             className="w-full text-gray-500"
             onClick={async () => {
-              await fetch("/api/auth/logout", { method: "POST" });
+              await apiFetch("/api/auth/logout", { method: "POST" });
               window.location.href = "/";
             }}
           >

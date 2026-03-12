@@ -81,6 +81,7 @@ export const ApplicantScalarFieldEnum = {
   approved: 'approved',
   emailVerified: 'emailVerified',
   verificationToken: 'verificationToken',
+  tokenVersion: 'tokenVersion',
   phone: 'phone',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

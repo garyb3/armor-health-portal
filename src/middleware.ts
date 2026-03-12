@@ -1,45 +1,144 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken, verifyRefreshToken, createToken, ACCESS_COOKIE_OPTIONS } from "@/lib/auth";
+import type { TokenPayload } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/api/auth/login", "/api/auth/register"];
+const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/api/auth/login", "/api/auth/register", "/api/auth/refresh"];
+
+/** Static file extensions that can bypass auth */
+const STATIC_EXTENSIONS = new Set([
+  ".ico", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp",
+  ".css", ".js", ".map", ".woff", ".woff2", ".ttf", ".eot",
+]);
+
+function isStaticFile(pathname: string): boolean {
+  const lastDot = pathname.lastIndexOf(".");
+  if (lastDot === -1) return false;
+  const ext = pathname.substring(lastDot).toLowerCase();
+  return STATIC_EXTENSIONS.has(ext);
+}
+
+/** Headers that must be stripped from incoming requests to prevent injection */
+const USER_HEADERS = [
+  "x-user-id", "x-user-email", "x-user-first-name",
+  "x-user-last-name", "x-user-role", "x-user-approved",
+];
+
+/**
+ * CSRF protection: state-changing requests (POST/PUT/PATCH/DELETE) to API routes
+ * must include the X-Requested-With header. Browsers won't send this header in
+ * cross-origin requests without a CORS preflight, which we don't allow.
+ */
+function checkCsrf(request: NextRequest): NextResponse | null {
+  const method = request.method;
+  const { pathname } = request.nextUrl;
+
+  // Only enforce on state-changing API requests
+  if (!pathname.startsWith("/api/") || method === "GET" || method === "HEAD" || method === "OPTIONS") {
+    return null;
+  }
+
+  // Cron routes use Bearer auth, not cookies — exempt from CSRF
+  if (pathname.startsWith("/api/cron/")) {
+    return null;
+  }
+
+  const xRequestedWith = request.headers.get("x-requested-with");
+  if (xRequestedWith !== "XMLHttpRequest") {
+    return NextResponse.json(
+      { error: "Missing CSRF header" },
+      { status: 403 }
+    );
+  }
+
+  return null;
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Strip x-user-* headers from ALL incoming requests to prevent header injection
+  const cleanHeaders = new Headers(request.headers);
+  for (const header of USER_HEADERS) {
+    cleanHeaders.delete(header);
+  }
+
+  // CSRF check for all state-changing API requests
+  const csrfError = checkCsrf(request);
+  if (csrfError) return csrfError;
+
+  // Public paths — no auth required
   if (
     publicPaths.some((p) => pathname === p) ||
     pathname.startsWith("/register/invite/") ||
-    (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/me" && pathname !== "/api/auth/resend-verification") ||
-    pathname.startsWith("/api/cron/") ||
-    /^\/api\/invites\/[^/]+$/.test(pathname)
+    (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/me" && pathname !== "/api/auth/resend-verification")
   ) {
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: cleanHeaders } });
   }
 
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/uploads") ||
-    pathname.startsWith("/images") ||
-    pathname.includes(".")
-  ) {
-    return NextResponse.next();
+  // Cron routes — require CRON_SECRET, NOT cookie auth
+  if (pathname.startsWith("/api/cron/")) {
+    const authHeader = request.headers.get("authorization");
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.next({ request: { headers: cleanHeaders } });
   }
 
-  const token = request.cookies.get("auth-token")?.value;
-  if (!token) {
+  // Invite validation — allow through (token is the auth, validated in the handler)
+  if (/^\/api\/invites\/[^/]+$/.test(pathname)) {
+    return NextResponse.next({ request: { headers: cleanHeaders } });
+  }
+
+  // Static files — only allow known safe extensions
+  if (pathname.startsWith("/_next") || pathname.startsWith("/uploads") || pathname.startsWith("/images")) {
+    return NextResponse.next({ request: { headers: cleanHeaders } });
+  }
+  if (isStaticFile(pathname)) {
+    return NextResponse.next({ request: { headers: cleanHeaders } });
+  }
+
+  // --- Authentication ---
+  const accessToken = request.cookies.get("auth-token")?.value;
+  const refreshToken = request.cookies.get("refresh-token")?.value;
+
+  let payload: TokenPayload | null = null;
+  let tokenRefreshed = false;
+  let newAccessToken: string | null = null;
+
+  if (accessToken) {
+    payload = await verifyToken(accessToken);
+  }
+
+  // Access token expired/invalid — try refresh token
+  if (!payload && refreshToken) {
+    const refreshPayload = await verifyRefreshToken(refreshToken);
+    if (refreshPayload) {
+      // Issue new access token from refresh token claims
+      newAccessToken = await createToken({
+        sub: refreshPayload.sub,
+        email: refreshPayload.email,
+        firstName: refreshPayload.firstName,
+        lastName: refreshPayload.lastName,
+        role: refreshPayload.role,
+        approved: refreshPayload.approved,
+        emailVerified: refreshPayload.emailVerified,
+        tokenVersion: refreshPayload.tokenVersion,
+      });
+
+      payload = refreshPayload;
+      tokenRefreshed = true;
+    }
+  }
+
+  if (!payload) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  const payload = await verifyToken(token);
-  if (!payload) {
-    const response = pathname.startsWith("/api/")
-      ? NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-      : NextResponse.redirect(new URL("/", request.url));
-    response.cookies.delete("auth-token");
-    return response;
+    const redirectResponse = NextResponse.redirect(new URL("/", request.url));
+    redirectResponse.cookies.delete("auth-token");
+    redirectResponse.cookies.delete("refresh-token");
+    return redirectResponse;
   }
 
   const role = payload.role || "";
@@ -96,7 +195,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/background-clearance", request.url));
   }
 
-  const requestHeaders = new Headers(request.headers);
+  // Set user headers on the (already cleaned) headers
+  const requestHeaders = new Headers(cleanHeaders);
   requestHeaders.set("x-user-id", payload.sub);
   requestHeaders.set("x-user-email", payload.email);
   requestHeaders.set("x-user-first-name", payload.firstName);
@@ -104,7 +204,14 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-user-approved", String(approved));
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  const response = NextResponse.next({ request: { headers: requestHeaders } });
+
+  // If we refreshed the access token, set the new cookie
+  if (tokenRefreshed && newAccessToken) {
+    response.cookies.set("auth-token", newAccessToken, ACCESS_COOKIE_OPTIONS);
+  }
+
+  return response;
 }
 
 export const config = {

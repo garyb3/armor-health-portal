@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { ApplicantProfile } from "@/types";
+import { apiFetch } from "@/lib/api-client";
 
 export function useAuth() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export function useAuth() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/auth/login", {
+        const res = await apiFetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -61,7 +62,7 @@ export function useAuth() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/auth/register", {
+        const res = await apiFetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -94,7 +95,7 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await apiFetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     router.push("/");
   }, [router]);

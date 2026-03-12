@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { useBackButtonGuard } from "@/hooks/use-back-button-guard";
 import { Button } from "@/components/ui/button";
 import type { FormStatus } from "@/types";
+import { apiFetch } from "@/lib/api-client";
 
 interface UserInfo {
   id: string;
@@ -29,14 +30,14 @@ export default function PortalLayout({
     async function loadUser() {
       try {
         // Decode user from the auth-token cookie via a simple API call
-        const res = await fetch("/api/auth/me");
+        const res = await apiFetch("/api/auth/me");
         if (res.ok) {
           const data = await res.json();
           setUser(data.user);
 
           // Only fetch individual progress for applicant roles
           if (data.user.role !== "RECRUITER" && data.user.role !== "HR" && data.user.role !== "ADMIN") {
-            const progressRes = await fetch(
+            const progressRes = await apiFetch(
               `/api/applicants/${data.user.id}/progress`
             );
             if (progressRes.ok) {

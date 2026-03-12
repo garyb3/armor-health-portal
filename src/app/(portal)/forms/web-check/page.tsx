@@ -17,6 +17,7 @@ import {
 import { useAutoSave } from "@/hooks/use-auto-save";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { apiFetch } from "@/lib/api-client";
 
 export default function WebCheckPage() {
   const router = useRouter();
@@ -54,7 +55,7 @@ export default function WebCheckPage() {
   useEffect(() => {
     async function loadSaved() {
       try {
-        const res = await fetch("/api/forms/web-check");
+        const res = await apiFetch("/api/forms/web-check");
         if (res.ok) {
           const data = await res.json();
           if (data.formData) {
@@ -79,7 +80,7 @@ export default function WebCheckPage() {
     setIsSaving(true);
     try {
       const { ssn: _ssn, ...dataWithoutSSN } = getValues();
-      await fetch("/api/forms/web-check", {
+      await apiFetch("/api/forms/web-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -99,7 +100,7 @@ export default function WebCheckPage() {
       setSsnForPrint(data.ssn);
       const { ssn: _ssn, ...dataWithoutSSN } = data;
 
-      const res = await fetch("/api/forms/web-check", {
+      const res = await apiFetch("/api/forms/web-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ formData: dataWithoutSSN, action: "submit" }),

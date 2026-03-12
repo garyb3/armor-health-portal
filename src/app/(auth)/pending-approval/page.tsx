@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock } from "lucide-react";
+import { apiFetch } from "@/lib/api-client";
 
 export default function PendingApprovalPage() {
   const router = useRouter();
@@ -12,7 +13,7 @@ export default function PendingApprovalPage() {
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch("/api/auth/check-approval");
+        const res = await apiFetch("/api/auth/check-approval");
         const data = await res.json();
         if (data.approved) {
           router.push("/dashboard");

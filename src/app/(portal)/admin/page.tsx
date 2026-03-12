@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, RotateCcw, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { apiFetch } from "@/lib/api-client";
 
 interface StaffUser {
   id: string;
@@ -24,7 +25,7 @@ export default function AdminPage() {
 
   async function loadUsers(f: string) {
     setLoading(true);
-    const res = await fetch(`/api/admin/users?filter=${f}`);
+    const res = await apiFetch(`/api/admin/users?filter=${f}`);
     if (res.ok) {
       const data = await res.json();
       setUsers(data.users);
@@ -39,7 +40,7 @@ export default function AdminPage() {
   async function approve(id: string) {
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/admin/users/${id}/approve`, { method: "POST" });
+      const res = await apiFetch(`/api/admin/users/${id}/approve`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to approve: ${data.error || res.statusText}`);
@@ -57,7 +58,7 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to deny and remove this user?")) return;
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/admin/users/${id}/deny`, { method: "POST" });
+      const res = await apiFetch(`/api/admin/users/${id}/deny`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to deny: ${data.error || res.statusText}`);
@@ -75,7 +76,7 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to permanently remove this user?")) return;
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/admin/users/${id}/delete`, { method: "POST" });
+      const res = await apiFetch(`/api/admin/users/${id}/delete`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to remove: ${data.error || res.statusText}`);
@@ -92,7 +93,7 @@ export default function AdminPage() {
   async function verifyEmail(id: string) {
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/admin/users/${id}/verify-email`, { method: "POST" });
+      const res = await apiFetch(`/api/admin/users/${id}/verify-email`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to verify email: ${data.error || res.statusText}`);
@@ -110,7 +111,7 @@ export default function AdminPage() {
     if (!confirm("Are you sure you want to reset this applicant? This will clear all their form submissions so they can start over.")) return;
     setActionLoading(id);
     try {
-      const res = await fetch(`/api/admin/users/${id}/reset`, { method: "POST" });
+      const res = await apiFetch(`/api/admin/users/${id}/reset`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to reset: ${data.error || res.statusText}`);

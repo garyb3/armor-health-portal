@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyPassword, createToken } from "@/lib/auth";
+import { verifyPassword, createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { loginSchema } from "@/schemas/auth";
 
 export async function POST(request: NextRequest) {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const token = await createToken({
+    const tokenPayload = {
       sub: applicant.id,
       email: applicant.email,
       firstName: applicant.firstName,
@@ -43,7 +43,13 @@ export async function POST(request: NextRequest) {
       role: applicant.role,
       approved: applicant.approved,
       emailVerified: applicant.emailVerified,
-    });
+      tokenVersion: applicant.tokenVersion,
+    };
+
+    const [token, refreshToken] = await Promise.all([
+      createToken(tokenPayload),
+      createRefreshToken(tokenPayload),
+    ]);
 
     const response = NextResponse.json({
       user: {
@@ -58,13 +64,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    response.cookies.set("auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
-      path: "/",
-    });
+    response.cookies.set("auth-token", token, ACCESS_COOKIE_OPTIONS);
+    response.cookies.set("refresh-token", refreshToken, REFRESH_COOKIE_OPTIONS);
 
     return response;
   } catch (error: unknown) {

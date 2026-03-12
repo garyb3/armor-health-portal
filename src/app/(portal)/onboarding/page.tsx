@@ -6,6 +6,7 @@ import { StepCard } from "@/components/dashboard/step-card";
 import { FORM_STEPS } from "@/lib/constants";
 import type { FormProgress, FormStatus, ProgressResponse } from "@/types";
 import { Loader2, PartyPopper } from "lucide-react";
+import { apiFetch } from "@/lib/api-client";
 
 export default function OnboardingPage() {
   const [progress, setProgress] = useState<FormProgress[]>([]);
@@ -17,12 +18,12 @@ export default function OnboardingPage() {
   useEffect(() => {
     async function load() {
       try {
-        const meRes = await fetch("/api/auth/me");
+        const meRes = await apiFetch("/api/auth/me");
         if (!meRes.ok) return;
         const meData = await meRes.json();
         setUserName(meData.user.firstName);
 
-        const res = await fetch(
+        const res = await apiFetch(
           `/api/applicants/${meData.user.id}/progress`,
           { cache: "no-store" }
         );
