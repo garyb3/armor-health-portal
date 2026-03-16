@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, verifyRefreshToken } from "@/lib/auth";
 import type { TokenPayload } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password"];
+const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
 
 /** Static file extensions that can bypass auth */
 const STATIC_EXTENSIONS = new Set([
@@ -42,6 +42,11 @@ function checkCsrf(request: NextRequest): NextResponse | null {
     return null;
   }
 
+  // API key requests use Bearer auth, not cookies — exempt from CSRF
+  if (request.headers.get("authorization")?.startsWith("Bearer ahp_")) {
+    return null;
+  }
+
   const xRequestedWith = request.headers.get("x-requested-with");
   if (xRequestedWith !== "XMLHttpRequest") {
     return NextResponse.json(
@@ -53,8 +58,65 @@ function checkCsrf(request: NextRequest): NextResponse | null {
   return null;
 }
 
+/**
+ * CORS for /api/v1/ — allows external consumers from approved origins.
+ * Internal routes (/api/auth/, /api/forms/, etc.) remain same-origin only.
+ */
+function handleCors(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl;
+  if (!pathname.startsWith("/api/v1/")) return null;
+
+  const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const origin = request.headers.get("origin") || "";
+  const isAllowed = allowedOrigins.includes(origin);
+
+  // Preflight
+  if (request.method === "OPTIONS") {
+    if (!isAllowed) {
+      return new NextResponse(null, { status: 403 });
+    }
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400",
+      },
+    });
+  }
+
+  // For non-preflight requests, return null to continue — CORS headers are
+  // added to the final response via addCorsHeaders() below.
+  return null;
+}
+
+/** Append CORS headers to an existing response for /api/v1/ routes. */
+function addCorsHeaders(request: NextRequest, response: NextResponse): NextResponse {
+  if (!request.nextUrl.pathname.startsWith("/api/v1/")) return response;
+
+  const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const origin = request.headers.get("origin") || "";
+  if (allowedOrigins.includes(origin)) {
+    response.headers.set("Access-Control-Allow-Origin", origin);
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  }
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // CORS preflight for /api/v1/ routes
+  const corsResponse = handleCors(request);
+  if (corsResponse) return corsResponse;
 
   // Strip x-user-* headers from ALL incoming requests to prevent header injection
   const cleanHeaders = new Headers(request.headers);
@@ -99,6 +161,18 @@ export async function middleware(request: NextRequest) {
   }
 
   // --- Authentication ---
+
+  // API key Bearer auth for /api/ routes — pass key to route handler for DB validation
+  if (pathname.startsWith("/api/")) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader?.startsWith("Bearer ahp_")) {
+      const requestHeaders = new Headers(cleanHeaders);
+      requestHeaders.set("x-api-key-raw", authHeader.substring(7));
+      return addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } }));
+    }
+  }
+
+  // Cookie-based auth
   const accessToken = request.cookies.get("auth-token")?.value;
   const refreshToken = request.cookies.get("refresh-token")?.value;
 
@@ -192,7 +266,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-user-approved", String(approved));
 
-  return NextResponse.next({ request: { headers: requestHeaders } });
+  return addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } }));
 }
 
 export const config = {

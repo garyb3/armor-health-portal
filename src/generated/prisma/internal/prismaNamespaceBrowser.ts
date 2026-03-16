@@ -55,7 +55,8 @@ export const ModelName = {
   FormSubmission: 'FormSubmission',
   Invite: 'Invite',
   SensitiveData: 'SensitiveData',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  ApiKey: 'ApiKey'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -150,6 +151,23 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const ApiKeyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  keyHash: 'keyHash',
+  keyPrefix: 'keyPrefix',
+  role: 'role',
+  scopes: 'scopes',
+  active: 'active',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
 
 
 export const SortOrder = {

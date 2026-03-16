@@ -118,3 +118,20 @@ model AuditLog {
   @@index([action])
   @@map("audit_logs")
 }
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String
+  role       Role      @default(APPLICANT)
+  scopes     String    @default("read")
+  active     Boolean   @default(true)
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  createdBy  String
+  createdAt  DateTime  @default(now())
+
+  @@index([keyHash])
+  @@map("api_keys")
+}
