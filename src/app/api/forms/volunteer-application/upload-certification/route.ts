@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getUserFromRequest, unauthorizedResponse, getExtensionFromMime } from "@/lib/api-helpers";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -10,6 +11,12 @@ export async function POST(request: NextRequest) {
   try {
     const user = getUserFromRequest(request);
     if (!user) return unauthorizedResponse();
+
+    // Rate limit: 10 uploads per minute per user
+    const { limited } = rateLimit(`upload:${user.userId}`, 10, 60_000);
+    if (limited) {
+      return NextResponse.json({ error: "Too many uploads. Please try again later." }, { status: 429 });
+    }
 
     const formData = await request.formData();
     const file = formData.get("certification") as File | null;

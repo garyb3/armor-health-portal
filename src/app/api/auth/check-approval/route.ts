@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, createToken, ACCESS_COOKIE_OPTIONS } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
+  // Rate limit: 15 checks per minute per IP
+  const ip = getClientIp(request);
+  const { limited } = rateLimit(`check-approval:${ip}`, 15, 60_000);
+  if (limited) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   const token = request.cookies.get("auth-token")?.value;
   if (!token) {
     return NextResponse.json({ approved: false }, { status: 401 });

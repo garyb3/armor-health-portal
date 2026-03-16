@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   const userId = request.headers.get("x-user-id");
 
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Rate limit: 1 resend per 60 seconds per user
+  const { limited, retryAfterMs } = rateLimit(`resend-verification:${userId}`, 1, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Please wait before requesting another verification email" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs || 60_000) / 1000)) } }
+    );
   }
 
   try {
@@ -23,16 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email already verified" }, { status: 400 });
     }
 
-    // Rate limit: only allow resend if last update was >60s ago
-    const sixtySecondsAgo = new Date(Date.now() - 60 * 1000);
-    if (applicant.updatedAt > sixtySecondsAgo) {
-      return NextResponse.json(
-        { error: "Please wait before requesting another verification email" },
-        { status: 429 }
-      );
-    }
-
-    const verificationToken = randomUUID();
+    const verificationToken = randomBytes(32).toString("hex");
     await prisma.applicant.update({
       where: { id: userId },
       data: { verificationToken },

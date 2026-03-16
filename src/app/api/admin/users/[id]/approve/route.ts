@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
@@ -17,6 +17,15 @@ export async function POST(
     const updated = await prisma.applicant.update({
       where: { id },
       data: { approved: true },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.userId,
+        action: "ADMIN_APPROVE_USER",
+        targetId: id,
+        ipAddress: getClientIp(request),
+      },
     });
 
     return NextResponse.json({

@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
+  // Rate limit: 10 verification attempts per minute per IP
+  const ip = getClientIp(request);
+  const { limited } = rateLimit(`verify-email:${ip}`, 10, 60_000);
+  if (limited) {
+    return NextResponse.redirect(new URL("/verify-email?error=rate-limited", request.url));
+  }
+
   const token = request.nextUrl.searchParams.get("token");
 
   if (!token) {
@@ -18,8 +27,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/verify-email?error=invalid-token", request.url));
     }
 
-    // Mark email as verified and clear token
-    await prisma.applicant.update({
+    // Mark email as verified and clear token — use returned record for current approved/tokenVersion
+    const updated = await prisma.applicant.update({
       where: { id: applicant.id },
       data: {
         emailVerified: true,
@@ -28,14 +37,14 @@ export async function GET(request: NextRequest) {
     });
 
     const tokenPayload = {
-      sub: applicant.id,
-      email: applicant.email,
-      firstName: applicant.firstName,
-      lastName: applicant.lastName,
-      role: applicant.role,
-      approved: applicant.approved,
+      sub: updated.id,
+      email: updated.email,
+      firstName: updated.firstName,
+      lastName: updated.lastName,
+      role: updated.role,
+      approved: updated.approved,
       emailVerified: true,
-      tokenVersion: applicant.tokenVersion,
+      tokenVersion: updated.tokenVersion,
     };
 
     // Issue fresh access + refresh tokens
@@ -45,8 +54,8 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Determine redirect based on role
-    const role = applicant.role;
-    const approved = applicant.approved;
+    const role = updated.role;
+    const approved = updated.approved;
     let redirectPath = "/background-clearance";
 
     if (role === "COUNTY_REPRESENTATIVE") {

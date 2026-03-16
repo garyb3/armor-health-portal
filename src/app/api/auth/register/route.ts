@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
+import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { hashPassword, createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { registerSchema } from "@/schemas/auth";
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    const needsApproval = ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role);
-    const verificationToken = randomUUID();
+    const needsApproval = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "ADMIN"].includes(role);
+    const verificationToken = randomBytes(32).toString("hex");
     const applicant = await prisma.applicant.create({
       data: {
         email,

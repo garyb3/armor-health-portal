@@ -24,6 +24,18 @@ export async function POST(request: NextRequest) {
   }
 
   const { email, role } = parsed.data;
+
+  // Prevent duplicate active invites for the same email
+  const existingInvite = await prisma.invite.findFirst({
+    where: { email, used: false, expiresAt: { gt: new Date() } },
+  });
+  if (existingInvite) {
+    return NextResponse.json(
+      { error: "An active invite already exists for this email" },
+      { status: 409 }
+    );
+  }
+
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 

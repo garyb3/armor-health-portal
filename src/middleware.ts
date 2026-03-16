@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, verifyRefreshToken } from "@/lib/auth";
 import type { TokenPayload } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/api/auth/login", "/api/auth/register", "/api/auth/refresh"];
+const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password"];
 
 /** Static file extensions that can bypass auth */
 const STATIC_EXTENSIONS = new Set([

@@ -1,6 +1,3 @@
-// TODO: Implement password reset flow (email-based token + rate limiting)
-// This is a known gap — users currently cannot recover locked accounts.
-
 import { SignJWT, jwtVerify, errors as joseErrors } from "jose";
 import bcrypt from "bcryptjs";
 

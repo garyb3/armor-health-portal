@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
@@ -26,6 +26,15 @@ export async function POST(
       data: { applicantId: id, formType, status: "NOT_STARTED" },
     });
   }
+
+  await prisma.auditLog.create({
+    data: {
+      userId: user.userId,
+      action: "ADMIN_RESET_PIPELINE",
+      targetId: id,
+      ipAddress: getClientIp(request),
+    },
+  });
 
   return NextResponse.json({ success: true });
 }

@@ -565,10 +565,6 @@ export type EnumFormStatusFieldUpdateOperationsInput = {
   set?: $Enums.FormStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type FormSubmissionCreateWithoutApplicantInput = {
   id?: string
   formType: $Enums.FormType

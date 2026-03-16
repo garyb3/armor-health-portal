@@ -3,6 +3,16 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 
+/** Escape user-controlled strings before embedding in HTML email templates. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 const apiKey = process.env.SENDGRID_API_KEY;
 if (apiKey) {
   sgMail.setApiKey(apiKey);
@@ -24,8 +34,7 @@ export async function sendVerificationEmail({
 
   if (!apiKey) {
     console.warn(
-      `[Email] Skipping verification email — SENDGRID_API_KEY not configured. ` +
-        `User: ${userName} (${userEmail})`
+      `[Email] Skipping verification email — SENDGRID_API_KEY not configured.`
     );
     return false;
   }
@@ -41,7 +50,7 @@ export async function sendVerificationEmail({
       </div>
       <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
         <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
-          Hi <strong>${userName}</strong>, thanks for registering! Please verify your email address by clicking the button below:
+          Hi <strong>${escapeHtml(userName)}</strong>, thanks for registering! Please verify your email address by clicking the button below:
         </p>
         <div style="text-align: center; margin: 24px 0;">
           <a href="${verifyUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">
@@ -93,8 +102,7 @@ export async function sendOverdueAlert({
 
   if (!adminEmail || !apiKey) {
     console.warn(
-      `[Email] Skipping alert — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured. ` +
-        `Overdue: ${applicantName} (${applicantEmail}) on "${formStep}" for ${elapsedTime}`
+      `[Email] Skipping overdue alert — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured.`
     );
     return false;
   }
@@ -113,19 +121,19 @@ export async function sendOverdueAlert({
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Applicant</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantName}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantEmail}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantEmail)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Stuck On</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #dc2626; font-weight: 600;">${formStep}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #dc2626; font-weight: 600;">${escapeHtml(formStep)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Time Elapsed</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${elapsedTime}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(elapsedTime)}</td>
           </tr>
         </table>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
@@ -165,8 +173,7 @@ export async function sendStepCompletedEmail({
 
   if (!adminEmail || !apiKey) {
     console.warn(
-      `[Email] Skipping step-completed email — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured. ` +
-        `${applicantName} (${applicantEmail}) completed "${completedStep}"`
+      `[Email] Skipping step-completed email — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured.`
     );
     return false;
   }
@@ -185,15 +192,15 @@ export async function sendStepCompletedEmail({
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Applicant</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantName}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantEmail}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantEmail)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Completed Step</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #16a34a; font-weight: 600;">${completedStep}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #16a34a; font-weight: 600;">${escapeHtml(completedStep)}</td>
           </tr>
         </table>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
@@ -233,8 +240,7 @@ export async function sendPendingApprovalEmail({
 
   if (!adminEmail || !apiKey) {
     console.warn(
-      `[Email] Skipping pending-approval email — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured. ` +
-        `New user: ${userName} (${userEmail}), role: ${userRole}`
+      `[Email] Skipping pending-approval email — ADMIN_ALERT_EMAIL or SENDGRID_API_KEY not configured.`
     );
     return false;
   }
@@ -253,15 +259,15 @@ export async function sendPendingApprovalEmail({
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Name</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${userName}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(userName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${userEmail}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(userEmail)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Role</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #2563eb; font-weight: 600;">${userRole}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #2563eb; font-weight: 600;">${escapeHtml(userRole)}</td>
           </tr>
         </table>
         <p style="color: #374151; font-size: 14px; margin: 20px 0 8px;">
@@ -298,8 +304,7 @@ export async function sendOverdueAlertToStaff({
 
   if (!apiKey) {
     console.warn(
-      `[Email] Skipping staff overdue alert — SENDGRID_API_KEY not configured. ` +
-        `Overdue: ${applicantName} (${applicantEmail}) on "${formStep}" for ${elapsedTime}`
+      `[Email] Skipping staff overdue alert — SENDGRID_API_KEY not configured.`
     );
     return false;
   }
@@ -327,24 +332,24 @@ export async function sendOverdueAlertToStaff({
       </div>
       <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
         <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
-          An applicant has an incomplete form for <strong>${elapsedTime}</strong>:
+          An applicant has an incomplete form for <strong>${escapeHtml(elapsedTime)}</strong>:
         </p>
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Applicant</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantName}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantEmail}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantEmail)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Incomplete Step</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #dc2626; font-weight: 600;">${formStep}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #dc2626; font-weight: 600;">${escapeHtml(formStep)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Time Elapsed</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${elapsedTime}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(elapsedTime)}</td>
           </tr>
         </table>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
@@ -384,8 +389,7 @@ export async function sendBciReceiptToCountyRep({
 
   if (!apiKey) {
     console.warn(
-      `[Email] Skipping BCI receipt email — SENDGRID_API_KEY not configured. ` +
-        `Applicant: ${applicantName} (${applicantEmail})`
+      `[Email] Skipping BCI receipt email — SENDGRID_API_KEY not configured.`
     );
     return false;
   }
@@ -434,11 +438,11 @@ export async function sendBciReceiptToCountyRep({
         <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Applicant</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantName}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantName)}</td>
           </tr>
           <tr>
             <td style="padding: 8px 12px; background: #f9fafb; font-weight: 600; color: #374151; border: 1px solid #e5e7eb;">Email</td>
-            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${applicantEmail}</td>
+            <td style="padding: 8px 12px; border: 1px solid #e5e7eb; color: #374151;">${escapeHtml(applicantEmail)}</td>
           </tr>
         </table>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
@@ -488,15 +492,14 @@ export async function sendStepApprovedEmail({
 
   if (!apiKey) {
     console.warn(
-      `[Email] Skipping step-approved email — SENDGRID_API_KEY not configured. ` +
-        `${applicantName} (${applicantEmail}) approved "${approvedStep}"`
+      `[Email] Skipping step-approved email — SENDGRID_API_KEY not configured.`
     );
     return false;
   }
 
   const nextStepText = nextStep
     ? `<p style="color: #374151; font-size: 14px; margin: 16px 0 0;">
-        Your next step is: <strong>${nextStep}</strong>. Please log in to continue your background clearance process.
+        Your next step is: <strong>${escapeHtml(nextStep)}</strong>. Please log in to continue your background clearance process.
       </p>`
     : `<p style="color: #16a34a; font-size: 14px; font-weight: 600; margin: 16px 0 0;">
         Congratulations! All background clearance steps are now complete. Someone from our Employee Experience Team will contact you about your orientation and start date.
@@ -511,7 +514,7 @@ export async function sendStepApprovedEmail({
       </div>
       <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
         <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
-          Hi <strong>${applicantName}</strong>, your <strong>${approvedStep}</strong> step has been <span style="color: #16a34a; font-weight: 600;">approved</span>.
+          Hi <strong>${escapeHtml(applicantName)}</strong>, your <strong>${escapeHtml(approvedStep)}</strong> step has been <span style="color: #16a34a; font-weight: 600;">approved</span>.
         </p>
         ${nextStepText}
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
@@ -552,15 +555,14 @@ export async function sendStepDeniedEmail({
 
   if (!apiKey) {
     console.warn(
-      `[Email] Skipping step-denied email — SENDGRID_API_KEY not configured. ` +
-        `${applicantName} (${applicantEmail}) denied "${deniedStep}"`
+      `[Email] Skipping step-denied email — SENDGRID_API_KEY not configured.`
     );
     return false;
   }
 
   const noteText = note
     ? `<p style="color: #374151; font-size: 14px; margin: 16px 0 0;">
-        <strong>Note from reviewer:</strong> ${note}
+        <strong>Note from reviewer:</strong> ${escapeHtml(note)}
       </p>`
     : "";
 
@@ -573,7 +575,7 @@ export async function sendStepDeniedEmail({
       </div>
       <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
         <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
-          Hi <strong>${applicantName}</strong>, your <strong>${deniedStep}</strong> step <span style="color: #dc2626; font-weight: 600;">requires attention</span>.
+          Hi <strong>${escapeHtml(applicantName)}</strong>, your <strong>${escapeHtml(deniedStep)}</strong> step <span style="color: #dc2626; font-weight: 600;">requires attention</span>.
         </p>
         ${noteText}
         <p style="color: #374151; font-size: 14px; margin: 16px 0 0;">
@@ -596,6 +598,75 @@ export async function sendStepDeniedEmail({
     return true;
   } catch (error) {
     console.error("[Email] Failed to send step-denied email:", error);
+    return false;
+  }
+}
+
+interface PasswordResetEmailParams {
+  userName: string;
+  userEmail: string;
+  resetToken: string;
+}
+
+export async function sendPasswordResetEmail({
+  userName,
+  userEmail,
+  resetToken,
+}: PasswordResetEmailParams): Promise<boolean> {
+  const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+
+  if (!apiKey) {
+    console.warn(
+      `[Email] Skipping password reset email — SENDGRID_API_KEY not configured.`
+    );
+    return false;
+  }
+
+  const resetUrl = `${appUrl}/reset-password?token=${resetToken}`;
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background-color: #4a4a4a; padding: 20px; border-radius: 8px 8px 0 0;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">
+          Armor Health — Reset Your Password
+        </h1>
+      </div>
+      <div style="border: 1px solid #e5e7eb; border-top: none; padding: 24px; border-radius: 0 0 8px 8px;">
+        <p style="color: #374151; font-size: 14px; margin: 0 0 16px;">
+          Hi <strong>${escapeHtml(userName)}</strong>, we received a request to reset your password. Click the button below to choose a new password:
+        </p>
+        <div style="text-align: center; margin: 24px 0;">
+          <a href="${resetUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px;">
+            Reset Password
+          </a>
+        </div>
+        <p style="color: #6b7280; font-size: 12px; margin: 16px 0 0;">
+          If the button doesn't work, copy and paste this link into your browser:
+        </p>
+        <p style="color: #2563eb; font-size: 12px; word-break: break-all; margin: 4px 0 0;">
+          ${resetUrl}
+        </p>
+        <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
+          This link expires in 1 hour. If you didn't request a password reset, you can safely ignore this email.
+        </p>
+        <p style="color: #6b7280; font-size: 12px; margin: 8px 0 0;">
+          This is an automated email from the Franklin County Background Screening Portal.
+        </p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await sgMail.send({
+      to: userEmail,
+      from,
+      subject: "Reset your password — Armor Health",
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send password reset email:", error);
     return false;
   }
 }
