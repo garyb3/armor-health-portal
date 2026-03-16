@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
+import { hashToken } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
   const userId = request.headers.get("x-user-id");
@@ -12,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limit: 1 resend per 60 seconds per user
-  const { limited, retryAfterMs } = rateLimit(`resend-verification:${userId}`, 1, 60_000);
+  const { limited, retryAfterMs } = await rateLimit(`resend-verification:${userId}`, 1, 60_000);
   if (limited) {
     return NextResponse.json(
       { error: "Please wait before requesting another verification email" },
@@ -33,16 +34,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email already verified" }, { status: 400 });
     }
 
-    const verificationToken = randomBytes(32).toString("hex");
+    const rawVerificationToken = randomBytes(32).toString("hex");
     await prisma.applicant.update({
       where: { id: userId },
-      data: { verificationToken },
+      data: { verificationToken: hashToken(rawVerificationToken) },
     });
 
     await sendVerificationEmail({
       userName: `${applicant.firstName} ${applicant.lastName}`,
       userEmail: applicant.email,
-      verificationToken,
+      verificationToken: rawVerificationToken,
     });
 
     return NextResponse.json({ success: true });

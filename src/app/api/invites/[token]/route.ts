@@ -10,7 +10,7 @@ export async function GET(
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
     || request.headers.get("x-real-ip")
     || "unknown";
-  const { limited, retryAfterMs } = rateLimit(`invite:${ip}`, 10, 60_000);
+  const { limited, retryAfterMs } = await rateLimit(`invite:${ip}`, 10, 60_000);
   if (limited) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },

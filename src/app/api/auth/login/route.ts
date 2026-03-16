@@ -5,11 +5,15 @@ import { loginSchema } from "@/schemas/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/api-helpers";
 
+// Pre-computed bcrypt hash used to burn CPU time when the user doesn't exist,
+// preventing timing-based email enumeration.
+const DUMMY_HASH = "$2a$12$000000000000000000000uGBylt/cBgeFaNMOVYbOcGFmigaqHvK";
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limit: 5 login attempts per minute per IP
     const ip = getClientIp(request);
-    const { limited, retryAfterMs } = rateLimit(`login:${ip}`, 5, 60_000);
+    const { limited, retryAfterMs } = await rateLimit(`login:${ip}`, 5, 60_000);
     if (limited) {
       return NextResponse.json(
         { error: "Too many login attempts. Please try again later." },
@@ -32,15 +36,9 @@ export async function POST(request: NextRequest) {
       where: { email },
     });
 
-    if (!applicant) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
-
-    const isValid = await verifyPassword(password, applicant.password);
-    if (!isValid) {
+    // Always run bcrypt to prevent timing-based email enumeration
+    const isValid = await verifyPassword(password, applicant?.password ?? DUMMY_HASH);
+    if (!applicant || !isValid) {
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }

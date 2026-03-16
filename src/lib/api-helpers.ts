@@ -1,4 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createHash } from "crypto";
+
+/**
+ * Hash a token with SHA-256 for safe database storage.
+ * Raw tokens are sent to users via email; only the hash is persisted.
+ * On lookup, hash the incoming token and compare against the stored hash.
+ */
+export function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
 
 export function getUserFromRequest(request: NextRequest) {
   const userId = request.headers.get("x-user-id");
@@ -18,16 +28,23 @@ export function badRequestResponse(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
 }
 
+/** Basic IPv4/IPv6 format check to reject obviously spoofed values. */
+const IP_PATTERN = /^[\d.]+$|^[a-fA-F\d:]+$/;
+
 /**
  * Extract client IP from request headers.
- * Checks x-forwarded-for (first entry) and x-real-ip before falling back to "unknown".
+ * IMPORTANT: In production, your reverse proxy (Vercel, nginx, etc.) MUST overwrite
+ * x-forwarded-for and x-real-ip headers — otherwise clients can spoof their IP to
+ * bypass rate limits. Only trust these headers behind a proxy that strips client values.
  */
 export function getClientIp(request: NextRequest): string {
-  return (
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown"
-  );
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  if (forwarded && IP_PATTERN.test(forwarded)) return forwarded;
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp && IP_PATTERN.test(realIp)) return realIp;
+
+  return "unknown";
 }
 
 /** Map of allowed MIME types to file extensions for uploads. */

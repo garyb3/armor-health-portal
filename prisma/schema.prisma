@@ -41,6 +41,7 @@ model Applicant {
   lastName        String
   role            Role
   approved          Boolean          @default(false)
+  denied            Boolean          @default(false)
   emailVerified     Boolean          @default(false)
   verificationToken    String?          @unique
   resetToken           String?          @unique

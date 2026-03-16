@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/api-helpers";
+import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { sendPasswordResetEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   // Rate limit: 3 attempts per minute per IP
   const ip = getClientIp(request);
-  const { limited, retryAfterMs } = rateLimit(`forgot-password:${ip}`, 3, 60_000);
+  const { limited, retryAfterMs } = await rateLimit(`forgot-password:${ip}`, 3, 60_000);
   if (limited) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
@@ -35,18 +35,18 @@ export async function POST(request: NextRequest) {
       return successResponse;
     }
 
-    const resetToken = randomBytes(32).toString("hex");
+    const rawResetToken = randomBytes(32).toString("hex");
     const resetTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
     await prisma.applicant.update({
       where: { id: applicant.id },
-      data: { resetToken, resetTokenExpiresAt },
+      data: { resetToken: hashToken(rawResetToken), resetTokenExpiresAt },
     });
 
     await sendPasswordResetEmail({
       userName: `${applicant.firstName} ${applicant.lastName}`,
       userEmail: applicant.email,
-      resetToken,
+      resetToken: rawResetToken,
     });
 
     return successResponse;

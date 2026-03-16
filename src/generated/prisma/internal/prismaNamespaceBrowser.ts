@@ -79,6 +79,7 @@ export const ApplicantScalarFieldEnum = {
   lastName: 'lastName',
   role: 'role',
   approved: 'approved',
+  denied: 'denied',
   emailVerified: 'emailVerified',
   verificationToken: 'verificationToken',
   resetToken: 'resetToken',

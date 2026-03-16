@@ -6,13 +6,13 @@ import { registerSchema } from "@/schemas/auth";
 import type { Role } from "@/types";
 import { sendPendingApprovalEmail, sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/api-helpers";
+import { getClientIp, hashToken } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limit: 3 registration attempts per minute per IP
     const ip = getClientIp(request);
-    const { limited, retryAfterMs } = rateLimit(`register:${ip}`, 3, 60_000);
+    const { limited, retryAfterMs } = await rateLimit(`register:${ip}`, 3, 60_000);
     if (limited) {
       return NextResponse.json(
         { error: "Too many registration attempts. Please try again later." },
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hashPassword(password);
 
     const needsApproval = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "ADMIN"].includes(role);
-    const verificationToken = randomBytes(32).toString("hex");
+    const rawVerificationToken = randomBytes(32).toString("hex");
     const applicant = await prisma.applicant.create({
       data: {
         email,
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         role: role as Role,
         approved: !needsApproval,
         emailVerified: false,
-        verificationToken,
+        verificationToken: hashToken(rawVerificationToken),
         phone: phone || null,
       },
     });
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     sendVerificationEmail({
       userName: `${firstName} ${lastName}`,
       userEmail: email,
-      verificationToken,
+      verificationToken: rawVerificationToken,
     }).catch((err) => console.error("[Register] Failed to send verification email:", err));
 
     // Notify admin of new pending approval request (fire-and-forget)

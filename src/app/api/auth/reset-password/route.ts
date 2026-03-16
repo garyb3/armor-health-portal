@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/api-helpers";
+import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { z } from "zod/v4";
 
 const resetPasswordSchema = z.object({
@@ -19,7 +19,7 @@ const resetPasswordSchema = z.object({
 export async function POST(request: NextRequest) {
   // Rate limit: 5 attempts per minute per IP
   const ip = getClientIp(request);
-  const { limited, retryAfterMs } = rateLimit(`reset-password:${ip}`, 5, 60_000);
+  const { limited, retryAfterMs } = await rateLimit(`reset-password:${ip}`, 5, 60_000);
   if (limited) {
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const { token, password } = parsed.data;
 
     const applicant = await prisma.applicant.findUnique({
-      where: { resetToken: token },
+      where: { resetToken: hashToken(token) },
     });
 
     if (!applicant || !applicant.resetTokenExpiresAt || applicant.resetTokenExpiresAt < new Date()) {
@@ -59,6 +59,15 @@ export async function POST(request: NextRequest) {
         resetToken: null,
         resetTokenExpiresAt: null,
         tokenVersion: { increment: 1 }, // Invalidate all existing sessions
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: applicant.id,
+        action: "PASSWORD_RESET",
+        targetId: applicant.id,
+        ipAddress: ip,
       },
     });
 

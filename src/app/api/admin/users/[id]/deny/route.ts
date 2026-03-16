@@ -14,16 +14,22 @@ export async function POST(
 
   const { id } = await params;
   try {
-    await prisma.applicant.delete({ where: { id } });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "ADMIN_DENY_USER",
-        targetId: id,
-        ipAddress: getClientIp(request),
-      },
-    });
+    // Soft-deny: preserve the record for audit trail instead of hard-deleting.
+    // Incrementing tokenVersion revokes any active sessions immediately.
+    await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id },
+        data: { approved: false, denied: true, tokenVersion: { increment: 1 } },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "ADMIN_DENY_USER",
+          targetId: id,
+          ipAddress: getClientIp(request),
+        },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile, access } from "fs/promises";
 import path from "path";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { prisma } from "@/lib/prisma";
 
 const STAFF_ROLES = ["ADMIN", "HR", "RECRUITER", "ADMIN_ASSISTANT"];
 
@@ -38,17 +39,21 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // Authorization: file owner or staff can access
-    // Filenames follow the pattern: {userId}_{timestamp}.{ext}
-    const filename = segments[segments.length - 1] || "";
-    const fileOwnerId = filename.split("_")[0];
-
+    // Authorization: staff can access any file; non-staff must own the file.
     const isStaff = STAFF_ROLES.includes(user.userRole);
-    const isOwner = fileOwnerId === user.userId;
 
-    if (!isStaff && !isOwner) {
-      // Return 404 instead of 403 to avoid revealing file existence
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!isStaff) {
+      // Build the URL path as stored in the DB (e.g. "/api/uploads/receipts/abc_123.jpg")
+      const storedPath = `/api/uploads/${segments.join("/")}`;
+      const ownsFile = await prisma.formSubmission.findFirst({
+        where: { applicantId: user.userId, receiptFile: storedPath },
+        select: { id: true },
+      });
+
+      if (!ownsFile) {
+        // Return 404 instead of 403 to avoid revealing file existence
+        return NextResponse.json({ error: "Not found" }, { status: 404 });
+      }
     }
 
     // Check file exists
@@ -61,6 +66,7 @@ export async function GET(
     const fileBuffer = await readFile(resolvedPath);
 
     // Determine content type from extension
+    const filename = segments[segments.length - 1] || "";
     const ext = filename.split(".").pop()?.toLowerCase() || "";
     const contentType = EXT_TO_MIME[ext] || "application/octet-stream";
 

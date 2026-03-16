@@ -1,10 +1,47 @@
 /**
- * Simple in-memory rate limiter using a sliding window.
+ * Rate limiter with optional Redis backing via Upstash.
  *
- * PRODUCTION TODO: Replace with Redis-backed rate limiting (e.g. @upstash/ratelimit
- * or ioredis) for multi-instance deployments. The in-memory store is per-process and
- * will not share state across server instances.
+ * - When UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set, uses
+ *   distributed Redis-backed rate limiting that works across multiple server instances.
+ * - Otherwise, falls back to an in-memory sliding window (per-process) which is
+ *   fine for single-instance deployments and local development.
  */
+
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
+
+// ---------------------------------------------------------------------------
+// Redis-backed rate limiting (multi-instance safe)
+// ---------------------------------------------------------------------------
+
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+let redis: Redis | null = null;
+if (redisUrl && redisToken) {
+  redis = new Redis({ url: redisUrl, token: redisToken });
+}
+
+// Cache Ratelimit instances by config key to avoid creating new ones per request
+const limiterCache = new Map<string, Ratelimit>();
+
+function getRedisLimiter(maxRequests: number, windowMs: number): Ratelimit {
+  const cacheKey = `${maxRequests}:${windowMs}`;
+  let limiter = limiterCache.get(cacheKey);
+  if (!limiter) {
+    limiter = new Ratelimit({
+      redis: redis!,
+      limiter: Ratelimit.slidingWindow(maxRequests, `${windowMs} ms`),
+      prefix: "rl",
+    });
+    limiterCache.set(cacheKey, limiter);
+  }
+  return limiter;
+}
+
+// ---------------------------------------------------------------------------
+// In-memory fallback (single-instance / local dev)
+// ---------------------------------------------------------------------------
 
 interface RateLimitEntry {
   timestamps: number[];
@@ -21,14 +58,7 @@ setInterval(() => {
   }
 }, 5 * 60_000);
 
-/**
- * Check if a request should be rate-limited.
- * @param key - Unique identifier (e.g., IP address)
- * @param maxRequests - Maximum requests allowed in the window
- * @param windowMs - Window size in milliseconds
- * @returns Object with `limited` boolean and `retryAfterMs` if limited
- */
-export function rateLimit(
+function rateLimitInMemory(
   key: string,
   maxRequests: number,
   windowMs: number
@@ -41,7 +71,6 @@ export function rateLimit(
     store.set(key, entry);
   }
 
-  // Remove timestamps outside the window
   entry.timestamps = entry.timestamps.filter((t) => now - t < windowMs);
 
   if (entry.timestamps.length >= maxRequests) {
@@ -52,4 +81,26 @@ export function rateLimit(
 
   entry.timestamps.push(now);
   return { limited: false };
+}
+
+// ---------------------------------------------------------------------------
+// Public API — async, uses Redis when available, in-memory otherwise
+// ---------------------------------------------------------------------------
+
+export async function rateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number
+): Promise<{ limited: boolean; retryAfterMs?: number }> {
+  if (!redis) {
+    return rateLimitInMemory(key, maxRequests, windowMs);
+  }
+
+  const limiter = getRedisLimiter(maxRequests, windowMs);
+  const result = await limiter.limit(key);
+
+  return {
+    limited: !result.success,
+    retryAfterMs: result.success ? undefined : Math.max(0, result.reset - Date.now()),
+  };
 }

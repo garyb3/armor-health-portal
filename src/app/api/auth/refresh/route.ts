@@ -53,7 +53,16 @@ export async function POST(request: NextRequest) {
     return response;
   }
 
-  // Issue fresh tokens with current DB state (role, approved, etc.)
+  // Rotate: increment tokenVersion so the current refresh token can never be reused.
+  // This limits sessions to a single device — a stolen token is invalidated on next
+  // legitimate refresh.
+  const updated = await prisma.applicant.update({
+    where: { id: user.id },
+    data: { tokenVersion: { increment: 1 } },
+    select: { tokenVersion: true },
+  });
+
+  // Issue fresh tokens with current DB state and the NEW tokenVersion
   const newPayload = {
     sub: user.id,
     email: user.email,
@@ -62,7 +71,7 @@ export async function POST(request: NextRequest) {
     role: user.role,
     approved: user.approved,
     emailVerified: user.emailVerified,
-    tokenVersion: user.tokenVersion,
+    tokenVersion: updated.tokenVersion,
   };
 
   const [newAccessToken, newRefreshToken] = await Promise.all([

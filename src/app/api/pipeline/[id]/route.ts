@@ -3,7 +3,7 @@ import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 
-const STAFF_ROLES: string[] = ["RECRUITER", "HR", "ADMIN"];
+const STAFF_ROLES: string[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
 
 export async function GET(
   request: NextRequest,

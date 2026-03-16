@@ -15,8 +15,7 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // TODO: Replace 'unsafe-inline' with nonce-based CSP via middleware for full XSS protection
-              "script-src 'self' 'unsafe-inline'",
+              "script-src 'self'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob:",

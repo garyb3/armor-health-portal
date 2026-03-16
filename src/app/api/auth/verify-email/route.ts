@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/api-helpers";
+import { getClientIp, hashToken } from "@/lib/api-helpers";
 
 export async function GET(request: NextRequest) {
   // Rate limit: 10 verification attempts per minute per IP
   const ip = getClientIp(request);
-  const { limited } = rateLimit(`verify-email:${ip}`, 10, 60_000);
+  const { limited } = await rateLimit(`verify-email:${ip}`, 10, 60_000);
   if (limited) {
     return NextResponse.redirect(new URL("/verify-email?error=rate-limited", request.url));
   }
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const applicant = await prisma.applicant.findUnique({
-      where: { verificationToken: token },
+      where: { verificationToken: hashToken(token) },
     });
 
     if (!applicant) {
@@ -60,9 +60,9 @@ export async function GET(request: NextRequest) {
 
     if (role === "COUNTY_REPRESENTATIVE") {
       redirectPath = "/registration-complete";
-    } else if (["RECRUITER", "HR"].includes(role) && !approved) {
+    } else if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
       redirectPath = "/pending-approval";
-    } else if (["RECRUITER", "HR", "ADMIN"].includes(role)) {
+    } else if (["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role)) {
       redirectPath = "/dashboard";
     }
 
