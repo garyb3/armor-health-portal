@@ -50,7 +50,7 @@ interface SidebarProps {
 
 export function Sidebar({ progress = {}, role }: SidebarProps) {
   const pathname = usePathname();
-  const isStaff = role === "RECRUITER" || role === "HR" || role === "ADMIN";
+  const isStaff = role === "RECRUITER" || role === "HR" || role === "ADMIN" || role === "ADMIN_ASSISTANT";
 
   if (isStaff) {
     return (

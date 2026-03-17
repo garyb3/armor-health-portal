@@ -177,6 +177,26 @@ async function main() {
     }
   }
 
+  // --- Personal test account ---
+  const personalExisting = await prisma.applicant.findUnique({ where: { email: "ncampo305@gmail.com" } });
+  if (!personalExisting) {
+    const personalPassword = await bcrypt.hash("TestPassword123!", 12);
+    await prisma.applicant.create({
+      data: {
+        email: "ncampo305@gmail.com",
+        password: personalPassword,
+        firstName: "Nick",
+        lastName: "Campo",
+        role: "APPLICANT",
+        approved: true,
+        emailVerified: true,
+      },
+    });
+    console.log("Created personal test account: ncampo305@gmail.com [APPLICANT]");
+  } else {
+    console.log("Skipping ncampo305@gmail.com (already exists)");
+  }
+
   // --- Dummy applicants ---
   const dummyPassword = await bcrypt.hash("TestPassword123!", 12);
 

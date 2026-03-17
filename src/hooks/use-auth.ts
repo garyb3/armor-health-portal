@@ -31,9 +31,9 @@ export function useAuth() {
           ? "/registration-complete"
           : data.user.role === "ADMIN"
           ? "/admin"
-          : ["RECRUITER", "HR"].includes(data.user.role) && !data.user.approved
+          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
           ? "/pending-approval"
-          : ["RECRUITER", "HR"].includes(data.user.role)
+          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role)
           ? "/dashboard"
           : "/background-clearance";
         router.push(dest);
@@ -77,9 +77,9 @@ export function useAuth() {
           ? "/registration-complete"
           : data.user.role === "ADMIN"
           ? "/admin"
-          : ["RECRUITER", "HR"].includes(data.user.role) && !data.user.approved
+          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
           ? "/pending-approval"
-          : ["RECRUITER", "HR"].includes(data.user.role)
+          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role)
           ? "/dashboard"
           : "/background-clearance";
         router.push(dest);

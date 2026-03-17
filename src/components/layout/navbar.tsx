@@ -50,7 +50,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
     setShowLeaveDialog(true);
   };
 
-  const isStaff = role === "RECRUITER" || role === "HR";
+  const isStaff = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role || "");
 
   const navLinks = isStaff
     ? [{ href: "/dashboard", label: "Dashboard" }]
