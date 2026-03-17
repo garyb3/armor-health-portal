@@ -51,7 +51,7 @@ export default function LoginPage() {
           Sign in to your onboarding portal
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
         <CardContent className="space-y-4">
           {error && (
             <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg border border-red-200/60">
@@ -66,7 +66,7 @@ export default function LoginPage() {
               id="email"
               type="email"
               placeholder="your@email.com"
-              autoComplete="email"
+              autoComplete="username"
               {...register("email")}
               error={!!errors.email}
               className="mt-1"

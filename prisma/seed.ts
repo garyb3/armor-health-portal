@@ -124,10 +124,10 @@ async function main() {
 
   const existing = await prisma.applicant.findUnique({ where: { email } });
   if (existing) {
-    if (existing.role !== "ADMIN" || !existing.approved) {
+    if (existing.role !== "ADMIN" || !existing.approved || !existing.emailVerified) {
       await prisma.applicant.update({
         where: { email },
-        data: { role: "ADMIN", approved: true },
+        data: { role: "ADMIN", approved: true, emailVerified: true },
       });
       console.log(`Updated existing user ${email} to ADMIN role.`);
     } else {
@@ -143,6 +143,7 @@ async function main() {
         lastName: "Admin",
         role: "ADMIN",
         approved: true,
+        emailVerified: true,
       },
     });
     console.log(`Admin created: ${email}`);

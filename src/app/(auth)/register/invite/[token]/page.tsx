@@ -130,7 +130,7 @@ export default function InviteRegisterPage() {
           </span>
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
         <CardContent className="space-y-4">
           {error && (
             <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg border border-red-200/60">
@@ -143,6 +143,7 @@ export default function InviteRegisterPage() {
               <Input
                 id="firstName"
                 placeholder="First name"
+                autoComplete="given-name"
                 {...register("firstName")}
                 error={!!errors.firstName}
                 className="mt-1"
@@ -156,6 +157,7 @@ export default function InviteRegisterPage() {
               <Input
                 id="lastName"
                 placeholder="Last name"
+                autoComplete="family-name"
                 {...register("lastName")}
                 error={!!errors.lastName}
                 className="mt-1"
@@ -189,6 +191,7 @@ export default function InviteRegisterPage() {
               id="phone"
               type="tel"
               placeholder="(614) 555-1234"
+              autoComplete="tel"
               {...register("phone")}
               error={!!errors.phone}
               className="mt-1"
@@ -200,6 +203,7 @@ export default function InviteRegisterPage() {
               id="password"
               type="password"
               placeholder="Minimum 8 characters"
+              autoComplete="new-password"
               {...register("password")}
               error={!!errors.password}
               className="mt-1"
@@ -214,6 +218,7 @@ export default function InviteRegisterPage() {
               id="confirmPassword"
               type="password"
               placeholder="Repeat your password"
+              autoComplete="new-password"
               {...register("confirmPassword")}
               error={!!errors.confirmPassword}
               className="mt-1"
