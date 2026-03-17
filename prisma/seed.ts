@@ -149,6 +149,34 @@ async function main() {
     console.log(`Admin created: ${email}`);
   }
 
+  // --- Staff test users (Recruiter, HR, Admin Assistant) ---
+  const staffPassword = await bcrypt.hash("StaffPassword123!", 12);
+  const staffUsers = [
+    { email: "recruiter@armorhealthcare.com", firstName: "Test", lastName: "Recruiter", role: "RECRUITER" as const },
+    { email: "hr@armorhealthcare.com", firstName: "Test", lastName: "HRStaff", role: "HR" as const },
+    { email: "assistant@armorhealthcare.com", firstName: "Test", lastName: "Assistant", role: "ADMIN_ASSISTANT" as const },
+  ];
+
+  for (const staff of staffUsers) {
+    const existingStaff = await prisma.applicant.findUnique({ where: { email: staff.email } });
+    if (existingStaff) {
+      console.log(`Skipping ${staff.email} (already exists)`);
+    } else {
+      await prisma.applicant.create({
+        data: {
+          email: staff.email,
+          password: staffPassword,
+          firstName: staff.firstName,
+          lastName: staff.lastName,
+          role: staff.role,
+          approved: true,
+          emailVerified: true,
+        },
+      });
+      console.log(`Created staff user: ${staff.firstName} ${staff.lastName} (${staff.email}) [${staff.role}]`);
+    }
+  }
+
   // --- Dummy applicants ---
   const dummyPassword = await bcrypt.hash("TestPassword123!", 12);
 
