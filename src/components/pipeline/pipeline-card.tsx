@@ -50,7 +50,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
             <Progress
               value={percent}
               className="flex-1 h-1.5"
-              indicatorClassName={overdue ? "bg-red-500" : warning ? "bg-yellow-400" : undefined}
+              indicatorClassName={overdue ? "bg-red-500" : warning ? "bg-yellow-400" : "bg-green-500"}
             />
             <span className="text-xs text-gray-500 shrink-0">
               {applicant.completedCount}/{applicant.totalCount}
