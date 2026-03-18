@@ -114,19 +114,39 @@ function addCorsHeaders(request: NextRequest, response: NextResponse): NextRespo
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Generate a per-request nonce for Content-Security-Policy
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const cspHeader = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: blob:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+  ].join("; ");
+
+  /** Set CSP header on any response before returning it */
+  function withCsp(response: NextResponse): NextResponse {
+    response.headers.set("Content-Security-Policy", cspHeader);
+    return response;
+  }
+
   // CORS preflight for /api/v1/ routes
   const corsResponse = handleCors(request);
-  if (corsResponse) return corsResponse;
+  if (corsResponse) return withCsp(corsResponse);
 
   // Strip x-user-* headers from ALL incoming requests to prevent header injection
   const cleanHeaders = new Headers(request.headers);
   for (const header of USER_HEADERS) {
     cleanHeaders.delete(header);
   }
+  // Pass the nonce to the application via request header
+  cleanHeaders.set("x-nonce", nonce);
 
   // CSRF check for all state-changing API requests
   const csrfError = checkCsrf(request);
-  if (csrfError) return csrfError;
+  if (csrfError) return withCsp(csrfError);
 
   // Public paths — no auth required
   if (
@@ -134,7 +154,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/register/invite/") ||
     (pathname.startsWith("/api/auth/") && pathname !== "/api/auth/me" && pathname !== "/api/auth/resend-verification")
   ) {
-    return NextResponse.next({ request: { headers: cleanHeaders } });
+    return withCsp(NextResponse.next({ request: { headers: cleanHeaders } }));
   }
 
   // Cron routes — require CRON_SECRET, NOT cookie auth
@@ -142,22 +162,22 @@ export async function middleware(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
     if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return withCsp(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
     }
-    return NextResponse.next({ request: { headers: cleanHeaders } });
+    return withCsp(NextResponse.next({ request: { headers: cleanHeaders } }));
   }
 
   // Invite validation — allow through (token is the auth, validated in the handler)
   if (/^\/api\/invites\/[^/]+$/.test(pathname)) {
-    return NextResponse.next({ request: { headers: cleanHeaders } });
+    return withCsp(NextResponse.next({ request: { headers: cleanHeaders } }));
   }
 
   // Static files — only allow known safe extensions
   if (pathname.startsWith("/_next") || pathname.startsWith("/images")) {
-    return NextResponse.next({ request: { headers: cleanHeaders } });
+    return withCsp(NextResponse.next({ request: { headers: cleanHeaders } }));
   }
   if (isStaticFile(pathname)) {
-    return NextResponse.next({ request: { headers: cleanHeaders } });
+    return withCsp(NextResponse.next({ request: { headers: cleanHeaders } }));
   }
 
   // --- Authentication ---
@@ -168,7 +188,7 @@ export async function middleware(request: NextRequest) {
     if (authHeader?.startsWith("Bearer ahp_")) {
       const requestHeaders = new Headers(cleanHeaders);
       requestHeaders.set("x-api-key-raw", authHeader.substring(7));
-      return addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } }));
+      return withCsp(addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } })));
     }
   }
 
@@ -195,12 +215,12 @@ export async function middleware(request: NextRequest) {
 
   if (!payload) {
     if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return withCsp(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
     }
     const redirectResponse = NextResponse.redirect(new URL("/", request.url));
     redirectResponse.cookies.delete("auth-token");
     redirectResponse.cookies.delete("refresh-token");
-    return redirectResponse;
+    return withCsp(redirectResponse);
   }
 
   const role = payload.role || "";
@@ -215,15 +235,15 @@ export async function middleware(request: NextRequest) {
     } else if (pathname === "/api/auth/logout" || pathname === "/api/auth/resend-verification" || pathname === "/api/auth/check-verification") {
       // allow logout, resend, and check-verification
     } else if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Email not verified" }, { status: 403 });
+      return withCsp(NextResponse.json({ error: "Email not verified" }, { status: 403 }));
     } else {
-      return NextResponse.redirect(new URL("/verify-email", request.url));
+      return withCsp(NextResponse.redirect(new URL("/verify-email", request.url)));
     }
   }
 
   // County reps don't need portal access — redirect to registration-complete
   if (role === "COUNTY_REPRESENTATIVE" && pathname !== "/registration-complete") {
-    return NextResponse.redirect(new URL("/registration-complete", request.url));
+    return withCsp(NextResponse.redirect(new URL("/registration-complete", request.url)));
   }
 
   // Unapproved staff (RECRUITER/HR) — block everything except pending-approval and logout
@@ -233,28 +253,28 @@ export async function middleware(request: NextRequest) {
     } else if (pathname === "/api/auth/logout") {
       // allow logout
     } else if (pathname.startsWith("/api/")) {
-      return NextResponse.json({ error: "Account pending approval" }, { status: 403 });
+      return withCsp(NextResponse.json({ error: "Account pending approval" }, { status: 403 }));
     } else {
-      return NextResponse.redirect(new URL("/pending-approval", request.url));
+      return withCsp(NextResponse.redirect(new URL("/pending-approval", request.url)));
     }
   }
 
   // Staff can only access dashboard, pipeline, and admin (not forms/onboarding)
   if (isStaff && (pathname.startsWith("/forms") || pathname === "/background-clearance")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return withCsp(NextResponse.redirect(new URL("/dashboard", request.url)));
   }
 
   // Only ADMIN can access /admin routes
   if (pathname.startsWith("/admin") && role !== "ADMIN") {
     if (pathname.startsWith("/api/admin")) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return withCsp(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
     }
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return withCsp(NextResponse.redirect(new URL("/dashboard", request.url)));
   }
 
   // Applicants cannot access dashboard, pipeline, or admin routes
   if (!isStaff && (pathname === "/dashboard" || pathname.startsWith("/pipeline") || pathname.startsWith("/admin"))) {
-    return NextResponse.redirect(new URL("/background-clearance", request.url));
+    return withCsp(NextResponse.redirect(new URL("/background-clearance", request.url)));
   }
 
   // Set user headers on the (already cleaned) headers
@@ -266,7 +286,7 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-user-approved", String(approved));
 
-  return addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } }));
+  return withCsp(addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } })));
 }
 
 export const config = {

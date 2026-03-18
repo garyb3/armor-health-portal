@@ -33,9 +33,7 @@ export async function GET(
         status: true,
         updatedAt: true,
         statusChangedAt: true,
-        reviewedBy: true,
         reviewedAt: true,
-        reviewNote: true,
       },
       orderBy: { createdAt: "asc" },
     });
@@ -55,9 +53,7 @@ export async function GET(
         status: s.status,
         updatedAt: safeISOString(s.updatedAt),
         statusChangedAt: safeISOString(s.statusChangedAt),
-        reviewedBy: s.reviewedBy,
         reviewedAt: s.reviewedAt ? safeISOString(s.reviewedAt) : null,
-        reviewNote: s.reviewNote,
         isLocked: !isStepUnlocked(
           s.formType as unknown as AppFormType,
           mapped

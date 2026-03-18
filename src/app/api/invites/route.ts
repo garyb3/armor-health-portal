@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, hashToken, unauthorizedResponse } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { createInviteSchema } from "@/schemas/auth";
 
@@ -25,6 +25,11 @@ export async function POST(request: NextRequest) {
 
   const { email, role } = parsed.data;
 
+  // Only ADMIN can create ADMIN invites — defense-in-depth (schema also excludes ADMIN)
+  if ((role as string) === "ADMIN" && user.userRole !== "ADMIN") {
+    return NextResponse.json({ error: "Only admins can create admin invites" }, { status: 403 });
+  }
+
   // Prevent duplicate active invites for the same email
   const existingInvite = await prisma.invite.findFirst({
     where: { email, used: false, expiresAt: { gt: new Date() } },
@@ -36,12 +41,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const token = randomBytes(32).toString("hex");
+  const rawToken = randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
   const invite = await prisma.invite.create({
     data: {
-      token,
+      token: hashToken(rawToken),
       email,
       role,
       expiresAt,
@@ -49,7 +54,7 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  const inviteUrl = `/register/invite/${token}`;
+  const inviteUrl = `/register/invite/${rawToken}`;
 
   return NextResponse.json({
     invite: {

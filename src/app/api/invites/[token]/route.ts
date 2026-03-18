@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { hashToken } from "@/lib/api-helpers";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET(
@@ -23,7 +24,7 @@ export async function GET(
 
   const { token } = await params;
 
-  const invite = await prisma.invite.findUnique({ where: { token } });
+  const invite = await prisma.invite.findUnique({ where: { token: hashToken(token) } });
 
   // Return the same generic error for invalid, used, and expired invites
   // to prevent invite token enumeration attacks.

@@ -29,8 +29,8 @@ const SALT_ROUNDS = 12;
 
 /** Short-lived access token (15 minutes) */
 const ACCESS_TOKEN_EXPIRY = "15m";
-/** Long-lived refresh token (7 days) */
-const REFRESH_TOKEN_EXPIRY = "7d";
+/** Long-lived refresh token (3 days) */
+const REFRESH_TOKEN_EXPIRY = "3d";
 
 export interface TokenPayload {
   sub: string;
@@ -120,6 +120,6 @@ export const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: "strict" as const,
-  maxAge: 60 * 60 * 24 * 7, // 7 days
+  maxAge: 60 * 60 * 24 * 3, // 3 days
   path: "/",
 };

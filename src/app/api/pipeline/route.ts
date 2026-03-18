@@ -31,35 +31,47 @@ export async function GET(request: NextRequest) {
 
   const search = request.nextUrl.searchParams.get("search") || "";
 
-  const applicants = await prisma.applicant.findMany({
-    where: {
-      role: { notIn: STAFF_ROLES },
-      ...(search
-        ? {
-            OR: [
-              { firstName: { contains: search } },
-              { lastName: { contains: search } },
-              { email: { contains: search } },
-            ],
-          }
-        : {}),
-    },
-    include: {
-      formSubmissions: {
-        select: {
-          formType: true,
-          status: true,
-          updatedAt: true,
-          statusChangedAt: true,
-          reviewedBy: true,
-          reviewedAt: true,
-          reviewNote: true,
+  const searchWhere = search
+    ? {
+        OR: [
+          { firstName: { contains: search } },
+          { lastName: { contains: search } },
+          { email: { contains: search } },
+        ],
+      }
+    : {};
+
+  const limit = Math.min(
+    parseInt(request.nextUrl.searchParams.get("limit") || "500"),
+    500
+  );
+  const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0") || 0;
+
+  const [applicants, total] = await Promise.all([
+    prisma.applicant.findMany({
+      where: { role: { notIn: STAFF_ROLES }, denied: { not: true }, ...searchWhere },
+      include: {
+        formSubmissions: {
+          select: {
+            formType: true,
+            status: true,
+            updatedAt: true,
+            statusChangedAt: true,
+            reviewedBy: true,
+            reviewedAt: true,
+            reviewNote: true,
+          },
+          orderBy: { createdAt: "asc" },
         },
-        orderBy: { createdAt: "asc" },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip,
+    }),
+    prisma.applicant.count({
+      where: { role: { notIn: STAFF_ROLES }, denied: { not: true }, ...searchWhere },
+    }),
+  ]);
 
   const emptySummary = () => ({ count: 0, names: [] as string[], applicants: [] as { name: string; since: string }[] });
   const byStage: Record<string, ReturnType<typeof emptySummary>> = {};
@@ -130,6 +142,7 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     applicants: mapped,
+    total,
     summary: {
       total: mapped.length,
       byStage,

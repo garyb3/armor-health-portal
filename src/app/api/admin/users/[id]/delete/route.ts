@@ -14,7 +14,10 @@ export async function POST(
 
   const { id } = await params;
   try {
-    await prisma.applicant.delete({ where: { id } });
+    await prisma.applicant.update({
+      where: { id },
+      data: { denied: true, tokenVersion: { increment: 1 } },
+    });
 
     await prisma.auditLog.create({
       data: {

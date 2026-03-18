@@ -13,6 +13,11 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Strip newlines from email subjects to prevent SMTP header injection. */
+function sanitizeSubject(s: string): string {
+  return s.replace(/[\r\n]/g, " ").trim();
+}
+
 const apiKey = process.env.SENDGRID_API_KEY;
 if (apiKey) {
   sgMail.setApiKey(apiKey);
@@ -147,7 +152,7 @@ export async function sendOverdueAlert({
     await sgMail.send({
       to: adminEmail,
       from,
-      subject: `Overdue: ${applicantName} stuck on "${formStep}" (${elapsedTime})`,
+      subject: sanitizeSubject(`Overdue: ${applicantName} stuck on "${formStep}" (${elapsedTime})`),
       html,
     });
     return true;
@@ -214,7 +219,7 @@ export async function sendStepCompletedEmail({
     await sgMail.send({
       to: adminEmail,
       from,
-      subject: `Step Completed: ${applicantName} finished "${completedStep}"`,
+      subject: sanitizeSubject(`Step Completed: ${applicantName} finished "${completedStep}"`),
       html,
     });
     return true;
@@ -284,7 +289,7 @@ export async function sendPendingApprovalEmail({
     await sgMail.send({
       to: adminEmail,
       from,
-      subject: `New Pending Approval: ${userName} (${userRole})`,
+      subject: sanitizeSubject(`New Pending Approval: ${userName} (${userRole})`),
       html,
     });
     return true;
@@ -364,7 +369,7 @@ export async function sendOverdueAlertToStaff({
     await sgMail.sendMultiple({
       to: recipients,
       from,
-      subject: `Reminder: ${applicantName} incomplete on "${formStep}" (${elapsedTime})`,
+      subject: sanitizeSubject(`Reminder: ${applicantName} incomplete on "${formStep}" (${elapsedTime})`),
       html,
     });
     return true;
@@ -457,7 +462,7 @@ export async function sendBciReceiptToCountyRep({
     await sgMail.send({
       to: recipients,
       from,
-      subject: `BCI Fingerprinting Receipt: ${applicantName}`,
+      subject: sanitizeSubject(`BCI Fingerprinting Receipt: ${applicantName}`),
       html,
       attachments: [
         {
@@ -528,7 +533,7 @@ export async function sendStepApprovedEmail({
     await sgMail.send({
       to: applicantEmail,
       from,
-      subject: `Step Approved: ${approvedStep} — Armor Health`,
+      subject: sanitizeSubject(`Step Approved: ${approvedStep} — Armor Health`),
       html,
     });
     return true;
@@ -592,7 +597,7 @@ export async function sendStepDeniedEmail({
     await sgMail.send({
       to: applicantEmail,
       from,
-      subject: `Action Required: ${deniedStep} — Armor Health`,
+      subject: sanitizeSubject(`Action Required: ${deniedStep} — Armor Health`),
       html,
     });
     return true;

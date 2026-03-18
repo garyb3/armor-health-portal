@@ -45,6 +45,21 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    // Batch-fetch all submissions for affected applicants (avoids N+1 queries)
+    const applicantIds = [...new Set(overdueSubmissions.map((s) => s.applicantId))];
+    const allSiblingSubmissions = applicantIds.length > 0
+      ? await prisma.formSubmission.findMany({
+          where: { applicantId: { in: applicantIds } },
+          select: { applicantId: true, formType: true, status: true },
+        })
+      : [];
+    const submissionsByApplicant = new Map<string, typeof allSiblingSubmissions>();
+    for (const s of allSiblingSubmissions) {
+      const list = submissionsByApplicant.get(s.applicantId) || [];
+      list.push(s);
+      submissionsByApplicant.set(s.applicantId, list);
+    }
+
     const results: Array<{
       applicant: string;
       email: string;
@@ -56,10 +71,7 @@ export async function GET(request: NextRequest) {
 
     for (const sub of overdueSubmissions) {
       // Only alert if this step is currently unlocked (previous step approved)
-      const siblingSubmissions = await prisma.formSubmission.findMany({
-        where: { applicantId: sub.applicantId },
-        select: { formType: true, status: true },
-      });
+      const siblingSubmissions = submissionsByApplicant.get(sub.applicantId) || [];
       const unlocked = isStepUnlocked(
         sub.formType as unknown as AppFormType,
         siblingSubmissions.map((s) => ({

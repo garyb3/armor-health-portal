@@ -118,6 +118,14 @@ export async function POST(
       select: { status: true },
     });
 
+    // Prevent re-submission of already-reviewed forms
+    if (existing && (existing.status === "APPROVED" || existing.status === "DENIED")) {
+      return NextResponse.json(
+        { error: "This form has already been reviewed and cannot be resubmitted" },
+        { status: 403 }
+      );
+    }
+
     const statusChanged = !existing || existing.status !== newStatus;
 
     const submission = await prisma.formSubmission.upsert({

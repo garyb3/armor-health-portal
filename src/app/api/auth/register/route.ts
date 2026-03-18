@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     let invite = null;
 
     if (inviteToken) {
-      invite = await prisma.invite.findUnique({ where: { token: inviteToken } });
+      invite = await prisma.invite.findUnique({ where: { token: hashToken(inviteToken) } });
       if (!invite) {
         return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
       }
@@ -58,6 +58,13 @@ export async function POST(request: NextRequest) {
 
     const existing = await prisma.applicant.findUnique({ where: { email } });
     if (existing) {
+      // Denied accounts cannot re-register (use generic message to avoid enumeration)
+      if (existing.denied) {
+        return NextResponse.json(
+          { error: "This account is not eligible for registration" },
+          { status: 403 }
+        );
+      }
       return NextResponse.json(
         { error: "An account with this email already exists" },
         { status: 409 }
