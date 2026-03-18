@@ -62,11 +62,11 @@ export default function PortalLayout({
       {/* Back-button confirmation dialog */}
       {showDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl p-6 mx-4 max-w-sm w-full">
-            <h2 className="text-lg font-semibold text-gray-900">
+          <div className="bg-white dark:bg-brand-800 rounded-xl shadow-2xl p-6 mx-4 max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Are you sure you want to go back?
             </h2>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Any unsaved progress on this page may be lost.
             </p>
             <div className="mt-5 flex justify-end gap-3">
@@ -93,7 +93,7 @@ export default function PortalLayout({
       <Sidebar progress={progress} role={user?.role} />
       <div className="flex-1 flex flex-col min-w-0">
         <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-[#f8f9fa]">
+        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-[#f8f9fa] dark:bg-brand-900">
           {children}
         </main>
       </div>

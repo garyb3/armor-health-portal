@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-background: #ffffff;
   --color-foreground: #171717;
@@ -63,6 +65,12 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4a4a4a;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 /* Print-friendly styles */

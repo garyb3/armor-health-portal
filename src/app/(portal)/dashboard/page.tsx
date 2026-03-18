@@ -62,10 +62,10 @@ export default function DashboardPage() {
     <div className="space-y-6 max-w-[1400px]">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
             Applicant Pipeline
           </h1>
-          <p className="text-gray-400 mt-0.5 text-sm">
+          <p className="text-gray-500 mt-0.5 text-sm">
             Track where applicants are in the onboarding process.
           </p>
         </div>

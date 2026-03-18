@@ -55,22 +55,22 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
             <div
               key={step.key}
               className={cn(
-                "flex items-center gap-3 rounded-lg bg-gray-50 border px-3 py-2.5",
+                "flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-brand-800 border px-3 py-2.5",
                 isBottleneck
-                  ? "border-red-300 ring-2 ring-red-400/30 bg-red-50/40"
-                  : "border-gray-200/60"
+                  ? "border-red-300 dark:border-red-700 ring-2 ring-red-400/30 dark:ring-red-500/30 bg-red-50/40 dark:bg-red-950/40"
+                  : "border-gray-200/60 dark:border-brand-700/60"
               )}
             >
-              {Icon && <Icon className={cn("h-4 w-4 shrink-0", isBottleneck ? "text-red-400" : "text-gray-400")} />}
+              {Icon && <Icon className={cn("h-4 w-4 shrink-0", isBottleneck ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />}
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-gray-400 truncate">
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
                   Avg. time
                 </p>
                 <p className={cn(
                   "text-sm font-semibold tabular-nums flex items-center gap-1",
-                  isBottleneck ? "text-red-600" : "text-gray-700"
+                  isBottleneck ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-200"
                 )}>
-                  <Timer className={cn("h-3 w-3", isBottleneck ? "text-red-400" : "text-gray-400")} />
+                  <Timer className={cn("h-3 w-3", isBottleneck ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
                   {avgMs > 0 ? formatDurationMs(avgMs) : "—"}
                 </p>
               </div>
@@ -91,18 +91,18 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
           className={cn(
             "flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left w-full transition-colors",
             hasStale
-              ? "border-red-300 bg-red-50/40 hover:bg-red-100/50 cursor-pointer"
-              : "border-gray-200/60 bg-gray-50 cursor-default"
+              ? "border-red-300 dark:border-red-700 bg-red-50/40 dark:bg-red-950/40 hover:bg-red-100/50 dark:hover:bg-red-900/50 cursor-pointer"
+              : "border-gray-200/60 dark:border-brand-700/60 bg-gray-50 dark:bg-brand-800 cursor-default"
           )}
         >
-          <UserX className={cn("h-4 w-4 shrink-0", hasStale ? "text-red-400" : "text-gray-400")} />
+          <UserX className={cn("h-4 w-4 shrink-0", hasStale ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] text-gray-400 truncate">
+            <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
               Stale (48h+)
             </p>
             <p className={cn(
               "text-sm font-semibold tabular-nums",
-              hasStale ? "text-red-600" : "text-gray-700"
+              hasStale ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-200"
             )}>
               {staleCount ?? 0}
             </p>
@@ -117,8 +117,8 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
 
       {/* Expanded stale applicant list */}
       {showStale && staleApplicants.length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50/30 p-3">
-          <p className="text-xs font-medium text-red-600 mb-2">
+        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/30 p-3">
+          <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-2">
             Stale applicants (48h+ in current stage)
           </p>
           <div className="space-y-1.5">
@@ -129,19 +129,19 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
                 <Link
                   key={a.id}
                   href={`/pipeline/${a.id}`}
-                  className="flex items-center justify-between gap-2 rounded-md bg-white border border-red-100 px-3 py-2 hover:bg-red-50 transition-colors group"
+                  className="flex items-center justify-between gap-2 rounded-md bg-white dark:bg-brand-800 border border-red-100 dark:border-red-900 px-3 py-2 hover:bg-red-50 dark:hover:bg-red-950 transition-colors group"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate group-hover:text-red-700">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-red-700 dark:group-hover:text-red-400">
                       {a.firstName} {a.lastName}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{a.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{a.email}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs font-medium text-red-600">
+                    <p className="text-xs font-medium text-red-600 dark:text-red-400">
                       {formatElapsed(since)} in stage
                     </p>
-                    <p className="text-[11px] text-gray-400">
+                    <p className="text-[11px] text-gray-400 dark:text-gray-500">
                       {STAGE_LABEL[a.currentStage] || a.currentStage}
                     </p>
                   </div>

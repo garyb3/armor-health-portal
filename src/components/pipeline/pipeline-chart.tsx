@@ -58,7 +58,7 @@ function BarWithTooltip({
 }) {
   return (
     <div className="relative flex flex-col items-center justify-end h-full">
-      <span className="text-[10px] font-semibold text-gray-600 tabular-nums mb-0.5">
+      <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-400 tabular-nums mb-0.5">
         {count}
       </span>
       <div
@@ -88,19 +88,19 @@ export function PipelineChart({ summary }: PipelineChartProps) {
       <CardContent className="p-5 md:p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent-50 to-accent-100/50 flex items-center justify-center">
-              <Users className="h-5 w-5 text-accent-500" />
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-accent-50 dark:from-accent-900 to-accent-100/50 dark:to-accent-800/50 flex items-center justify-center">
+              <Users className="h-5 w-5 text-accent-500 dark:text-accent-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 tabular-nums">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                 {summary.total}
               </p>
-              <p className="text-xs text-gray-400">Total Applicants</p>
+              <p className="text-xs text-gray-500">Total Applicants</p>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-5 text-xs text-gray-500">
+          <div className="flex items-center gap-5 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1.5">
               <div className={`w-3 h-3 rounded-sm ${PENDING_COLOR}`} />
               <span>Pending</span>
@@ -137,7 +137,7 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                   />
                   {!isCompletedStage && (
                     <>
-                      <div className="w-px h-3/4 bg-gray-200" />
+                      <div className="w-px h-3/4 bg-gray-200 dark:bg-brand-700" />
                       <BarWithTooltip
                         count={completed.count}
                         applicants={completed.applicants || []}
@@ -150,7 +150,7 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                     </>
                   )}
                 </div>
-                <span className="text-[10px] font-medium text-gray-500 text-center leading-tight line-clamp-2 w-full mt-1">
+                <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight line-clamp-2 w-full mt-1">
                   {stage.title}
                 </span>
               </div>
@@ -160,34 +160,34 @@ export function PipelineChart({ summary }: PipelineChartProps) {
 
         {/* Applicant list panel */}
         {selected && (
-          <div className="mt-5 border-t pt-4">
+          <div className="mt-5 border-t border-gray-200 dark:border-brand-700 pt-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-sm ${selected.colorClass}`} />
-                <h3 className="text-sm font-semibold text-gray-900">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {selected.stageTitle}
                 </h3>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-500">
                   — {selected.label} ({selected.applicants.length})
                 </span>
               </div>
               <button
                 onClick={() => setSelected(null)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             {selected.applicants.length === 0 ? (
-              <p className="text-sm text-gray-400">No applicants</p>
+              <p className="text-sm text-gray-500">No applicants</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                 {selected.applicants.map((a, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between text-sm bg-gray-50 rounded-md px-3 py-1.5"
+                    className="flex items-center justify-between text-sm bg-gray-50 dark:bg-brand-700 rounded-md px-3 py-1.5"
                   >
-                    <span className="text-gray-700 truncate mr-2">{a.name}</span>
+                    <span className="text-gray-700 dark:text-gray-200 truncate mr-2">{a.name}</span>
                     <span className={`flex items-center gap-0.5 text-xs font-medium shrink-0 ${durationColor(a.since)}`}>
                       <Clock className="h-3 w-3" />
                       {formatDuration(a.since)}

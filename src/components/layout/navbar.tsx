@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { LogOut, Menu, X } from "lucide-react";
+import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { apiFetch } from "@/lib/api-client";
 
 const NAV_LINKS = [
@@ -34,6 +35,10 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const [pendingHref, setPendingHref] = useState<string>("/dashboard");
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const handleLogout = async () => {
     await apiFetch("/api/auth/logout", { method: "POST" });
@@ -133,6 +138,16 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
             </button>
           ))}
           <div className="w-px h-5 bg-brand-700 mx-2" />
+          {mounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2 rounded-lg text-brand-400 hover:text-white hover:bg-white/10 transition-colors"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          )}
           {firstName && (
             <div className="text-right mr-1">
               <span className="text-sm text-white block leading-tight font-medium">
@@ -185,6 +200,16 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
             </button>
           ))}
           <div className="border-t border-brand-700 my-2" />
+          {mounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="flex items-center gap-2 w-full text-left text-sm px-3 py-2.5 rounded-lg text-brand-300 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
+          )}
           {firstName && (
             <div className="px-3 py-2">
               <p className="text-sm font-medium text-white">

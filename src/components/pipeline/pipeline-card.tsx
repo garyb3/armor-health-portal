@@ -33,17 +33,17 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
         "hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5",
         overdue && "border-l-2 border-l-red-400",
         warning && "border-l-2 border-l-yellow-400",
-        applicant.isStale && "bg-red-50/50",
+        applicant.isStale && "bg-red-50/50 dark:bg-red-950/50",
       )}>
         <CardContent className="p-3 space-y-2">
           <div>
-            <p className="text-sm font-medium text-gray-900 truncate flex items-center gap-1">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate flex items-center gap-1">
               <span className="truncate">{applicant.firstName} {applicant.lastName}</span>
               {applicant.isStale && (
-                <span className="text-[10px] bg-red-100 text-red-600 px-1 rounded shrink-0">Stale</span>
+                <span className="text-[10px] bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-1 rounded shrink-0">Stale</span>
               )}
             </p>
-            <p className="text-xs text-gray-500 truncate">{applicant.email}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{applicant.email}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
               className="flex-1 h-1.5"
               indicatorClassName={overdue ? "bg-red-500" : warning ? "bg-yellow-400" : undefined}
             />
-            <span className="text-xs text-gray-400 shrink-0">
+            <span className="text-xs text-gray-500 shrink-0">
               {applicant.completedCount}/{applicant.totalCount}
             </span>
             {applicant.hasAnyReceipt && (
