@@ -43,7 +43,11 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <Progress value={percent} className="flex-1 h-1.5" />
+            <Progress
+              value={percent}
+              className="flex-1 h-1.5"
+              indicatorClassName={overdue ? "bg-red-500" : warning ? "bg-yellow-400" : undefined}
+            />
             <span className="text-xs text-gray-400 shrink-0">
               {applicant.completedCount}/{applicant.totalCount}
             </span>
