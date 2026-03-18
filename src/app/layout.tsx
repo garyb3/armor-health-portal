@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Geist, Geist_Mono, Dancing_Script, Great_Vibes, Sacramento, Satisfy } from "next/font/google";
 import "./globals.css";
 
@@ -41,19 +40,16 @@ export const metadata: Metadata = {
   description: "Franklin County background screening portal for Armor Health of Ohio",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const nonce = headersList.get("x-nonce") ?? "";
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${greatVibes.variable} ${sacramento.variable} ${satisfy.variable} antialiased bg-gray-50`}
-        nonce={nonce}
+        suppressHydrationWarning
       >
         {children}
       </body>
