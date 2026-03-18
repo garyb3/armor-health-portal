@@ -110,6 +110,7 @@ export default function DashboardPage() {
         avgTimePerStage={summary.avgTimePerStage ?? {}}
         bottleneckStage={summary.bottleneckStage}
         staleCount={summary.staleCount}
+        staleApplicants={applicants.filter((a) => a.isStale)}
       />
     </div>
   );
