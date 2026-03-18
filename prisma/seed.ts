@@ -15,61 +15,73 @@ interface DummyApplicant {
   firstName: string;
   lastName: string;
   email: string;
+  hoursInStage: number; // how many hours ago the current stage's statusChangedAt should be
   submissions: { formType: FormType; status: FormStatus }[];
 }
 
 const DUMMY_APPLICANTS: DummyApplicant[] = [
   // Stage 1: Currently on VOLUNTEER_APP
-  { firstName: "Maria", lastName: "Gonzalez", email: "maria.gonzalez@example.com", submissions: [
+  // Green (<12h) — just started
+  { firstName: "Maria", lastName: "Gonzalez", email: "maria.gonzalez@example.com", hoursInStage: 2, submissions: [
     { formType: "VOLUNTEER_APP", status: "IN_PROGRESS" },
   ]},
-  { firstName: "James", lastName: "Wilson", email: "james.wilson@example.com", submissions: [
+  // Yellow (12-24h) — getting stale
+  { firstName: "James", lastName: "Wilson", email: "james.wilson@example.com", hoursInStage: 18, submissions: [
     { formType: "VOLUNTEER_APP", status: "PENDING_REVIEW" },
   ]},
-  { firstName: "Aisha", lastName: "Patel", email: "aisha.patel@example.com", submissions: [
+  // Red (>24h) — overdue
+  { firstName: "Aisha", lastName: "Patel", email: "aisha.patel@example.com", hoursInStage: 48, submissions: [
     { formType: "VOLUNTEER_APP", status: "IN_PROGRESS" },
   ]},
 
   // Stage 2: Currently on PROFESSIONAL_LICENSE (step 1 approved)
-  { firstName: "Robert", lastName: "Chen", email: "robert.chen@example.com", submissions: [
+  // Green — fresh
+  { firstName: "Robert", lastName: "Chen", email: "robert.chen@example.com", hoursInStage: 4, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "IN_PROGRESS" },
   ]},
-  { firstName: "Tanya", lastName: "Brooks", email: "tanya.brooks@example.com", submissions: [
+  // Red — overdue
+  { firstName: "Tanya", lastName: "Brooks", email: "tanya.brooks@example.com", hoursInStage: 36, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "PENDING_REVIEW" },
   ]},
 
   // Stage 3: Currently on DRUG_SCREEN (steps 1-2 approved)
-  { firstName: "Derek", lastName: "Johnson", email: "derek.johnson@example.com", submissions: [
+  // Red — very overdue
+  { firstName: "Derek", lastName: "Johnson", email: "derek.johnson@example.com", hoursInStage: 72, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "PENDING_REVIEW" },
   ]},
-  { firstName: "Linda", lastName: "Nguyen", email: "linda.nguyen@example.com", submissions: [
+  // Green — recent
+  { firstName: "Linda", lastName: "Nguyen", email: "linda.nguyen@example.com", hoursInStage: 1, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "IN_PROGRESS" },
   ]},
-  { firstName: "Marcus", lastName: "Taylor", email: "marcus.taylor@example.com", submissions: [
+  // Yellow — approaching overdue
+  { firstName: "Marcus", lastName: "Taylor", email: "marcus.taylor@example.com", hoursInStage: 16, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "PENDING_REVIEW" },
   ]},
-  { firstName: "Sarah", lastName: "Kim", email: "sarah.kim@example.com", submissions: [
+  // Green — just entered
+  { firstName: "Sarah", lastName: "Kim", email: "sarah.kim@example.com", hoursInStage: 6, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "IN_PROGRESS" },
   ]},
 
   // Stage 4: Currently on BACKGROUND_CHECK (steps 1-3 approved)
-  { firstName: "Kevin", lastName: "Davis", email: "kevin.davis@example.com", submissions: [
+  // Yellow — warning range
+  { firstName: "Kevin", lastName: "Davis", email: "kevin.davis@example.com", hoursInStage: 14, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "APPROVED" },
     { formType: "BACKGROUND_CHECK", status: "PENDING_REVIEW" },
   ]},
-  { firstName: "Rachel", lastName: "Moore", email: "rachel.moore@example.com", submissions: [
+  // Red — overdue
+  { firstName: "Rachel", lastName: "Moore", email: "rachel.moore@example.com", hoursInStage: 30, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "APPROVED" },
@@ -77,13 +89,13 @@ const DUMMY_APPLICANTS: DummyApplicant[] = [
   ]},
 
   // Completed: All 4 steps approved
-  { firstName: "Anthony", lastName: "Harris", email: "anthony.harris@example.com", submissions: [
+  { firstName: "Anthony", lastName: "Harris", email: "anthony.harris@example.com", hoursInStage: 0, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "APPROVED" },
     { formType: "BACKGROUND_CHECK", status: "APPROVED" },
   ]},
-  { firstName: "Jessica", lastName: "Lee", email: "jessica.lee@example.com", submissions: [
+  { firstName: "Jessica", lastName: "Lee", email: "jessica.lee@example.com", hoursInStage: 0, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "APPROVED" },
@@ -91,25 +103,29 @@ const DUMMY_APPLICANTS: DummyApplicant[] = [
   ]},
 
   // Denied on a step
-  { firstName: "Brian", lastName: "Clark", email: "brian.clark@example.com", submissions: [
+  { firstName: "Brian", lastName: "Clark", email: "brian.clark@example.com", hoursInStage: 10, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "DENIED" },
   ]},
 
   // Extra people in early stages
-  { firstName: "Natalie", lastName: "Wright", email: "natalie.wright@example.com", submissions: [
+  // Red — very overdue
+  { firstName: "Natalie", lastName: "Wright", email: "natalie.wright@example.com", hoursInStage: 60, submissions: [
     { formType: "VOLUNTEER_APP", status: "PENDING_REVIEW" },
   ]},
-  { firstName: "Carlos", lastName: "Rivera", email: "carlos.rivera@example.com", submissions: [
+  // Yellow — warning
+  { firstName: "Carlos", lastName: "Rivera", email: "carlos.rivera@example.com", hoursInStage: 20, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "IN_PROGRESS" },
   ]},
-  { firstName: "Emily", lastName: "Thomas", email: "emily.thomas@example.com", submissions: [
+  // Green — fresh
+  { firstName: "Emily", lastName: "Thomas", email: "emily.thomas@example.com", hoursInStage: 3, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "PENDING_REVIEW" },
   ]},
-  { firstName: "Daniel", lastName: "Martinez", email: "daniel.martinez@example.com", submissions: [
+  // Green — recent
+  { firstName: "Daniel", lastName: "Martinez", email: "daniel.martinez@example.com", hoursInStage: 8, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "APPROVED" },
@@ -222,14 +238,20 @@ async function main() {
       },
     });
 
-    for (const sub of applicant.submissions) {
+    for (let i = 0; i < applicant.submissions.length; i++) {
+      const sub = applicant.submissions[i];
+      const isCurrentStage = i === applicant.submissions.length - 1;
+      // Current stage uses the explicit hoursInStage; earlier stages get a fixed older timestamp
+      const hoursAgo = isCurrentStage
+        ? applicant.hoursInStage
+        : applicant.hoursInStage + (applicant.submissions.length - i) * 24;
       await prisma.formSubmission.create({
         data: {
           applicantId: created.id,
           formType: sub.formType,
           status: sub.status,
           submittedAt: sub.status !== "NOT_STARTED" && sub.status !== "IN_PROGRESS" ? new Date() : null,
-          statusChangedAt: new Date(Date.now() - Math.random() * 72 * 60 * 60 * 1000), // random 0-72h ago
+          statusChangedAt: new Date(Date.now() - hoursAgo * 60 * 60 * 1000),
         },
       });
     }
