@@ -91,12 +91,13 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {PIPELINE_STAGES.map((stage) => (
           <PipelineColumn
             key={stage.key}
-            title={stage.title}
+            title={stage.shortTitle}
             stageKey={stage.key}
+            icon={stage.icon}
             applicants={filtered}
           />
         ))}

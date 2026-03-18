@@ -6,8 +6,8 @@ import { PIPELINE_STAGES } from "@/lib/constants";
 import { Users, X, Clock } from "lucide-react";
 import type { PipelineSummary, StageSummary, StageApplicant } from "@/types";
 
-const PENDING_COLOR = "bg-[#C8A951]";
-const APPROVAL_COLOR = "bg-red-700";
+const PENDING_COLOR = "bg-zinc-300";
+const APPROVAL_COLOR = "bg-slate-400";
 
 interface PipelineChartProps {
   summary: PipelineSummary;

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatElapsed, isOverdue } from "@/lib/format-elapsed";
 import { AlertTriangle, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { PipelineApplicant } from "@/types";
 
 interface PipelineCardProps {
@@ -28,7 +29,11 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
 
   return (
     <Link href={`/pipeline/${applicant.id}`}>
-      <Card className="hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5">
+      <Card className={cn(
+        "hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5",
+        overdue && "border-l-2 border-l-red-400",
+        warning && "border-l-2 border-l-yellow-400",
+      )}>
         <CardContent className="p-3 space-y-2">
           <div>
             <p className="text-sm font-medium text-gray-900 truncate">

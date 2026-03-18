@@ -63,15 +63,24 @@ export const STATUS_COLORS: Record<string, string> = {
   DENIED: "bg-red-100 text-red-700",
 };
 
+const STAGE_SHORT_TITLES: Record<string, string> = {
+  VOLUNTEER_APP: "Clearance Form",
+  PROFESSIONAL_LICENSE: "License",
+  DRUG_SCREEN: "Drug Screen",
+  BACKGROUND_CHECK: "Fingerprinting",
+};
+
 export const PIPELINE_STAGES = [
   ...FORM_STEPS.map((step) => ({
     key: step.key,
     title: step.title,
+    shortTitle: STAGE_SHORT_TITLES[step.key] || step.title,
     icon: step.icon,
   })),
   {
     key: "COMPLETED" as const,
     title: "Completed",
+    shortTitle: "Completed",
     icon: "CheckCircle2" as const,
   },
 ];
