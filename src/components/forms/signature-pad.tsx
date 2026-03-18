@@ -1,18 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Pen, X } from "lucide-react";
 
-const GOOGLE_FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&family=Sacramento&family=Satisfy&display=swap";
-
 const SIGNATURE_STYLES = [
-  { fontFamily: "'Dancing Script', cursive", fontWeight: 700 },
-  { fontFamily: "'Great Vibes', cursive", fontWeight: 400 },
-  { fontFamily: "'Sacramento', cursive", fontWeight: 400 },
-  { fontFamily: "'Satisfy', cursive", fontWeight: 400 },
+  { fontFamily: "var(--font-signature), cursive", fontWeight: 700 },
+  { fontFamily: "var(--font-great-vibes), cursive", fontWeight: 400 },
+  { fontFamily: "var(--font-sacramento), cursive", fontWeight: 400 },
+  { fontFamily: "var(--font-satisfy), cursive", fontWeight: 400 },
 ];
 
 interface ESignatureProps {
@@ -36,15 +33,6 @@ export function ESignature({
   const [adopted, setAdopted] = useState(!!value);
   const [selectedStyle, setSelectedStyle] = useState(0);
   const [showPanel, setShowPanel] = useState(false);
-
-  // Load Google Fonts directly to guarantee they render
-  useEffect(() => {
-    if (document.querySelector(`link[href="${GOOGLE_FONTS_URL}"]`)) return;
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = GOOGLE_FONTS_URL;
-    document.head.appendChild(link);
-  }, []);
 
   const handleAdopt = () => {
     if (!inputValue.trim()) return;

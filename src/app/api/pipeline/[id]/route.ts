@@ -9,6 +9,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
   const user = getUserFromRequest(request);
   if (!user) return unauthorizedResponse();
 
@@ -73,4 +74,11 @@ export async function GET(
       submittedAt: s.submittedAt?.toISOString() || null,
     })),
   });
+  } catch (error) {
+    console.error("Pipeline applicant fetch error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

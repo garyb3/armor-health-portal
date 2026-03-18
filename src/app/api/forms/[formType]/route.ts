@@ -107,16 +107,8 @@ export async function POST(
     const newStatus = action === "submit" ? "PENDING_REVIEW" : "IN_PROGRESS";
     const submittedAt = action === "submit" ? new Date() : undefined;
 
-    // Check current status to determine if statusChangedAt should update
-    const existing = await prisma.formSubmission.findUnique({
-      where: {
-        applicantId_formType: {
-          applicantId: user.userId,
-          formType,
-        },
-      },
-      select: { status: true },
-    });
+    // Reuse allSubmissions to check current status (avoids a second query)
+    const existing = allSubmissions.find((s) => s.formType === formType);
 
     // Prevent re-submission of already-reviewed forms
     if (existing && (existing.status === "APPROVED" || existing.status === "DENIED")) {

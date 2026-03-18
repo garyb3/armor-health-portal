@@ -53,6 +53,9 @@ model Applicant {
   formSubmissions FormSubmission[]
   sensitiveData   SensitiveData?
 
+  @@index([email])
+  @@index([denied])
+  @@index([role])
   @@map("applicants")
 }
 
@@ -75,6 +78,7 @@ model FormSubmission {
   applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
 
   @@unique([applicantId, formType])
+  @@index([applicantId])
   @@map("form_submissions")
 }
 
@@ -88,6 +92,7 @@ model Invite {
   createdBy String
   createdAt DateTime @default(now())
 
+  @@index([email, expiresAt])
   @@map("invites")
 }
 

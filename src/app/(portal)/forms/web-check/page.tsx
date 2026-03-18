@@ -9,7 +9,8 @@ import { webCheckSchema, type WebCheckInput } from "@/schemas/web-check";
 import { FormField } from "@/components/forms/form-field";
 import { StateSelect } from "@/components/forms/state-select";
 import { FormActions } from "@/components/forms/form-actions";
-import { SignaturePad } from "@/components/forms/signature-pad";
+import dynamic from "next/dynamic";
+const SignaturePad = dynamic(() => import("@/components/forms/signature-pad").then(m => m.SignaturePad), { ssr: false });
 import {
   PrintableForm,
   PrintField,

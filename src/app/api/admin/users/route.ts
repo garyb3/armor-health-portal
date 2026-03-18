@@ -10,30 +10,44 @@ export async function GET(request: NextRequest) {
   }
 
   const filter = request.nextUrl.searchParams.get("filter");
+  const limit = Math.min(
+    parseInt(request.nextUrl.searchParams.get("limit") || "200"),
+    500
+  );
+  const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0") || 0;
+
   const where =
     filter === "pending"
       ? { role: { in: ["RECRUITER" as const, "HR" as const, "ADMIN_ASSISTANT" as const] }, approved: false, denied: { not: true } }
       : { role: { in: ["RECRUITER" as const, "HR" as const, "ADMIN_ASSISTANT" as const, "APPLICANT" as const] }, denied: { not: true } };
 
-  const users = await prisma.applicant.findMany({
-    where,
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      role: true,
-      approved: true,
-      emailVerified: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [users, total] = await Promise.all([
+    prisma.applicant.findMany({
+      where,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        approved: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      skip,
+    }),
+    prisma.applicant.count({ where }),
+  ]);
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     users: users.map((u) => ({
       ...u,
       createdAt: u.createdAt.toISOString(),
     })),
+    total,
   });
+  response.headers.set("Cache-Control", "private, max-age=300");
+  return response;
 }

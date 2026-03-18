@@ -22,6 +22,7 @@ function getCurrentStage(
 }
 
 export async function GET(request: NextRequest) {
+  try {
   const user = getUserFromRequest(request);
   if (!user) return unauthorizedResponse();
 
@@ -140,7 +141,7 @@ export async function GET(request: NextRequest) {
     };
   });
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     applicants: mapped,
     total,
     summary: {
@@ -149,4 +150,13 @@ export async function GET(request: NextRequest) {
       completedByStage,
     },
   });
+  response.headers.set("Cache-Control", "private, max-age=60");
+  return response;
+  } catch (error) {
+    console.error("Pipeline fetch error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

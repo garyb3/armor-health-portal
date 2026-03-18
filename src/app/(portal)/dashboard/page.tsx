@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { Input } from "@/components/ui/input";
 import { PipelineColumn } from "@/components/pipeline/pipeline-column";
-import { PipelineChart } from "@/components/pipeline/pipeline-chart";
+const PipelineChart = dynamic(() => import("@/components/pipeline/pipeline-chart").then(m => m.PipelineChart), { ssr: false });
 import { PIPELINE_STAGES } from "@/lib/constants";
 import { Loader2, Search } from "lucide-react";
 import type { PipelineApplicant, PipelineSummary } from "@/types";

@@ -47,7 +47,7 @@ export async function GET(
       isApprovedOrCompleted(s.status as unknown as AppFormStatus)
     ).length;
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       progress: submissions.map((s) => ({
         formType: s.formType,
         status: s.status,
@@ -62,6 +62,8 @@ export async function GET(
       completedCount,
       totalCount: FORM_STEPS.length,
     });
+    response.headers.set("Cache-Control", "private, max-age=30");
+    return response;
   } catch (error) {
     console.error("Progress fetch error:", error);
     return NextResponse.json(
