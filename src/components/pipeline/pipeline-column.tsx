@@ -33,6 +33,7 @@ interface PipelineColumnProps {
   stageKey: string;
   icon: string;
   applicants: PipelineApplicant[];
+  isBottleneck?: boolean;
 }
 
 export function PipelineColumn({
@@ -40,6 +41,7 @@ export function PipelineColumn({
   stageKey,
   icon,
   applicants,
+  isBottleneck,
 }: PipelineColumnProps) {
   const filtered = applicants.filter((a) => a.currentStage === stageKey);
   const colors = STAGE_COLORS[stageKey] || DEFAULT_COLORS;
@@ -59,6 +61,11 @@ export function PipelineColumn({
         <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wider truncate">
           {title}
         </h3>
+        {isBottleneck && (
+          <span className="text-[9px] font-semibold text-red-600 bg-red-50 rounded px-1 py-0.5 ring-1 ring-red-200 shrink-0">
+            Bottleneck
+          </span>
+        )}
         <span className="ml-auto text-xs font-medium text-gray-400 bg-white rounded-full px-2 py-0.5 ring-1 ring-gray-200/60 tabular-nums shrink-0">
           {filtered.length}
         </span>

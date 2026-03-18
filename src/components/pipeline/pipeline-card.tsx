@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatElapsed, isOverdue } from "@/lib/format-elapsed";
-import { AlertTriangle, Clock } from "lucide-react";
+import { AlertTriangle, Bell, Clock, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PipelineApplicant } from "@/types";
 
@@ -33,11 +33,15 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
         "hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5",
         overdue && "border-l-2 border-l-red-400",
         warning && "border-l-2 border-l-yellow-400",
+        applicant.isStale && "bg-red-50/50",
       )}>
         <CardContent className="p-3 space-y-2">
           <div>
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {applicant.firstName} {applicant.lastName}
+            <p className="text-sm font-medium text-gray-900 truncate flex items-center gap-1">
+              <span className="truncate">{applicant.firstName} {applicant.lastName}</span>
+              {applicant.isStale && (
+                <span className="text-[10px] bg-red-100 text-red-600 px-1 rounded shrink-0">Stale</span>
+              )}
             </p>
             <p className="text-xs text-gray-500 truncate">{applicant.email}</p>
           </div>
@@ -51,6 +55,11 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
             <span className="text-xs text-gray-400 shrink-0">
               {applicant.completedCount}/{applicant.totalCount}
             </span>
+            {applicant.hasAnyReceipt && (
+              <span title="Receipt uploaded">
+                <Paperclip className="h-3 w-3 text-blue-400 shrink-0" />
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-1 text-xs">
@@ -77,6 +86,13 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
               </>
             )}
           </div>
+
+          {applicant.lastAlertSentAt && (
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <Bell className="h-3 w-3" />
+              <span>Alerted {formatElapsed(applicant.lastAlertSentAt)} ago</span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>

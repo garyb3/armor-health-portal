@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { Input } from "@/components/ui/input";
 import { PipelineColumn } from "@/components/pipeline/pipeline-column";
 const PipelineChart = dynamic(() => import("@/components/pipeline/pipeline-chart").then(m => m.PipelineChart), { ssr: false });
+import { StageStats } from "@/components/pipeline/stage-stats";
 import { PIPELINE_STAGES } from "@/lib/constants";
 import { Loader2, Search } from "lucide-react";
 import type { PipelineApplicant, PipelineSummary } from "@/types";
@@ -16,6 +17,7 @@ export default function DashboardPage() {
     total: 0,
     byStage: {},
     completedByStage: {},
+    avgTimePerStage: {},
   });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -99,9 +101,16 @@ export default function DashboardPage() {
             stageKey={stage.key}
             icon={stage.icon}
             applicants={filtered}
+            isBottleneck={summary.bottleneckStage === stage.key}
           />
         ))}
       </div>
+
+      <StageStats
+        avgTimePerStage={summary.avgTimePerStage ?? {}}
+        bottleneckStage={summary.bottleneckStage}
+        staleCount={summary.staleCount}
+      />
     </div>
   );
 }

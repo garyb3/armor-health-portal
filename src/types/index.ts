@@ -20,6 +20,8 @@ export interface FormProgress {
   reviewedBy?: string;
   reviewedAt?: string;
   reviewNote?: string;
+  lastAlertSentAt?: string | null;
+  hasReceipt?: boolean;
 }
 
 export interface ProgressResponse {
@@ -54,6 +56,9 @@ export interface PipelineApplicant {
   completedCount: number;
   totalCount: number;
   progress: FormProgress[];
+  isStale?: boolean;
+  lastAlertSentAt?: string | null;
+  hasAnyReceipt?: boolean;
 }
 
 export interface StageApplicant {
@@ -71,6 +76,9 @@ export interface PipelineSummary {
   total: number;
   byStage: Record<string, StageSummary>;
   completedByStage: Record<string, StageSummary>;
+  avgTimePerStage?: Record<string, number>;
+  bottleneckStage?: string | null;
+  staleCount?: number;
 }
 
 export interface PipelineResponse {

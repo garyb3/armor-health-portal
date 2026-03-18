@@ -6,6 +6,7 @@ import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import type { Role, FormStatus as AppFormStatus } from "@/types";
 
 const STAFF_ROLES: Role[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
+const STALE_THRESHOLD_MS = 48 * 60 * 60 * 1000; // 48 hours
 
 function getCurrentStage(
   submissions: { formType: string; status: string }[]
@@ -61,6 +62,8 @@ export async function GET(request: NextRequest) {
             reviewedBy: true,
             reviewedAt: true,
             reviewNote: true,
+            lastAlertSentAt: true,
+            receiptFile: true,
           },
           orderBy: { createdAt: "asc" },
         },
@@ -77,9 +80,11 @@ export async function GET(request: NextRequest) {
   const emptySummary = () => ({ count: 0, names: [] as string[], applicants: [] as { name: string; since: string }[] });
   const byStage: Record<string, ReturnType<typeof emptySummary>> = {};
   const completedByStage: Record<string, ReturnType<typeof emptySummary>> = {};
+  const dwellAccumulator: Record<string, { totalMs: number; count: number }> = {};
   for (const step of FORM_STEPS) {
     byStage[step.key] = emptySummary();
     completedByStage[step.key] = emptySummary();
+    dwellAccumulator[step.key] = { totalMs: 0, count: 0 };
   }
   byStage["COMPLETED"] = emptySummary();
 
@@ -101,6 +106,13 @@ export async function GET(request: NextRequest) {
       : a.createdAt.toISOString();
     byStage[currentStage].applicants.push({ name, since: pendingSince });
 
+    // Accumulate dwell time for average computation (skip COMPLETED)
+    if (currentStage !== "COMPLETED" && dwellAccumulator[currentStage]) {
+      const dwellMs = Date.now() - new Date(pendingSince).getTime();
+      dwellAccumulator[currentStage].totalMs += dwellMs;
+      dwellAccumulator[currentStage].count += 1;
+    }
+
     a.formSubmissions.forEach((s) => {
       if (
         isApprovedOrCompleted(s.status as AppFormStatus) &&
@@ -119,6 +131,10 @@ export async function GET(request: NextRequest) {
       isApprovedOrCompleted(s.status as AppFormStatus)
     ).length;
 
+    // Stale detection: stuck in same stage for 48+ hours
+    const dwellMs = Date.now() - new Date(pendingSince).getTime();
+    const isStale = currentStage !== "COMPLETED" && dwellMs > STALE_THRESHOLD_MS;
+
     return {
       id: a.id,
       firstName: a.firstName,
@@ -129,6 +145,12 @@ export async function GET(request: NextRequest) {
       currentStage,
       completedCount,
       totalCount: FORM_STEPS.length,
+      isStale,
+      lastAlertSentAt: a.formSubmissions
+        .map((s) => s.lastAlertSentAt)
+        .filter(Boolean)
+        .sort((a, b) => b!.getTime() - a!.getTime())[0]?.toISOString() ?? null,
+      hasAnyReceipt: a.formSubmissions.some((s) => !!s.receiptFile),
       progress: a.formSubmissions.map((s) => ({
         formType: s.formType,
         status: s.status,
@@ -137,9 +159,29 @@ export async function GET(request: NextRequest) {
         reviewedBy: s.reviewedBy,
         reviewedAt: s.reviewedAt?.toISOString() ?? null,
         reviewNote: s.reviewNote,
+        lastAlertSentAt: s.lastAlertSentAt?.toISOString() ?? null,
+        hasReceipt: !!s.receiptFile,
       })),
     };
   });
+
+  // Compute average dwell time per stage
+  const avgTimePerStage: Record<string, number> = {};
+  for (const [key, acc] of Object.entries(dwellAccumulator)) {
+    avgTimePerStage[key] = acc.count > 0 ? Math.round(acc.totalMs / acc.count) : 0;
+  }
+
+  const staleCount = mapped.filter((a) => a.isStale).length;
+
+  // Find the bottleneck stage (longest average dwell time)
+  let bottleneckStage: string | null = null;
+  let maxAvg = 0;
+  for (const [key, avg] of Object.entries(avgTimePerStage)) {
+    if (key !== "COMPLETED" && avg > maxAvg) {
+      maxAvg = avg;
+      bottleneckStage = key;
+    }
+  }
 
   const response = NextResponse.json({
     applicants: mapped,
@@ -148,6 +190,9 @@ export async function GET(request: NextRequest) {
       total: mapped.length,
       byStage,
       completedByStage,
+      avgTimePerStage,
+      bottleneckStage,
+      staleCount,
     },
   });
   response.headers.set("Cache-Control", "private, max-age=60");

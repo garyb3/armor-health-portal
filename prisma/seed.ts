@@ -238,6 +238,13 @@ async function main() {
       },
     });
 
+    // Simulate receipt uploads for a few applicants
+    const receiptMap: Record<string, string[]> = {
+      "derek.johnson@example.com": ["DRUG_SCREEN"],
+      "marcus.taylor@example.com": ["DRUG_SCREEN"],
+      "kevin.davis@example.com": ["BACKGROUND_CHECK"],
+    };
+
     for (let i = 0; i < applicant.submissions.length; i++) {
       const sub = applicant.submissions[i];
       const isCurrentStage = i === applicant.submissions.length - 1;
@@ -245,6 +252,7 @@ async function main() {
       const hoursAgo = isCurrentStage
         ? applicant.hoursInStage
         : applicant.hoursInStage + (applicant.submissions.length - i) * 24;
+      const hasReceipt = receiptMap[applicant.email]?.includes(sub.formType);
       await prisma.formSubmission.create({
         data: {
           applicantId: created.id,
@@ -252,6 +260,14 @@ async function main() {
           status: sub.status,
           submittedAt: sub.status !== "NOT_STARTED" && sub.status !== "IN_PROGRESS" ? new Date() : null,
           statusChangedAt: new Date(Date.now() - hoursAgo * 60 * 60 * 1000),
+          // Simulate overdue alerts for applicants stuck >24h in their current stage
+          ...(isCurrentStage && applicant.hoursInStage > 24
+            ? { lastAlertSentAt: new Date(Date.now() - (applicant.hoursInStage - 12) * 60 * 60 * 1000) }
+            : {}),
+          // Simulate receipt file uploads
+          ...(hasReceipt
+            ? { receiptFile: `/uploads/receipt-${sub.formType.toLowerCase()}.pdf` }
+            : {}),
         },
       });
     }
