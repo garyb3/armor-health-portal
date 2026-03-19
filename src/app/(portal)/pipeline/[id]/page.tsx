@@ -135,7 +135,7 @@ export default function ApplicantDetailPage() {
       {/* Back link */}
       <Link
         href="/pipeline"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Dashboard
@@ -146,26 +146,26 @@ export default function ApplicantDetailPage() {
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                 {applicant.firstName} {applicant.lastName}
               </h1>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 {ROLE_LABELS[applicant.role] || applicant.role}
               </p>
 
               <div className="mt-3 space-y-1">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                  <Mail className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   {applicant.email}
                 </div>
                 {applicant.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="h-4 w-4 text-gray-400" />
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <Phone className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                     {applicant.phone}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Calendar className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                  <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                   Registered{" "}
                   {new Date(applicant.createdAt).toLocaleDateString()}
                 </div>
@@ -184,7 +184,7 @@ export default function ApplicantDetailPage() {
                   ? "All Complete"
                   : `Current: ${stageLabel}`}
               </Badge>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {applicant.completedCount} of {applicant.totalCount} steps
                 completed
               </p>
@@ -215,28 +215,28 @@ export default function ApplicantDetailPage() {
             return (
               <div
                 key={step.key}
-                className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border border-gray-200"
+                className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-lg border border-gray-200 dark:border-brand-700"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-400 uppercase">
+                    <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">
                       Step {step.order}
                     </span>
                     <Badge className={STATUS_COLORS[status] || ""}>
                       {STATUS_LABELS[status] || status}
                     </Badge>
                   </div>
-                  <p className="font-medium text-gray-900 text-sm">
+                  <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                     {step.title}
                   </p>
 
                   {/* Review info */}
                   {prog?.reviewedAt && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {status === "APPROVED" ? "Approved" : "Denied"} on{" "}
                       {new Date(prog.reviewedAt).toLocaleString()}
                       {prog.reviewNote && (
-                        <span className="block text-gray-400 mt-0.5">
+                        <span className="block text-gray-400 dark:text-gray-500 mt-0.5">
                           Note: {prog.reviewNote}
                         </span>
                       )}
@@ -247,7 +247,7 @@ export default function ApplicantDetailPage() {
                   {prog?.statusChangedAt &&
                     status !== "APPROVED" &&
                     status !== "COMPLETED" && (
-                      <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         Since{" "}
                         {new Date(prog.statusChangedAt).toLocaleString()}
@@ -281,7 +281,7 @@ export default function ApplicantDetailPage() {
                             placeholder="Optional note..."
                             value={denyNote}
                             onChange={(e) => setDenyNote(e.target.value)}
-                            className="text-sm border border-gray-300 rounded px-2 py-1 w-40"
+                            className="text-sm border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-2 py-1 w-40"
                           />
                           <Button
                             size="sm"
@@ -316,7 +316,7 @@ export default function ApplicantDetailPage() {
                           variant="outline"
                           onClick={() => setDenyingStep(step.key)}
                           disabled={actionLoading !== null}
-                          className="text-red-600 border-red-200 hover:bg-red-50 gap-1"
+                          className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 gap-1"
                         >
                           <XCircle className="h-3 w-3" />
                           Deny

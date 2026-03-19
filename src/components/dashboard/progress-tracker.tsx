@@ -41,8 +41,8 @@ export function ProgressTracker({
     <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between text-sm">
-        <span className="font-medium text-gray-700">Overall Progress</span>
-        <span className="text-gray-400 tabular-nums">
+        <span className="font-medium text-gray-700 dark:text-gray-200">Overall Progress</span>
+        <span className="text-gray-400 dark:text-gray-500 tabular-nums">
           {completedCount} of {totalCount} steps completed
         </span>
       </div>
@@ -50,7 +50,7 @@ export function ProgressTracker({
       {/* Progress bar with step indicators */}
       <div className="relative pt-2 pb-1">
         {/* Bar track */}
-        <div className="relative h-2.5 w-full rounded-full bg-gray-100">
+        <div className="relative h-2.5 w-full rounded-full bg-gray-100 dark:bg-brand-700">
           {/* Bar fill */}
           <div
             className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-accent-400 to-accent-500 transition-all duration-500 ease-in-out"
@@ -72,7 +72,7 @@ export function ProgressTracker({
                 transform: "translateX(-50%)",
               }}
             >
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white border-2 border-white shadow-sm">
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white dark:bg-brand-800 border-2 border-white dark:border-brand-800 shadow-sm">
                 {isApproved(status) ? (
                   <CheckCircle2 className="h-6 w-6 text-emerald-500" />
                 ) : status === "DENIED" ? (
@@ -80,7 +80,7 @@ export function ProgressTracker({
                 ) : status === "IN_PROGRESS" || status === "PENDING_REVIEW" ? (
                   <Clock className="h-6 w-6 text-amber-500" />
                 ) : (
-                  <Circle className="h-6 w-6 text-gray-300" />
+                  <Circle className="h-6 w-6 text-gray-300 dark:text-gray-600" />
                 )}
               </div>
             </div>
@@ -112,7 +112,7 @@ export function ProgressTracker({
                     ? "text-red-600"
                     : status === "IN_PROGRESS" || status === "PENDING_REVIEW"
                     ? "text-amber-600"
-                    : "text-gray-400"
+                    : "text-gray-400 dark:text-gray-500"
                 }`}
               >
                 {step.title}
