@@ -7,7 +7,11 @@ import {
   FlaskConical,
   Fingerprint,
   CheckCircle2,
+  Timer,
+  AlertTriangle,
 } from "lucide-react";
+import { formatDurationMs } from "@/lib/format-elapsed";
+import { cn } from "@/lib/utils";
 import type { PipelineApplicant } from "@/types";
 
 const STAGE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -34,6 +38,7 @@ interface PipelineColumnProps {
   icon: string;
   applicants: PipelineApplicant[];
   isBottleneck?: boolean;
+  avgTimeMs?: number;
 }
 
 export function PipelineColumn({
@@ -42,6 +47,7 @@ export function PipelineColumn({
   icon,
   applicants,
   isBottleneck,
+  avgTimeMs = 0,
 }: PipelineColumnProps) {
   const filtered = applicants.filter((a) => a.currentStage === stageKey);
   const colors = STAGE_COLORS[stageKey] || DEFAULT_COLORS;
@@ -70,6 +76,27 @@ export function PipelineColumn({
           {filtered.length}
         </span>
       </div>
+
+      {/* Avg time */}
+      {avgTimeMs > 0 && (
+        <div className={cn(
+          "flex items-center gap-2 mx-2 mb-1.5 rounded-md px-2.5 py-2",
+          isBottleneck
+            ? "bg-red-50/60 dark:bg-red-950/40"
+            : "bg-white/60 dark:bg-brand-700/40"
+        )}>
+          <Timer className={cn("h-3.5 w-3.5 shrink-0", isBottleneck ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
+          <span className={cn(
+            "text-xs font-semibold tabular-nums",
+            isBottleneck ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-300"
+          )}>
+            Avg. {formatDurationMs(avgTimeMs)}
+          </span>
+          {isBottleneck && (
+            <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0 ml-auto" />
+          )}
+        </div>
+      )}
 
       {/* Card list */}
       <div className="flex-1 space-y-2 overflow-y-auto max-h-[calc(100vh-340px)] px-2 pb-2">

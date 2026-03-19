@@ -102,6 +102,7 @@ export default function DashboardPage() {
             icon={stage.icon}
             applicants={filtered}
             isBottleneck={summary.bottleneckStage === stage.key}
+            avgTimeMs={summary.avgTimePerStage?.[stage.key] || 0}
           />
         ))}
       </div>

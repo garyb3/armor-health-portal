@@ -2,28 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
-import { formatDurationMs, formatElapsed } from "@/lib/format-elapsed";
+import { PIPELINE_STAGES } from "@/lib/constants";
+import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
 import {
-  FileText,
-  FileCheck,
-  FlaskConical,
-  Fingerprint,
-  Timer,
-  AlertTriangle,
   UserX,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import type { PipelineApplicant } from "@/types";
-
-const STAGE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  FileText,
-  FileCheck,
-  FlaskConical,
-  Fingerprint,
-};
 
 const STAGE_LABEL: Record<string, string> = Object.fromEntries(
   PIPELINE_STAGES.map((s) => [s.key, s.shortTitle])
@@ -38,54 +25,14 @@ interface StageStatsProps {
 
 export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, staleApplicants = [] }: StageStatsProps) {
   const [showStale, setShowStale] = useState(false);
-  const hasData = Object.values(avgTimePerStage).some((v) => v > 0);
-  if (!hasData) return null;
 
   const hasStale = staleCount != null && staleCount > 0;
+  if (!hasStale) return null;
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {FORM_STEPS.map((step) => {
-          const avgMs = avgTimePerStage[step.key] || 0;
-          const Icon = STAGE_ICONS[step.icon];
-          const isBottleneck = bottleneckStage === step.key;
-
-          return (
-            <div
-              key={step.key}
-              className={cn(
-                "flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-brand-800 border px-3 py-2.5",
-                isBottleneck
-                  ? "border-red-300 dark:border-red-700 ring-2 ring-red-400/30 dark:ring-red-500/30 bg-red-50/40 dark:bg-red-950/40"
-                  : "border-gray-200/60 dark:border-brand-700/60"
-              )}
-            >
-              {Icon && <Icon className={cn("h-4 w-4 shrink-0", isBottleneck ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />}
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
-                  Avg. time
-                </p>
-                <p className={cn(
-                  "text-sm font-semibold tabular-nums flex items-center gap-1",
-                  isBottleneck ? "text-red-600 dark:text-red-400" : "text-gray-700 dark:text-gray-200"
-                )}>
-                  <Timer className={cn("h-3 w-3", isBottleneck ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
-                  {avgMs > 0 ? formatDurationMs(avgMs) : "—"}
-                </p>
-              </div>
-              {isBottleneck && (
-                <div className="flex items-center gap-1 shrink-0">
-                  <AlertTriangle className="h-3.5 w-3.5 text-red-500" />
-                  <span className="text-[10px] font-medium text-red-600">Bottleneck</span>
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Stale applicant counter – clickable when there are stale applicants */}
-        <button
+      {/* Stale applicant counter – clickable when there are stale applicants */}
+      <button
           type="button"
           onClick={() => hasStale && setShowStale((v) => !v)}
           className={cn(
@@ -112,8 +59,7 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
               ? <ChevronUp className="h-4 w-4 text-red-400 shrink-0" />
               : <ChevronDown className="h-4 w-4 text-red-400 shrink-0" />
           )}
-        </button>
-      </div>
+      </button>
 
       {/* Expanded stale applicant list */}
       {showStale && staleApplicants.length > 0 && (
