@@ -1,52 +1,28 @@
 /**
  * Returns human-readable elapsed time from a given date string to now.
- * e.g. "2h 15m", "1d 5h", "< 1m"
+ * e.g. "3d", "1d", "< 1d"
  */
 export function formatElapsed(dateString: string): string {
   const ms = Date.now() - new Date(dateString).getTime();
-  if (ms < 0) return "< 1m";
+  if (ms < 0) return "< 1d";
 
-  const minutes = Math.floor(ms / 60_000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+  const days = Math.floor(ms / 86_400_000);
 
-  if (days > 0) {
-    const remainingHours = hours % 24;
-    return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
-  }
-  if (hours > 0) {
-    const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
-  }
-  if (minutes > 0) {
-    return `${minutes}m`;
-  }
-  return "< 1m";
+  if (days > 0) return `${days}d`;
+  return "< 1d";
 }
 
 /**
  * Formats a duration in milliseconds to human-readable form.
- * e.g. 90000000 → "1d 1h", 3600000 → "1h"
+ * e.g. 90000000 → "1d", 259200000 → "3d"
  */
 export function formatDurationMs(ms: number): string {
-  if (ms < 0) return "< 1m";
+  if (ms < 0) return "< 1d";
 
-  const minutes = Math.floor(ms / 60_000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
+  const days = Math.floor(ms / 86_400_000);
 
-  if (days > 0) {
-    const remainingHours = hours % 24;
-    return remainingHours > 0 ? `${days}d ${remainingHours}h` : `${days}d`;
-  }
-  if (hours > 0) {
-    const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
-  }
-  if (minutes > 0) {
-    return `${minutes}m`;
-  }
-  return "< 1m";
+  if (days > 0) return `${days}d`;
+  return "< 1d";
 }
 
 /**
