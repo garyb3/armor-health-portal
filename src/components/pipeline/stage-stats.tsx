@@ -45,7 +45,7 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
           <UserX className={cn("h-4 w-4 shrink-0", hasStale ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
           <div className="min-w-0 flex-1">
             <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
-              Stale (48h+)
+              Stale (7d+)
             </p>
             <p className={cn(
               "text-sm font-semibold tabular-nums",
@@ -65,7 +65,7 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
       {showStale && staleApplicants.length > 0 && (
         <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/30 p-3">
           <p className="text-xs font-medium text-red-600 dark:text-red-400 mb-2">
-            Stale applicants (48h+ in current stage)
+            Stale applicants (7d+ in current stage)
           </p>
           <div className="space-y-1.5">
             {staleApplicants.map((a) => {

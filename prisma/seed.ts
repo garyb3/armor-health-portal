@@ -30,7 +30,7 @@ const DUMMY_APPLICANTS: DummyApplicant[] = [
     { formType: "VOLUNTEER_APP", status: "PENDING_REVIEW" },
   ]},
   // Red (>24h) — overdue
-  { firstName: "Aisha", lastName: "Patel", email: "aisha.patel@example.com", hoursInStage: 48, submissions: [
+  { firstName: "Aisha", lastName: "Patel", email: "aisha.patel@example.com", hoursInStage: 192, submissions: [
     { formType: "VOLUNTEER_APP", status: "IN_PROGRESS" },
   ]},
 
@@ -48,7 +48,7 @@ const DUMMY_APPLICANTS: DummyApplicant[] = [
 
   // Stage 3: Currently on DRUG_SCREEN (steps 1-2 approved)
   // Red — very overdue
-  { firstName: "Derek", lastName: "Johnson", email: "derek.johnson@example.com", hoursInStage: 72, submissions: [
+  { firstName: "Derek", lastName: "Johnson", email: "derek.johnson@example.com", hoursInStage: 240, submissions: [
     { formType: "VOLUNTEER_APP", status: "APPROVED" },
     { formType: "PROFESSIONAL_LICENSE", status: "APPROVED" },
     { formType: "DRUG_SCREEN", status: "PENDING_REVIEW" },
@@ -110,7 +110,7 @@ const DUMMY_APPLICANTS: DummyApplicant[] = [
 
   // Extra people in early stages
   // Red — very overdue
-  { firstName: "Natalie", lastName: "Wright", email: "natalie.wright@example.com", hoursInStage: 60, submissions: [
+  { firstName: "Natalie", lastName: "Wright", email: "natalie.wright@example.com", hoursInStage: 200, submissions: [
     { formType: "VOLUNTEER_APP", status: "PENDING_REVIEW" },
   ]},
   // Yellow — warning
