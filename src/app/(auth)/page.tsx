@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -48,7 +47,7 @@ export default function LoginPage() {
         </div>
         <p className="text-lg font-semibold text-gray-900">Welcome back</p>
         <CardDescription className="text-gray-500">
-          Sign in to your onboarding portal
+          Sign in to the staff portal
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)} autoComplete="on">
@@ -102,15 +101,6 @@ export default function LoginPage() {
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Sign In
           </Button>
-          <p className="text-sm text-gray-500 text-center">
-            New applicant?{" "}
-            <Link
-              href="/register"
-              className="text-accent-500 hover:underline font-medium"
-            >
-              Register here
-            </Link>
-          </p>
         </CardFooter>
       </form>
     </Card>

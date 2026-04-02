@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, verifyRefreshToken } from "@/lib/auth";
 import type { TokenPayload } from "@/lib/auth";
 
-const publicPaths = ["/", "/register", "/registration-complete", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
+const publicPaths = ["/", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
 
 /** Static file extensions that can bypass auth */
 const STATIC_EXTENSIONS = new Set([
@@ -241,11 +241,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // County reps don't need portal access — redirect to registration-complete
-  if (role === "COUNTY_REPRESENTATIVE" && pathname !== "/registration-complete") {
-    return withCsp(NextResponse.redirect(new URL("/registration-complete", request.url)));
-  }
-
   // Unapproved staff (RECRUITER/HR) — block everything except pending-approval and logout
   if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
     if (pathname === "/pending-approval") {
@@ -259,11 +254,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Staff can only access dashboard, pipeline, and admin (not forms/onboarding)
-  if (isStaff && (pathname.startsWith("/forms") || pathname === "/background-clearance")) {
-    return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
-  }
-
   // Only ADMIN can access /admin routes
   if (pathname.startsWith("/admin") && role !== "ADMIN") {
     if (pathname.startsWith("/api/admin")) {
@@ -273,13 +263,8 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect old /dashboard bookmarks to /pipeline
-  if (isStaff && pathname === "/dashboard") {
+  if (pathname === "/dashboard") {
     return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
-  }
-
-  // Applicants cannot access dashboard, pipeline, or admin routes
-  if (!isStaff && (pathname === "/dashboard" || pathname.startsWith("/pipeline") || pathname.startsWith("/admin"))) {
-    return withCsp(NextResponse.redirect(new URL("/background-clearance", request.url)));
   }
 
   // Set user headers on the (already cleaned) headers

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { readFile, access } from "fs/promises";
 import path from "path";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
-import { prisma } from "@/lib/prisma";
 
 const STAFF_ROLES = ["ADMIN", "HR", "RECRUITER", "ADMIN_ASSISTANT"];
 
@@ -39,21 +38,9 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // Authorization: staff can access any file; non-staff must own the file.
-    const isStaff = STAFF_ROLES.includes(user.userRole);
-
-    if (!isStaff) {
-      // Build the URL path as stored in the DB (e.g. "/api/uploads/receipts/abc_123.jpg")
-      const storedPath = `/api/uploads/${segments.join("/")}`;
-      const ownsFile = await prisma.formSubmission.findFirst({
-        where: { applicantId: user.userId, receiptFile: storedPath },
-        select: { id: true },
-      });
-
-      if (!ownsFile) {
-        // Return 404 instead of 403 to avoid revealing file existence
-        return NextResponse.json({ error: "Not found" }, { status: 404 });
-      }
+    // Only staff can access uploaded files
+    if (!STAFF_ROLES.includes(user.userRole)) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
     // Check file exists

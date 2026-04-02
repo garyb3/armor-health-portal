@@ -27,15 +27,11 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = data.user.role === "COUNTY_REPRESENTATIVE"
-          ? "/registration-complete"
-          : data.user.role === "ADMIN"
+        const dest = data.user.role === "ADMIN"
           ? "/admin"
           : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
           ? "/pending-approval"
-          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role)
-          ? "/pipeline"
-          : "/background-clearance";
+          : "/pipeline";
         router.push(dest);
         return true;
       } catch {
@@ -73,15 +69,11 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = data.user.role === "COUNTY_REPRESENTATIVE"
-          ? "/registration-complete"
-          : data.user.role === "ADMIN"
+        const dest = data.user.role === "ADMIN"
           ? "/admin"
           : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
           ? "/pending-approval"
-          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role)
-          ? "/pipeline"
-          : "/background-clearance";
+          : "/pipeline";
         router.push(dest);
         return true;
       } catch {

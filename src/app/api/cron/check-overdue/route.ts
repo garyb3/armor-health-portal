@@ -6,7 +6,7 @@ import { FORM_STEPS } from "@/lib/constants";
 import { isStepUnlocked } from "@/lib/pipeline-helpers";
 import type { FormType as AppFormType, FormStatus as AppFormStatus } from "@/types";
 
-const OVERDUE_HOURS = 12;
+const OVERDUE_DAYS = 7;
 
 const STEP_TITLE_MAP: Record<string, string> = Object.fromEntries(
   FORM_STEPS.map((s) => [s.key, s.title])
@@ -22,9 +22,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const cutoff = new Date(Date.now() - OVERDUE_HOURS * 60 * 60 * 1000);
+    const cutoff = new Date(Date.now() - OVERDUE_DAYS * 24 * 60 * 60 * 1000);
 
-    // Find all overdue form submissions (not completed, status changed > 12h ago)
+    // Find all overdue form submissions (not completed, status changed > 7 days ago)
     const overdueSubmissions = await prisma.formSubmission.findMany({
       where: {
         status: { in: ["NOT_STARTED", "IN_PROGRESS"] },
@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
             firstName: true,
             lastName: true,
             email: true,
+            phone: true,
           },
         },
       },
@@ -59,6 +60,15 @@ export async function GET(request: NextRequest) {
       list.push(s);
       submissionsByApplicant.set(s.applicantId, list);
     }
+
+    // Fetch all approved HR/Recruiter staff for personalized emails
+    const staffUsers = await prisma.applicant.findMany({
+      where: {
+        role: { in: ["HR", "RECRUITER"] },
+        approved: true,
+      },
+      select: { email: true, firstName: true },
+    });
 
     const results: Array<{
       applicant: string;
@@ -88,13 +98,17 @@ export async function GET(request: NextRequest) {
       const alertParams = {
         applicantName,
         applicantEmail: sub.applicant.email,
+        applicantPhone: sub.applicant.phone || undefined,
         formStep: stepTitle,
         elapsedTime: elapsed,
       };
 
       const [adminSent, staffSent] = await Promise.all([
         sendOverdueAlert(alertParams),
-        sendOverdueAlertToStaff(alertParams),
+        sendOverdueAlertToStaff({
+          ...alertParams,
+          staffRecipients: staffUsers.map((u) => ({ email: u.email, firstName: u.firstName })),
+        }),
       ]);
 
       // Update lastAlertSentAt regardless of email success (to prevent retrying every second)

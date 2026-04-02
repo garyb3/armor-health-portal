@@ -33,28 +33,28 @@ export async function POST(request: NextRequest) {
     // Role is determined exclusively by invite token (if present) or defaults to APPLICANT.
     const { email, password, firstName, lastName, phone, inviteToken } = parsed.data;
 
-    let role: string = "APPLICANT";
-    let invite = null;
-
-    if (inviteToken) {
-      invite = await prisma.invite.findUnique({ where: { token: hashToken(inviteToken) } });
-      if (!invite) {
-        return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
-      }
-      if (invite.used) {
-        return NextResponse.json({ error: "Invite already used" }, { status: 400 });
-      }
-      if (invite.expiresAt < new Date()) {
-        return NextResponse.json({ error: "Invite expired" }, { status: 400 });
-      }
-      if (invite.email.toLowerCase() !== email.toLowerCase()) {
-        return NextResponse.json(
-          { error: "Email does not match invite" },
-          { status: 400 }
-        );
-      }
-      role = invite.role;
+    // Registration requires an invite token — self-registration is disabled
+    if (!inviteToken) {
+      return NextResponse.json({ error: "Registration requires an invite" }, { status: 400 });
     }
+
+    const invite = await prisma.invite.findUnique({ where: { token: hashToken(inviteToken) } });
+    if (!invite) {
+      return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
+    }
+    if (invite.used) {
+      return NextResponse.json({ error: "Invite already used" }, { status: 400 });
+    }
+    if (invite.expiresAt < new Date()) {
+      return NextResponse.json({ error: "Invite expired" }, { status: 400 });
+    }
+    if (invite.email.toLowerCase() !== email.toLowerCase()) {
+      return NextResponse.json(
+        { error: "Email does not match invite" },
+        { status: 400 }
+      );
+    }
+    const role = invite.role;
 
     const existing = await prisma.applicant.findUnique({ where: { email } });
     if (existing) {
@@ -88,16 +88,6 @@ export async function POST(request: NextRequest) {
         phone: phone || null,
       },
     });
-
-    // Only create form submissions for applicants (staff don't onboard)
-    if (role === "APPLICANT") {
-      const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
-      for (const formType of formTypes) {
-        await prisma.formSubmission.create({
-          data: { applicantId: applicant.id, formType, status: "NOT_STARTED" },
-        });
-      }
-    }
 
     // Send verification email (fire-and-forget)
     sendVerificationEmail({

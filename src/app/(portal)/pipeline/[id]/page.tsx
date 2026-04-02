@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ProgressTracker } from "@/components/dashboard/progress-tracker";
+import { ProgressTracker } from "@/components/pipeline/progress-tracker";
 import {
   STATUS_COLORS,
   STATUS_LABELS,

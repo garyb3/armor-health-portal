@@ -56,14 +56,10 @@ export async function GET(request: NextRequest) {
     // Determine redirect based on role
     const role = updated.role;
     const approved = updated.approved;
-    let redirectPath = "/background-clearance";
+    let redirectPath = "/pipeline";
 
-    if (role === "COUNTY_REPRESENTATIVE") {
-      redirectPath = "/registration-complete";
-    } else if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
+    if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
       redirectPath = "/pending-approval";
-    } else if (["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role)) {
-      redirectPath = "/pipeline";
     }
 
     const response = NextResponse.redirect(new URL(redirectPath, request.url));
