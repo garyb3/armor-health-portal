@@ -57,10 +57,10 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
       <aside className="no-print w-60 bg-white dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
         <div className="p-3 pt-4">
           <Link
-            href="/dashboard"
+            href="/pipeline"
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
-              pathname === "/dashboard"
+              pathname === "/pipeline"
                 ? "bg-brand-900 text-white shadow-sm"
                 : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-brand-800"
             )}
@@ -96,7 +96,7 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
             return (
               <Link
                 key={step.key}
-                href="/dashboard"
+                href="/pipeline"
                 className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-brand-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-150"
               >
                 <Icon className="h-4 w-4 shrink-0 text-gray-400" />
@@ -105,7 +105,7 @@ export function Sidebar({ progress = {}, role }: SidebarProps) {
             );
           })}
           <Link
-            href="/dashboard"
+            href="/pipeline"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-brand-800 hover:text-gray-700 dark:hover:text-gray-300 transition-all duration-150"
           >
             <CheckCircle2 className="h-4 w-4 shrink-0 text-gray-400" />

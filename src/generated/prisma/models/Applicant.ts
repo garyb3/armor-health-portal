@@ -49,6 +49,7 @@ export type ApplicantMinAggregateOutputType = {
   resetTokenExpiresAt: Date | null
   tokenVersion: number | null
   phone: string | null
+  offerAcceptedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +69,7 @@ export type ApplicantMaxAggregateOutputType = {
   resetTokenExpiresAt: Date | null
   tokenVersion: number | null
   phone: string | null
+  offerAcceptedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -87,6 +89,7 @@ export type ApplicantCountAggregateOutputType = {
   resetTokenExpiresAt: number
   tokenVersion: number
   phone: number
+  offerAcceptedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -116,6 +119,7 @@ export type ApplicantMinAggregateInputType = {
   resetTokenExpiresAt?: true
   tokenVersion?: true
   phone?: true
+  offerAcceptedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -135,6 +139,7 @@ export type ApplicantMaxAggregateInputType = {
   resetTokenExpiresAt?: true
   tokenVersion?: true
   phone?: true
+  offerAcceptedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -154,6 +159,7 @@ export type ApplicantCountAggregateInputType = {
   resetTokenExpiresAt?: true
   tokenVersion?: true
   phone?: true
+  offerAcceptedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -260,6 +266,7 @@ export type ApplicantGroupByOutputType = {
   resetTokenExpiresAt: Date | null
   tokenVersion: number
   phone: string | null
+  offerAcceptedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: ApplicantCountAggregateOutputType | null
@@ -302,6 +309,7 @@ export type ApplicantWhereInput = {
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
   tokenVersion?: Prisma.IntFilter<"Applicant"> | number
   phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  offerAcceptedAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
@@ -323,6 +331,7 @@ export type ApplicantOrderByWithRelationInput = {
   resetTokenExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  offerAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   formSubmissions?: Prisma.FormSubmissionOrderByRelationAggregateInput
@@ -347,6 +356,7 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
   tokenVersion?: Prisma.IntFilter<"Applicant"> | number
   phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  offerAcceptedAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
@@ -368,6 +378,7 @@ export type ApplicantOrderByWithAggregationInput = {
   resetTokenExpiresAt?: Prisma.SortOrderInput | Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  offerAcceptedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApplicantCountOrderByAggregateInput
@@ -395,6 +406,7 @@ export type ApplicantScalarWhereWithAggregatesInput = {
   resetTokenExpiresAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Applicant"> | Date | string | null
   tokenVersion?: Prisma.IntWithAggregatesFilter<"Applicant"> | number
   phone?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
+  offerAcceptedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Applicant"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
 }
@@ -414,6 +426,7 @@ export type ApplicantCreateInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
@@ -435,6 +448,7 @@ export type ApplicantUncheckedCreateInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
@@ -456,6 +470,7 @@ export type ApplicantUpdateInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
@@ -477,6 +492,7 @@ export type ApplicantUncheckedUpdateInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
@@ -498,6 +514,7 @@ export type ApplicantCreateManyInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -517,6 +534,7 @@ export type ApplicantUpdateManyMutationInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -536,6 +554,7 @@ export type ApplicantUncheckedUpdateManyInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -555,6 +574,7 @@ export type ApplicantCountOrderByAggregateInput = {
   resetTokenExpiresAt?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  offerAcceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -578,6 +598,7 @@ export type ApplicantMaxOrderByAggregateInput = {
   resetTokenExpiresAt?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  offerAcceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -597,6 +618,7 @@ export type ApplicantMinOrderByAggregateInput = {
   resetTokenExpiresAt?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  offerAcceptedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -685,6 +707,7 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
@@ -705,6 +728,7 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
@@ -741,6 +765,7 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
@@ -761,6 +786,7 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
@@ -781,6 +807,7 @@ export type ApplicantCreateWithoutSensitiveDataInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
@@ -801,6 +828,7 @@ export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
   resetTokenExpiresAt?: Date | string | null
   tokenVersion?: number
   phone?: string | null
+  offerAcceptedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
@@ -837,6 +865,7 @@ export type ApplicantUpdateWithoutSensitiveDataInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
@@ -857,6 +886,7 @@ export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
   resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
@@ -908,6 +938,7 @@ export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   resetTokenExpiresAt?: boolean
   tokenVersion?: boolean
   phone?: boolean
+  offerAcceptedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
@@ -930,6 +961,7 @@ export type ApplicantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   resetTokenExpiresAt?: boolean
   tokenVersion?: boolean
   phone?: boolean
+  offerAcceptedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["applicant"]>
@@ -949,6 +981,7 @@ export type ApplicantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   resetTokenExpiresAt?: boolean
   tokenVersion?: boolean
   phone?: boolean
+  offerAcceptedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["applicant"]>
@@ -968,11 +1001,12 @@ export type ApplicantSelectScalar = {
   resetTokenExpiresAt?: boolean
   tokenVersion?: boolean
   phone?: boolean
+  offerAcceptedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "denied" | "emailVerified" | "verificationToken" | "resetToken" | "resetTokenExpiresAt" | "tokenVersion" | "phone" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
+export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "denied" | "emailVerified" | "verificationToken" | "resetToken" | "resetTokenExpiresAt" | "tokenVersion" | "phone" | "offerAcceptedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
 export type ApplicantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
@@ -1002,6 +1036,7 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     resetTokenExpiresAt: Date | null
     tokenVersion: number
     phone: string | null
+    offerAcceptedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["applicant"]>
@@ -1443,6 +1478,7 @@ export interface ApplicantFieldRefs {
   readonly resetTokenExpiresAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly tokenVersion: Prisma.FieldRef<"Applicant", 'Int'>
   readonly phone: Prisma.FieldRef<"Applicant", 'String'>
+  readonly offerAcceptedAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Applicant", 'DateTime'>
 }

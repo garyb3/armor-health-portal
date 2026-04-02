@@ -16,7 +16,7 @@ export default function PendingApprovalPage() {
         const res = await apiFetch("/api/auth/check-approval");
         const data = await res.json();
         if (data.approved) {
-          router.push("/dashboard");
+          router.push("/pipeline");
         }
       } catch {
         // Silently retry on next interval

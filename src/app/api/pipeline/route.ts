@@ -142,6 +142,7 @@ export async function GET(request: NextRequest) {
       email: a.email,
       phone: a.phone,
       createdAt: a.createdAt.toISOString(),
+      offerAcceptedAt: a.offerAcceptedAt?.toISOString() ?? null,
       currentStage,
       completedCount,
       totalCount: FORM_STEPS.length,

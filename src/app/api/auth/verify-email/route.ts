@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     } else if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
       redirectPath = "/pending-approval";
     } else if (["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role)) {
-      redirectPath = "/dashboard";
+      redirectPath = "/pipeline";
     }
 
     const response = NextResponse.redirect(new URL(redirectPath, request.url));

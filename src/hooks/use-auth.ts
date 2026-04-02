@@ -34,7 +34,7 @@ export function useAuth() {
           : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
           ? "/pending-approval"
           : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role)
-          ? "/dashboard"
+          ? "/pipeline"
           : "/background-clearance";
         router.push(dest);
         return true;
@@ -80,7 +80,7 @@ export function useAuth() {
           : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
           ? "/pending-approval"
           : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role)
-          ? "/dashboard"
+          ? "/pipeline"
           : "/background-clearance";
         router.push(dest);
         return true;

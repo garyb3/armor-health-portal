@@ -34,7 +34,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
-  const [pendingHref, setPendingHref] = useState<string>("/dashboard");
+  const [pendingHref, setPendingHref] = useState<string>("/pipeline");
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -47,7 +47,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
 
   const navigateWithConfirm = (href: string) => {
     if (pathname === href) return;
-    if (pathname === "/dashboard" || pathname === "/background-clearance" || pathname.startsWith("/pipeline")) {
+    if (pathname === "/pipeline" || pathname === "/background-clearance" || pathname.startsWith("/pipeline")) {
       router.push(href);
       return;
     }
@@ -58,10 +58,10 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
   const isStaff = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role || "");
 
   const navLinks = isStaff
-    ? [{ href: "/dashboard", label: "Dashboard" }]
+    ? [{ href: "/pipeline", label: "Dashboard" }]
     : NAV_LINKS;
 
-  const homeHref = isStaff ? "/dashboard" : "/background-clearance";
+  const homeHref = isStaff ? "/pipeline" : "/background-clearance";
 
   const handleShieldClick = () => navigateWithConfirm(homeHref);
 

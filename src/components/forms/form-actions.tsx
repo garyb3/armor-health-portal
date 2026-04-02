@@ -19,10 +19,10 @@ export function FormActions({
 }: FormActionsProps) {
   return (
     <div className="no-print flex flex-col sm:flex-row items-center gap-3 pt-6 border-t border-gray-100 mt-8">
-      <Link href="/dashboard">
+      <Link href="/background-clearance">
         <Button variant="ghost" type="button">
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to Dashboard
+          Back to Overview
         </Button>
       </Link>
       <div className="flex-1" />

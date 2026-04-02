@@ -261,7 +261,7 @@ export async function middleware(request: NextRequest) {
 
   // Staff can only access dashboard, pipeline, and admin (not forms/onboarding)
   if (isStaff && (pathname.startsWith("/forms") || pathname === "/background-clearance")) {
-    return withCsp(NextResponse.redirect(new URL("/dashboard", request.url)));
+    return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
   }
 
   // Only ADMIN can access /admin routes
@@ -269,7 +269,12 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/admin")) {
       return withCsp(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
     }
-    return withCsp(NextResponse.redirect(new URL("/dashboard", request.url)));
+    return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
+  }
+
+  // Redirect old /dashboard bookmarks to /pipeline
+  if (isStaff && pathname === "/dashboard") {
+    return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
   }
 
   // Applicants cannot access dashboard, pipeline, or admin routes

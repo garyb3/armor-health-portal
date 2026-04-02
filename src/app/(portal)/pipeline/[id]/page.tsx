@@ -118,10 +118,10 @@ export default function ApplicantDetailPage() {
       <div className="max-w-4xl mx-auto text-center py-16">
         <p className="text-gray-500">Applicant not found.</p>
         <Link
-          href="/dashboard"
+          href="/pipeline"
           className="text-accent-500 text-sm mt-2 inline-block hover:underline"
         >
-          Back to Dashboard
+          Back to Pipeline
         </Link>
       </div>
     );

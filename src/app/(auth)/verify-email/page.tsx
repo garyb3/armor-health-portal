@@ -21,7 +21,7 @@ function VerifyEmailContent() {
         if (res.ok) {
           const data = await res.json();
           if (data.emailVerified) {
-            window.location.href = "/dashboard";
+            window.location.href = "/pipeline";
           }
         }
       } catch {

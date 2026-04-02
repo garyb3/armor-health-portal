@@ -904,6 +904,7 @@ export const ApplicantScalarFieldEnum = {
   resetTokenExpiresAt: 'resetTokenExpiresAt',
   tokenVersion: 'tokenVersion',
   phone: 'phone',
+  offerAcceptedAt: 'offerAcceptedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
