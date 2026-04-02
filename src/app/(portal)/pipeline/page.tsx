@@ -19,6 +19,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "maria.santos@example.com",
     phone: "555-0101",
     createdAt: daysAgo(0),
+    offerAcceptedAt: null,
     currentStage: "VOLUNTEER_APP",
     completedCount: 0,
     totalCount: 4,
@@ -36,6 +37,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "james.carter@example.com",
     phone: "555-0102",
     createdAt: daysAgo(1),
+    offerAcceptedAt: null,
     currentStage: "VOLUNTEER_APP",
     completedCount: 0,
     totalCount: 4,
@@ -53,6 +55,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "olivia.martinez@example.com",
     phone: null,
     createdAt: daysAgo(2),
+    offerAcceptedAt: daysAgo(3),
     currentStage: "VOLUNTEER_APP",
     completedCount: 0,
     totalCount: 4,
@@ -70,6 +73,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "aisha.patel@example.com",
     phone: "555-0103",
     createdAt: daysAgo(3),
+    offerAcceptedAt: daysAgo(4),
     currentStage: "PROFESSIONAL_LICENSE",
     completedCount: 1,
     totalCount: 4,
@@ -87,6 +91,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "robert.kim@example.com",
     phone: "555-0104",
     createdAt: daysAgo(4),
+    offerAcceptedAt: daysAgo(5),
     currentStage: "PROFESSIONAL_LICENSE",
     completedCount: 1,
     totalCount: 4,
@@ -104,6 +109,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "linda.nguyen@example.com",
     phone: "555-0105",
     createdAt: daysAgo(5),
+    offerAcceptedAt: daysAgo(6),
     currentStage: "PROFESSIONAL_LICENSE",
     completedCount: 1,
     totalCount: 4,
@@ -121,6 +127,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "marcus.johnson@example.com",
     phone: "555-0106",
     createdAt: daysAgo(5),
+    offerAcceptedAt: daysAgo(6),
     currentStage: "DRUG_SCREEN",
     completedCount: 2,
     totalCount: 4,
@@ -139,6 +146,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "sarah.williams@example.com",
     phone: "555-0107",
     createdAt: daysAgo(8),
+    offerAcceptedAt: daysAgo(10),
     currentStage: "DRUG_SCREEN",
     completedCount: 2,
     totalCount: 4,
@@ -156,6 +164,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "david.chen@example.com",
     phone: "555-0108",
     createdAt: daysAgo(11),
+    offerAcceptedAt: daysAgo(13),
     currentStage: "BACKGROUND_CHECK",
     completedCount: 3,
     totalCount: 4,
@@ -175,6 +184,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "kevin.obrien@example.com",
     phone: "555-0112",
     createdAt: daysAgo(14),
+    offerAcceptedAt: daysAgo(15),
     currentStage: "DRUG_SCREEN",
     completedCount: 2,
     totalCount: 4,
@@ -195,6 +205,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "emily.rodriguez@example.com",
     phone: "555-0109",
     createdAt: daysAgo(21),
+    offerAcceptedAt: daysAgo(22),
     currentStage: "COMPLETED",
     completedCount: 4,
     totalCount: 4,
@@ -212,6 +223,7 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
     email: "thomas.brown@example.com",
     phone: "555-0110",
     createdAt: daysAgo(25),
+    offerAcceptedAt: daysAgo(27),
     currentStage: "COMPLETED",
     completedCount: 4,
     totalCount: 4,
@@ -226,16 +238,25 @@ const STATIC_APPLICANTS: PipelineApplicant[] = [
 
 export default function PipelinePage() {
   const [search, setSearch] = useState("");
+  const [applicants, setApplicants] = useState<PipelineApplicant[]>(STATIC_APPLICANTS);
+
+  const handleSetOfferDate = (applicantId: string, date: string | null) => {
+    setApplicants((prev) =>
+      prev.map((a) =>
+        a.id === applicantId ? { ...a, offerAcceptedAt: date } : a
+      )
+    );
+  };
 
   const filtered = search
-    ? STATIC_APPLICANTS.filter(
+    ? applicants.filter(
         (a) =>
           `${a.firstName} ${a.lastName}`
             .toLowerCase()
             .includes(search.toLowerCase()) ||
           a.email.toLowerCase().includes(search.toLowerCase())
       )
-    : STATIC_APPLICANTS;
+    : applicants;
 
   return (
     <div className="space-y-6">
@@ -259,7 +280,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} />
+      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} />
     </div>
   );
 }

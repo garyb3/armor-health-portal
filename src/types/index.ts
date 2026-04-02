@@ -52,6 +52,7 @@ export interface PipelineApplicant {
   email: string;
   phone: string | null;
   createdAt: string;
+  offerAcceptedAt?: string | null;
   currentStage: string;
   completedCount: number;
   totalCount: number;

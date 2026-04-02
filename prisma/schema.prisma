@@ -48,6 +48,7 @@ model Applicant {
   resetTokenExpiresAt  DateTime?
   tokenVersion         Int              @default(0)
   phone             String?
+  offerAcceptedAt   DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   formSubmissions FormSubmission[]

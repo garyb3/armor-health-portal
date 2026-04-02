@@ -26,6 +26,14 @@ function sortedStages(progress: FormProgress[]) {
   ];
 }
 
+function getCompletionDate(applicant: PipelineApplicant): string | null {
+  if (applicant.currentStage !== "COMPLETED") return null;
+  const dates = applicant.progress
+    .filter((p) => p.status === "APPROVED")
+    .map((p) => new Date(p.statusChangedAt).getTime());
+  return dates.length > 0 ? new Date(Math.max(...dates)).toISOString() : null;
+}
+
 function sortApplicants(applicants: PipelineApplicant[]): PipelineApplicant[] {
   return [...applicants].sort((a, b) => {
     // Primary: longest time in process first (oldest createdAt first)
@@ -35,9 +43,10 @@ function sortApplicants(applicants: PipelineApplicant[]): PipelineApplicant[] {
 
 interface PipelineListProps {
   applicants: PipelineApplicant[];
+  onSetOfferDate?: (id: string, date: string | null) => void;
 }
 
-export function PipelineList({ applicants }: PipelineListProps) {
+export function PipelineList({ applicants, onSetOfferDate }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const toggle = (id: string) =>
@@ -97,6 +106,24 @@ export function PipelineList({ applicants }: PipelineListProps) {
                 <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
                   • {formatElapsed(applicant.createdAt)} in process
                 </span>
+                {applicant.offerAcceptedAt && (() => {
+                  const completionDate = getCompletionDate(applicant);
+                  if (completionDate) {
+                    const days = Math.floor(
+                      (new Date(completionDate).getTime() - new Date(applicant.offerAcceptedAt).getTime()) / 86_400_000
+                    );
+                    return (
+                      <span className="ml-2 text-xs text-emerald-500">
+                        • {days}d offer→complete
+                      </span>
+                    );
+                  }
+                  return (
+                    <span className="ml-2 text-xs text-blue-500 dark:text-blue-400">
+                      • {formatElapsed(applicant.offerAcceptedAt)} since offer
+                    </span>
+                  );
+                })()}
                 {applicant.isStale && (
                   <span className="ml-2 text-[10px] bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded">
                     Stale
@@ -151,6 +178,28 @@ export function PipelineList({ applicants }: PipelineListProps) {
                       </div>
                     );
                   })}
+
+                  {/* Offer Accepted Date */}
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Offer accepted:</span>
+                    {applicant.offerAcceptedAt ? (
+                      <span className="text-xs text-gray-700 dark:text-gray-300">
+                        {new Date(applicant.offerAcceptedAt).toLocaleDateString()}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">Not set</span>
+                    )}
+                    <input
+                      type="date"
+                      className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5 ml-auto"
+                      value={applicant.offerAcceptedAt ? new Date(applicant.offerAcceptedAt).toISOString().split("T")[0] : ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        onSetOfferDate?.(applicant.id, val ? new Date(val).toISOString() : null);
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
                 </div>
               </div>
             )}

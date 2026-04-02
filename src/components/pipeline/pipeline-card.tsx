@@ -112,6 +112,15 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
             </span>
           </div>
 
+          {applicant.offerAcceptedAt && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <Hourglass className="h-3 w-3 text-blue-400" />
+              <span className="text-blue-500 dark:text-blue-400">
+                {formatElapsed(applicant.offerAcceptedAt)} since offer
+              </span>
+            </div>
+          )}
+
           {applicant.lastAlertSentAt && (
             <div className="flex items-center gap-1 text-xs text-gray-400">
               <Bell className="h-3 w-3" />

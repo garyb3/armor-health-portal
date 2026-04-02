@@ -34,6 +34,7 @@ interface ApplicantDetail {
   phone: string | null;
   role: string;
   createdAt: string;
+  offerAcceptedAt?: string | null;
   currentStage: string;
   completedCount: number;
   totalCount: number;
@@ -169,6 +170,13 @@ export default function ApplicantDetailPage() {
                   Registered{" "}
                   {new Date(applicant.createdAt).toLocaleDateString()}
                 </div>
+                {applicant.offerAcceptedAt && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                    Offer accepted{" "}
+                    {new Date(applicant.offerAcceptedAt).toLocaleDateString()}
+                  </div>
+                )}
               </div>
             </div>
 
