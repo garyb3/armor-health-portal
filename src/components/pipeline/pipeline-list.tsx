@@ -103,7 +103,7 @@ export function PipelineList({ applicants, onSetOfferDate }: PipelineListProps) 
                 <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
                   ({applicant.completedCount}/{applicant.totalCount})
                 </span>
-                <span className="ml-2 text-xs text-gray-400 dark:text-gray-500">
+                <span className="ml-2 text-sm font-bold text-gray-700 dark:text-gray-300">
                   • {formatElapsed(applicant.createdAt)} in process
                 </span>
                 {applicant.offerAcceptedAt && (() => {

@@ -40,11 +40,6 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
     yellow: "bg-amber-400",
     red: "bg-rose-500",
   }[urgency];
-  const urgencyTextColor = {
-    green: "text-emerald-600 dark:text-emerald-400",
-    yellow: "text-amber-600 dark:text-amber-400",
-    red: "text-rose-600 dark:text-rose-400",
-  }[urgency];
 
   return (
     <Link href={`/pipeline/${applicant.id}`}>
@@ -105,9 +100,9 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className={cn("inline-block h-1.5 w-1.5 rounded-full shrink-0", urgencyDot)} />
-            <span className={urgencyTextColor}>
+          <div className="flex items-center gap-1.5">
+            <span className={cn("inline-block h-2 w-2 rounded-full shrink-0", urgencyDot)} />
+            <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
               {formatElapsed(applicant.createdAt)} in process
             </span>
           </div>
