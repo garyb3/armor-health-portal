@@ -52,9 +52,8 @@ export function PipelineColumn({
   const filtered = applicants
     .filter((a) => a.currentStage === stageKey)
     .sort((a, b) => {
-      const aTime = a.progress.find((p) => p.formType === a.currentStage)?.statusChangedAt || a.createdAt;
-      const bTime = b.progress.find((p) => p.formType === b.currentStage)?.statusChangedAt || b.createdAt;
-      return new Date(aTime).getTime() - new Date(bTime).getTime();
+      // Longest time in process first (oldest createdAt first)
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
     });
   const colors = STAGE_COLORS[stageKey] || DEFAULT_COLORS;
   const Icon = STAGE_ICONS[icon];

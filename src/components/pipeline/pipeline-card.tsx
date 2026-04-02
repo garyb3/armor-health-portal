@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatElapsed, isOverdue } from "@/lib/format-elapsed";
-import { AlertTriangle, Bell, Clock, Paperclip } from "lucide-react";
+import { AlertTriangle, Bell, Clock, Hourglass, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PipelineApplicant } from "@/types";
 
@@ -85,6 +85,13 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
                 </span>
               </>
             )}
+          </div>
+
+          <div className="flex items-center gap-1 text-xs">
+            <Hourglass className="h-3 w-3 text-gray-400" />
+            <span className="text-gray-500">
+              {formatElapsed(applicant.createdAt)} in process
+            </span>
           </div>
 
           {applicant.lastAlertSentAt && (

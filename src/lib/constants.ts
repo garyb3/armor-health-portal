@@ -22,17 +22,6 @@ export const FORM_STEPS = [
     urgent: false,
   },
   {
-    key: "DRUG_SCREEN" as const,
-    slug: "drug-screen",
-    title: "Complete the UDS (Urine Drug Screen)",
-    description:
-      "Download the UDS form and take it to any LabCorp location to complete your drug screening",
-    route: "/forms/drug-screen",
-    icon: "FlaskConical" as const,
-    order: 3,
-    urgent: false,
-  },
-  {
     key: "BACKGROUND_CHECK" as const,
     slug: "background-check",
     title: "Schedule Fingerprinting (BCI)",
@@ -40,8 +29,19 @@ export const FORM_STEPS = [
       "Download instructions and the Web Check form, then complete BCI fingerprinting at the Franklin County CCW Office",
     route: "/forms/background-check",
     icon: "Fingerprint" as const,
-    order: 4,
+    order: 3,
     urgent: true,
+  },
+  {
+    key: "DRUG_SCREEN" as const,
+    slug: "drug-screen",
+    title: "Complete the UDS (Urine Drug Screen)",
+    description:
+      "Download the UDS form and take it to any LabCorp location to complete your drug screening",
+    route: "/forms/drug-screen",
+    icon: "FlaskConical" as const,
+    order: 4,
+    urgent: false,
   },
 ] as const;
 
