@@ -27,12 +27,30 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
   const overdue = isOverdue(stageChangedAt, 24);
   const warning = !overdue && isOverdue(stageChangedAt, 12);
 
+  // Days-in-process urgency indicator
+  const daysInProcess = Math.floor((Date.now() - new Date(applicant.createdAt).getTime()) / 86_400_000);
+  const urgency: "green" | "yellow" | "red" = daysInProcess >= 15 ? "red" : daysInProcess >= 6 ? "yellow" : "green";
+  const urgencyBorder = {
+    green: "border-l-[3px] border-l-emerald-500",
+    yellow: "border-l-[3px] border-l-amber-400",
+    red: "border-l-[3px] border-l-rose-500",
+  }[urgency];
+  const urgencyDot = {
+    green: "bg-emerald-500",
+    yellow: "bg-amber-400",
+    red: "bg-rose-500",
+  }[urgency];
+  const urgencyTextColor = {
+    green: "text-emerald-600 dark:text-emerald-400",
+    yellow: "text-amber-600 dark:text-amber-400",
+    red: "text-rose-600 dark:text-rose-400",
+  }[urgency];
+
   return (
     <Link href={`/pipeline/${applicant.id}`}>
       <Card className={cn(
         "hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5",
-        overdue && "border-l-2 border-l-red-400",
-        warning && "border-l-2 border-l-yellow-400",
+        urgencyBorder,
         applicant.isStale && "bg-red-50/50 dark:bg-red-950/50",
       )}>
         <CardContent className="p-3 space-y-2">
@@ -87,9 +105,9 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-1 text-xs">
-            <Hourglass className="h-3 w-3 text-gray-400" />
-            <span className="text-gray-500">
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className={cn("inline-block h-1.5 w-1.5 rounded-full shrink-0", urgencyDot)} />
+            <span className={urgencyTextColor}>
               {formatElapsed(applicant.createdAt)} in process
             </span>
           </div>
