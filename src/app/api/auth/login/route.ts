@@ -45,14 +45,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Only staff roles can log in — candidates use an external tool now
-    if (applicant.role === "APPLICANT" || applicant.role === "COUNTY_REPRESENTATIVE") {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
-    }
-
     const tokenPayload = {
       sub: applicant.id,
       email: applicant.email,

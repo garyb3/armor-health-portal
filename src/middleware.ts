@@ -226,14 +226,14 @@ export async function middleware(request: NextRequest) {
   const role = payload.role || "";
   const approved = payload.approved ?? false;
   const emailVerified = payload.emailVerified ?? false;
-  const isStaff = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"].includes(role);
+  const isStaff = ["HR", "ADMIN"].includes(role);
 
   // Unverified email — block everything except verify-email page and logout
   if (!emailVerified) {
     if (pathname === "/verify-email") {
       // allow through
-    } else if (pathname === "/api/auth/logout" || pathname === "/api/auth/resend-verification" || pathname === "/api/auth/check-verification") {
-      // allow logout, resend, and check-verification
+    } else if (pathname === "/api/auth/logout" || pathname === "/api/auth/resend-verification" || pathname === "/api/auth/check-verification" || pathname === "/api/auth/me") {
+      // allow logout, resend, check-verification, and me
     } else if (pathname.startsWith("/api/")) {
       return withCsp(NextResponse.json({ error: "Email not verified" }, { status: 403 }));
     } else {
@@ -241,8 +241,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Unapproved staff (RECRUITER/HR) — block everything except pending-approval and logout
-  if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
+  // Unapproved staff — block everything except pending-approval and logout
+  if (["HR"].includes(role) && !approved) {
     if (pathname === "/pending-approval") {
       // allow through
     } else if (pathname === "/api/auth/logout") {

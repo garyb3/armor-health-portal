@@ -22,6 +22,7 @@ export async function getAuthContext(request: NextRequest) {
   if (rawKey) {
     const apiKey = await validateApiKey(rawKey);
     if (!apiKey) return null;
+    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) return null;
     return {
       userId: `apikey:${apiKey.id}`,
       userEmail: `apikey:${apiKey.name}`,

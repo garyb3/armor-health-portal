@@ -9,9 +9,6 @@ datasource db {
 
 enum Role {
   APPLICANT
-  RECRUITER
-  ADMIN_ASSISTANT
-  COUNTY_REPRESENTATIVE
   HR
   ADMIN
 }
@@ -57,6 +54,8 @@ model Applicant {
   @@index([email])
   @@index([denied])
   @@index([role])
+  @@index([approved])
+  @@index([emailVerified])
   @@map("applicants")
 }
 
@@ -80,6 +79,8 @@ model FormSubmission {
 
   @@unique([applicantId, formType])
   @@index([applicantId])
+  @@index([status])
+  @@index([applicantId, status])
   @@map("form_submissions")
 }
 
@@ -130,7 +131,7 @@ model ApiKey {
   name       String
   keyHash    String    @unique
   keyPrefix  String
-  role       Role      @default(APPLICANT)
+  role       Role      @default(HR)
   scopes     String    @default("read")
   active     Boolean   @default(true)
   expiresAt  DateTime?

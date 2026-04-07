@@ -40,11 +40,16 @@ export async function POST(request: NextRequest) {
       data: { verificationToken: hashToken(rawVerificationToken) },
     });
 
-    await sendVerificationEmail({
-      userName: `${applicant.firstName} ${applicant.lastName}`,
-      userEmail: applicant.email,
-      verificationToken: rawVerificationToken,
-    });
+    try {
+      await sendVerificationEmail({
+        userName: `${applicant.firstName} ${applicant.lastName}`,
+        userEmail: applicant.email,
+        verificationToken: rawVerificationToken,
+      });
+    } catch (emailErr) {
+      console.error("Failed to send verification email:", emailErr);
+      return NextResponse.json({ error: "Failed to send verification email" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

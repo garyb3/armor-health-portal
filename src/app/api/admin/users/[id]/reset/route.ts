@@ -14,18 +14,18 @@ export async function POST(
 
   const { id } = await params;
 
-  // Delete existing submissions
-  await prisma.formSubmission.deleteMany({
-    where: { applicantId: id },
-  });
-
-  // Re-create all 4 pipeline steps
+  // Use transaction to prevent data loss if server crashes mid-operation
   const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
-  for (const formType of formTypes) {
-    await prisma.formSubmission.create({
-      data: { applicantId: id, formType, status: "NOT_STARTED" },
+  await prisma.$transaction(async (tx) => {
+    await tx.formSubmission.deleteMany({
+      where: { applicantId: id },
     });
-  }
+    for (const formType of formTypes) {
+      await tx.formSubmission.create({
+        data: { applicantId: id, formType, status: "NOT_STARTED" },
+      });
+    }
+  });
 
   await prisma.auditLog.create({
     data: {

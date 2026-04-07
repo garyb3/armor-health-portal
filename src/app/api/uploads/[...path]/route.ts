@@ -3,7 +3,7 @@ import { readFile, access } from "fs/promises";
 import path from "path";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 
-const STAFF_ROLES = ["ADMIN", "HR", "RECRUITER", "ADMIN_ASSISTANT"];
+const STAFF_ROLES = ["HR", "ADMIN"];
 
 /** Map file extensions to MIME types for the Content-Type header. */
 const EXT_TO_MIME: Record<string, string> = {
@@ -61,7 +61,7 @@ export async function GET(
       status: 200,
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Disposition": `${["pdf", "jpg", "jpeg", "png"].includes(ext) ? "inline" : "attachment"}; filename="${filename}"`,
         "Cache-Control": "private, no-store",
         "X-Content-Type-Options": "nosniff",
       },

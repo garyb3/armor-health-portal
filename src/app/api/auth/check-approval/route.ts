@@ -30,10 +30,10 @@ export async function GET(request: NextRequest) {
   // Token says unapproved — check DB for updated status
   const user = await prisma.applicant.findUnique({
     where: { id: payload.sub },
-    select: { approved: true, tokenVersion: true },
+    select: { approved: true, emailVerified: true, tokenVersion: true },
   });
 
-  if (!user || !user.approved) {
+  if (!user || !user.emailVerified || !user.approved) {
     return NextResponse.json({ approved: false });
   }
 

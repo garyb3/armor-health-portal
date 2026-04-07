@@ -5,7 +5,7 @@ import { FORM_STEPS } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import type { Role, FormStatus as AppFormStatus } from "@/types";
 
-const STAFF_ROLES: Role[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
+const STAFF_ROLES: Role[] = ["HR", "ADMIN"];
 const STALE_THRESHOLD_DAYS = 15;
 
 function getCurrentStage(

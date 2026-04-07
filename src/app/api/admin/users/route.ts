@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
 
   const where =
     filter === "pending"
-      ? { role: { in: ["RECRUITER" as const, "HR" as const, "ADMIN_ASSISTANT" as const] }, approved: false, denied: { not: true } }
-      : { role: { in: ["RECRUITER" as const, "HR" as const, "ADMIN_ASSISTANT" as const, "APPLICANT" as const] }, denied: { not: true } };
+      ? { role: { in: ["HR" as const, "ADMIN" as const] }, approved: false, denied: { not: true } }
+      : { denied: { not: true } };
 
   const [users, total] = await Promise.all([
     prisma.applicant.findMany({

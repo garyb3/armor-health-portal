@@ -11,8 +11,6 @@ import { apiFetch } from "@/lib/api-client";
 const NAV_LINKS = [{ href: "/pipeline", label: "Dashboard" }];
 
 const ROLE_LABELS: Record<string, string> = {
-  RECRUITER: "Recruiter",
-  ADMIN_ASSISTANT: "Admin Assistant",
   HR: "HR",
   ADMIN: "Admin",
 };

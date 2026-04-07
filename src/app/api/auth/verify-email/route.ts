@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     const approved = updated.approved;
     let redirectPath = "/pipeline";
 
-    if (["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(role) && !approved) {
+    if (role === "HR" && !approved) {
       redirectPath = "/pending-approval";
     }
 

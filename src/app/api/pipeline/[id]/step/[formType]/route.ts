@@ -15,7 +15,7 @@ import {
 import type { FormType } from "@/generated/prisma/client";
 import type { FormType as AppFormType } from "@/types";
 
-const STAFF_ROLES = ["ADMIN", "HR", "RECRUITER", "ADMIN_ASSISTANT"];
+const STAFF_ROLES = ["HR", "ADMIN"];
 
 export async function POST(
   request: NextRequest,

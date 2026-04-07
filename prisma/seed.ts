@@ -412,12 +412,10 @@ async function main() {
     console.log(`Admin created: ${email}`);
   }
 
-  // --- Staff test users (Recruiter, HR, Admin Assistant) ---
+  // --- Staff test users (HR) ---
   const staffPassword = await bcrypt.hash("StaffPassword123!", 12);
   const staffUsers = [
-    { email: "recruiter@armorhealthcare.com", firstName: "Test", lastName: "Recruiter", role: "RECRUITER" as const },
     { email: "hr@armorhealthcare.com", firstName: "Test", lastName: "HRStaff", role: "HR" as const },
-    { email: "assistant@armorhealthcare.com", firstName: "Test", lastName: "Assistant", role: "ADMIN_ASSISTANT" as const },
   ];
 
   for (const staff of staffUsers) {

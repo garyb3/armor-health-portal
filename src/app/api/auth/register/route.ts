@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    const needsApproval = ["RECRUITER", "HR", "ADMIN_ASSISTANT", "ADMIN"].includes(role);
+    const needsApproval = ["HR", "ADMIN"].includes(role);
     const rawVerificationToken = randomBytes(32).toString("hex");
     const applicant = await prisma.applicant.create({
       data: {
@@ -105,13 +105,18 @@ export async function POST(request: NextRequest) {
       }).catch((err) => console.error("[Register] Failed to send pending-approval email:", err));
     }
 
-    // Mark invite as used
-    if (invite) {
-      await prisma.invite.update({
+    // Mark invite as used (inside transaction to prevent race conditions)
+    await prisma.$transaction(async (tx) => {
+      // Double-check invite hasn't been used concurrently
+      const freshInvite = await tx.invite.findUnique({ where: { id: invite.id } });
+      if (!freshInvite || freshInvite.used) {
+        throw new Error("INVITE_ALREADY_USED");
+      }
+      await tx.invite.update({
         where: { id: invite.id },
         data: { used: true },
       });
-    }
+    });
 
     const tokenPayload = {
       sub: applicant.id,
@@ -148,6 +153,9 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error));
+    if (err.message === "INVITE_ALREADY_USED") {
+      return NextResponse.json({ error: "Invite already used" }, { status: 400 });
+    }
     console.error("Registration error:", err.message, err.stack);
     return NextResponse.json(
       { error: "Internal server error" },

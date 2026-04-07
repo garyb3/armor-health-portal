@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     // Fetch all approved HR/Recruiter staff for personalized emails
     const staffUsers = await prisma.applicant.findMany({
       where: {
-        role: { in: ["HR", "RECRUITER"] },
+        role: { in: ["HR", "ADMIN"] },
         approved: true,
       },
       select: { email: true, firstName: true },

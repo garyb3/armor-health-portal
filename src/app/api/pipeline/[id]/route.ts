@@ -3,7 +3,7 @@ import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 
-const STAFF_ROLES: string[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
+const STAFF_ROLES: string[] = ["HR", "ADMIN"];
 
 export async function GET(
   request: NextRequest,
@@ -45,7 +45,8 @@ export async function GET(
   );
   let currentStage = "COMPLETED";
   for (const step of FORM_STEPS) {
-    if (statusMap.get(step.key) !== "COMPLETED") {
+    const status = statusMap.get(step.key);
+    if (status !== "COMPLETED" && status !== "APPROVED") {
       currentStage = step.key;
       break;
     }

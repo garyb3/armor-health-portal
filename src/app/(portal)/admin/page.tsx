@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, RotateCcw, MailCheck } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api-client";
@@ -25,12 +25,17 @@ export default function AdminPage() {
 
   async function loadUsers(f: string) {
     setLoading(true);
-    const res = await apiFetch(`/api/admin/users?filter=${f}`);
-    if (res.ok) {
-      const data = await res.json();
-      setUsers(data.users);
+    try {
+      const res = await apiFetch(`/api/admin/users?filter=${f}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUsers(data.users);
+      }
+    } catch (err) {
+      console.error("Failed to load users:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -97,24 +102,6 @@ export default function AdminPage() {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(`Failed to verify email: ${data.error || res.statusText}`);
-        return;
-      }
-      await loadUsers(filter);
-    } catch (err) {
-      alert(`Network error: ${err}`);
-    } finally {
-      setActionLoading(null);
-    }
-  }
-
-  async function resetUser(id: string) {
-    if (!confirm("Are you sure you want to reset this applicant? This will clear all their form submissions so they can start over.")) return;
-    setActionLoading(id);
-    try {
-      const res = await apiFetch(`/api/admin/users/${id}/reset`, { method: "POST" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        alert(`Failed to reset: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
@@ -220,7 +207,7 @@ export default function AdminPage() {
                       Verify Email
                     </Button>
                   )}
-                  {!u.approved && u.role !== "APPLICANT" && (
+                  {!u.approved && (
                     <>
                       <Button
                         size="sm"
@@ -246,22 +233,7 @@ export default function AdminPage() {
                       </Button>
                     </>
                   )}
-                  {u.role === "APPLICANT" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => resetUser(u.id)}
-                      disabled={actionLoading === u.id}
-                    >
-                      {actionLoading === u.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <RotateCcw className="h-4 w-4 mr-1.5" />
-                      )}
-                      Reset
-                    </Button>
-                  )}
-                  {(u.approved || u.role === "APPLICANT") && (
+                  {u.approved && (
                     <Button
                       size="sm"
                       variant="outline"

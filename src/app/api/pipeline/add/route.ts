@@ -5,7 +5,7 @@ import { FORM_STEPS } from "@/lib/constants";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 
-const STAFF_ROLES: string[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
+const STAFF_ROLES: string[] = ["HR", "ADMIN"];
 
 export async function POST(request: NextRequest) {
   try {

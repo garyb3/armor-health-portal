@@ -46,11 +46,8 @@ interface ApplicantDetail {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  APPLICANT: "Applicant",
-  ADMIN_ASSISTANT: "Admin Assistant",
-  COUNTY_REPRESENTATIVE: "County Representative",
-  RECRUITER: "Recruiter",
   HR: "HR",
+  ADMIN: "Admin",
 };
 
 export default function ApplicantDetailPage() {

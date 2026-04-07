@@ -23,10 +23,8 @@ import {
 import { apiFetch } from "@/lib/api-client";
 
 const ROLE_LABELS: Record<string, string> = {
-  RECRUITER: "Recruiter",
-  ADMIN_ASSISTANT: "Admin Assistant",
-  COUNTY_REPRESENTATIVE: "County Representative",
   HR: "HR",
+  ADMIN: "Admin",
 };
 
 export default function InviteRegisterPage() {

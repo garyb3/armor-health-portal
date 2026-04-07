@@ -29,7 +29,7 @@ export function useAuth() {
         setUser(data.user);
         const dest = data.user.role === "ADMIN"
           ? "/admin"
-          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
+          : data.user.role === "HR" && !data.user.approved
           ? "/pending-approval"
           : "/pipeline";
         router.push(dest);
@@ -71,7 +71,7 @@ export function useAuth() {
         setUser(data.user);
         const dest = data.user.role === "ADMIN"
           ? "/admin"
-          : ["RECRUITER", "HR", "ADMIN_ASSISTANT"].includes(data.user.role) && !data.user.approved
+          : data.user.role === "HR" && !data.user.approved
           ? "/pending-approval"
           : "/pipeline";
         router.push(dest);

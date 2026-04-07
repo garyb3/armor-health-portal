@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 
-const STAFF_ROLES: string[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
+const STAFF_ROLES: string[] = ["HR", "ADMIN"];
 
 export async function POST(
   request: NextRequest,
