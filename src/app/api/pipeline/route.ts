@@ -6,7 +6,7 @@ import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import type { Role, FormStatus as AppFormStatus } from "@/types";
 
 const STAFF_ROLES: Role[] = ["RECRUITER", "HR", "ADMIN", "ADMIN_ASSISTANT"];
-const STALE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const STALE_THRESHOLD_DAYS = 15;
 
 function getCurrentStage(
   submissions: { formType: string; status: string }[]
@@ -131,9 +131,9 @@ export async function GET(request: NextRequest) {
       isApprovedOrCompleted(s.status as AppFormStatus)
     ).length;
 
-    // Stale detection: stuck in same stage for 48+ hours
-    const dwellMs = Date.now() - new Date(pendingSince).getTime();
-    const isStale = currentStage !== "COMPLETED" && dwellMs > STALE_THRESHOLD_MS;
+    // Stale detection: 15+ total days in process
+    const totalDaysInProcess = Math.floor((Date.now() - a.createdAt.getTime()) / 86_400_000);
+    const isStale = currentStage !== "COMPLETED" && totalDaysInProcess >= STALE_THRESHOLD_DAYS;
 
     return {
       id: a.id,

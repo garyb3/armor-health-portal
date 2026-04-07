@@ -80,7 +80,7 @@ export function PipelineList({ applicants, onSetOfferDate }: PipelineListProps) 
               "rounded-xl bg-white dark:bg-brand-800 ring-1 ring-gray-200/60 dark:ring-brand-700/60 shadow-sm border-l-[3px]",
               (() => {
                 const d = Math.floor((Date.now() - new Date(applicant.createdAt).getTime()) / 86_400_000);
-                return d >= 15 ? "border-l-rose-500" : d >= 6 ? "border-l-amber-400" : "border-l-emerald-500";
+                return d >= 21 ? "border-l-rose-500" : d >= 11 ? "border-l-amber-400" : "border-l-emerald-500";
               })(),
             )}
           >

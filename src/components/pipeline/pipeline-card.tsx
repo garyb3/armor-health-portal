@@ -29,7 +29,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
 
   // Days-in-process urgency indicator
   const daysInProcess = Math.floor((Date.now() - new Date(applicant.createdAt).getTime()) / 86_400_000);
-  const urgency: "green" | "yellow" | "red" = daysInProcess >= 15 ? "red" : daysInProcess >= 6 ? "yellow" : "green";
+  const urgency: "green" | "yellow" | "red" = daysInProcess >= 21 ? "red" : daysInProcess >= 11 ? "yellow" : "green";
   const urgencyBorder = {
     green: "border-l-[3px] border-l-emerald-500",
     yellow: "border-l-[3px] border-l-amber-400",
