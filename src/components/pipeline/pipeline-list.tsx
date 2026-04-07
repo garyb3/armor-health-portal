@@ -47,11 +47,13 @@ interface PipelineListProps {
   onSetOfferDate?: (id: string, date: string | null) => void;
   onSetStepDates?: (applicantId: string, formType: string, dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }) => void;
   onRemoveCandidate?: (id: string) => Promise<void>;
+  onUpdateNotes?: (id: string, notes: string) => void;
 }
 
-export function PipelineList({ applicants, onSetOfferDate, onSetStepDates, onRemoveCandidate }: PipelineListProps) {
+export function PipelineList({ applicants, onSetOfferDate, onSetStepDates, onRemoveCandidate, onUpdateNotes }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [localNotes, setLocalNotes] = useState<Record<string, string>>({});
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -237,6 +239,32 @@ export function PipelineList({ applicants, onSetOfferDate, onSetStepDates, onRem
                         onSetOfferDate?.(applicant.id, val ? new Date(val).toISOString() : null);
                       }}
                       onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+
+                  {/* Notes */}
+                  <div className="mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                      Notes
+                    </label>
+                    <textarea
+                      rows={3}
+                      placeholder="Add notes about this candidate..."
+                      value={localNotes[applicant.id] ?? applicant.notes ?? ""}
+                      onChange={(e) => {
+                        setLocalNotes((prev) => ({
+                          ...prev,
+                          [applicant.id]: e.target.value,
+                        }));
+                      }}
+                      onBlur={() => {
+                        const current = localNotes[applicant.id];
+                        if (current !== undefined && current !== (applicant.notes ?? "")) {
+                          onUpdateNotes?.(applicant.id, current);
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full text-sm rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-3 py-2 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                     />
                   </div>
 

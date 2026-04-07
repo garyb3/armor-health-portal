@@ -101,6 +101,23 @@ export default function PipelinePage() {
     }
   };
 
+  const handleUpdateNotes = async (applicantId: string, notes: string) => {
+    try {
+      const res = await apiFetch(`/api/pipeline/${applicantId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes }),
+      });
+      if (res.ok) {
+        setApplicants((prev) =>
+          prev.map((a) => (a.id === applicantId ? { ...a, notes } : a))
+        );
+      }
+    } catch (err) {
+      console.error("Failed to update notes:", err);
+    }
+  };
+
   const handleRemoveCandidate = async (applicantId: string) => {
     try {
       const res = await apiFetch(`/api/pipeline/${applicantId}/remove`, {
@@ -279,7 +296,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} />
+      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} onUpdateNotes={handleUpdateNotes} />
     </div>
   );
 }

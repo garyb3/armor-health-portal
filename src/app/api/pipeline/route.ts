@@ -145,6 +145,7 @@ export async function GET(request: NextRequest) {
       phone: a.phone,
       createdAt: a.createdAt.toISOString(),
       offerAcceptedAt: a.offerAcceptedAt?.toISOString() ?? null,
+      notes: a.notes ?? null,
       currentStage,
       completedCount,
       totalCount: FORM_STEPS.length,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 
@@ -85,5 +85,52 @@ export async function GET(
       { error: "Internal server error" },
       { status: 500 }
     );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const user = getUserFromRequest(request);
+  if (!user) return unauthorizedResponse();
+
+  if (!STAFF_ROLES.includes(user.userRole)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  try {
+    const body = await request.json();
+    const data: Record<string, unknown> = {};
+
+    if (body.notes !== undefined) data.notes = body.notes || null;
+    if (body.offerAcceptedAt !== undefined) {
+      data.offerAcceptedAt = body.offerAcceptedAt
+        ? new Date(body.offerAcceptedAt)
+        : null;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ error: "No fields provided" }, { status: 400 });
+    }
+
+    await prisma.applicant.update({ where: { id }, data });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.userId,
+        action: "APPLICANT_UPDATED",
+        targetId: id,
+        ipAddress: getClientIp(request),
+        metadata: JSON.stringify(Object.keys(data)),
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to update applicant:", error);
+    return NextResponse.json({ error: "Failed to update applicant" }, { status: 500 });
   }
 }
