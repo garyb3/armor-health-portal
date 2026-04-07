@@ -17,6 +17,72 @@ import type { FormType as AppFormType } from "@/types";
 
 const STAFF_ROLES = ["HR", "ADMIN"];
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; formType: string }> }
+) {
+  try {
+    const user = getUserFromRequest(request);
+    if (!user) return unauthorizedResponse();
+
+    if (!STAFF_ROLES.includes(user.userRole)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { id: applicantId, formType: slug } = await params;
+    const formType = FORM_TYPE_MAP[slug] as FormType | undefined;
+    if (!formType) {
+      return badRequestResponse("Invalid form type");
+    }
+
+    const body = await request.json();
+    const { stepStartedAt, stepCompletedAt } = body as {
+      stepStartedAt?: string | null;
+      stepCompletedAt?: string | null;
+    };
+
+    // Build update data only for provided fields
+    const data: Record<string, Date | null> = {};
+    if (stepStartedAt !== undefined) {
+      data.stepStartedAt = stepStartedAt ? new Date(stepStartedAt) : null;
+    }
+    if (stepCompletedAt !== undefined) {
+      data.stepCompletedAt = stepCompletedAt ? new Date(stepCompletedAt) : null;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return badRequestResponse("No date fields provided");
+    }
+
+    await prisma.formSubmission.update({
+      where: {
+        applicantId_formType: { applicantId, formType },
+      },
+      data,
+    });
+
+    // Audit log
+    const clientIp = getClientIp(request);
+    await prisma.auditLog.create({
+      data: {
+        userId: user.userId,
+        action: "STEP_DATES_UPDATED",
+        targetId: applicantId,
+        metadata: { formType, stepStartedAt, stepCompletedAt },
+        ipAddress: clientIp,
+      },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Step dates update error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; formType: string }> }

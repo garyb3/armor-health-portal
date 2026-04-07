@@ -21,6 +21,8 @@ export interface FormProgress {
   reviewedAt?: string;
   reviewNote?: string;
   lastAlertSentAt?: string | null;
+  stepStartedAt?: string | null;
+  stepCompletedAt?: string | null;
   hasReceipt?: boolean;
 }
 

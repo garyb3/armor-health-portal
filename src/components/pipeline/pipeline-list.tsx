@@ -45,10 +45,11 @@ function sortApplicants(applicants: PipelineApplicant[]): PipelineApplicant[] {
 interface PipelineListProps {
   applicants: PipelineApplicant[];
   onSetOfferDate?: (id: string, date: string | null) => void;
+  onSetStepDates?: (applicantId: string, formType: string, dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }) => void;
   onRemoveCandidate?: (id: string) => Promise<void>;
 }
 
-export function PipelineList({ applicants, onSetOfferDate, onRemoveCandidate }: PipelineListProps) {
+export function PipelineList({ applicants, onSetOfferDate, onSetStepDates, onRemoveCandidate }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [removingId, setRemovingId] = useState<string | null>(null);
 
@@ -150,10 +151,10 @@ export function PipelineList({ applicants, onSetOfferDate, onRemoveCandidate }: 
                   {stages.map((stage) => {
                     const p = stage.progress;
                     const done = stage.done;
-                    const timeLabel =
-                      p && p.status !== "NOT_STARTED"
-                        ? formatElapsed(p.statusChangedAt)
-                        : "—";
+                    const daysBetween =
+                      p?.stepStartedAt && p?.stepCompletedAt
+                        ? Math.max(0, Math.floor((new Date(p.stepCompletedAt).getTime() - new Date(p.stepStartedAt).getTime()) / 86_400_000))
+                        : null;
 
                     return (
                       <div
@@ -167,7 +168,7 @@ export function PipelineList({ applicants, onSetOfferDate, onRemoveCandidate }: 
                         )}
                         <span
                           className={cn(
-                            "flex-1",
+                            "min-w-0",
                             done
                               ? "text-gray-500 dark:text-gray-400"
                               : "text-gray-900 dark:text-gray-100 font-medium"
@@ -175,9 +176,44 @@ export function PipelineList({ applicants, onSetOfferDate, onRemoveCandidate }: 
                         >
                           {STAGE_SHORT[stage.key] || stage.title}
                         </span>
-                        <span className="text-xs text-gray-400 dark:text-gray-500 tabular-nums">
-                          {timeLabel}
-                        </span>
+                        <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                          <input
+                            type="date"
+                            className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
+                            value={p?.stepStartedAt ? new Date(p.stepStartedAt).toISOString().split("T")[0] : ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              onSetStepDates?.(applicant.id, stage.key, {
+                                stepStartedAt: val ? new Date(val).toISOString() : null,
+                              });
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            title="Started date"
+                          />
+                          <span className="text-xs text-gray-400">→</span>
+                          <input
+                            type="date"
+                            className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
+                            value={p?.stepCompletedAt ? new Date(p.stepCompletedAt).toISOString().split("T")[0] : ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              onSetStepDates?.(applicant.id, stage.key, {
+                                stepCompletedAt: val ? new Date(val).toISOString() : null,
+                              });
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            title="Completed date"
+                          />
+                          {daysBetween !== null ? (
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 tabular-nums w-8 text-right">
+                              {daysBetween}d
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-400 tabular-nums w-8 text-right">
+                              —
+                            </span>
+                          )}
+                        </div>
                       </div>
                     );
                   })}

@@ -15,6 +15,7 @@ import { PipelineList } from "@/components/pipeline/pipeline-list";
 import { Loader2, Plus } from "lucide-react";
 import type { PipelineApplicant } from "@/types";
 import { apiFetch } from "@/lib/api-client";
+import { FORM_STEPS } from "@/lib/constants";
 
 export default function PipelinePage() {
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);
@@ -65,6 +66,38 @@ export default function PipelinePage() {
       }
     } catch (err) {
       console.error("Failed to update offer date:", err);
+    }
+  };
+
+  const handleSetStepDates = async (
+    applicantId: string,
+    formType: string,
+    dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }
+  ) => {
+    const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
+    if (!slug) return;
+    try {
+      const res = await apiFetch(`/api/pipeline/${applicantId}/step/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dates),
+      });
+      if (res.ok) {
+        setApplicants((prev) =>
+          prev.map((a) =>
+            a.id === applicantId
+              ? {
+                  ...a,
+                  progress: a.progress.map((p) =>
+                    p.formType === formType ? { ...p, ...dates } : p
+                  ),
+                }
+              : a
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to update step dates:", err);
     }
   };
 
@@ -246,7 +279,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} onRemoveCandidate={handleRemoveCandidate} />
+      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} />
     </div>
   );
 }

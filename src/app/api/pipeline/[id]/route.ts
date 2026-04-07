@@ -30,6 +30,8 @@ export async function GET(
           submittedAt: true,
           updatedAt: true,
           statusChangedAt: true,
+          stepStartedAt: true,
+          stepCompletedAt: true,
         },
         orderBy: { createdAt: "asc" },
       },
@@ -72,6 +74,8 @@ export async function GET(
       status: s.status,
       updatedAt: s.updatedAt.toISOString(),
       statusChangedAt: s.statusChangedAt.toISOString(),
+      stepStartedAt: s.stepStartedAt?.toISOString() ?? null,
+      stepCompletedAt: s.stepCompletedAt?.toISOString() ?? null,
       submittedAt: s.submittedAt?.toISOString() || null,
     })),
   });

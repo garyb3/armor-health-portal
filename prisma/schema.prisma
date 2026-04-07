@@ -72,6 +72,8 @@ model FormSubmission {
   submittedAt      DateTime?
   statusChangedAt  DateTime   @default(now())
   lastAlertSentAt  DateTime?
+  stepStartedAt    DateTime?
+  stepCompletedAt  DateTime?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 

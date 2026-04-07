@@ -108,6 +108,8 @@ export const FormSubmissionScalarFieldEnum = {
   submittedAt: 'submittedAt',
   statusChangedAt: 'statusChangedAt',
   lastAlertSentAt: 'lastAlertSentAt',
+  stepStartedAt: 'stepStartedAt',
+  stepCompletedAt: 'stepCompletedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -36,6 +36,8 @@ export type FormSubmissionMinAggregateOutputType = {
   submittedAt: Date | null
   statusChangedAt: Date | null
   lastAlertSentAt: Date | null
+  stepStartedAt: Date | null
+  stepCompletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,6 +54,8 @@ export type FormSubmissionMaxAggregateOutputType = {
   submittedAt: Date | null
   statusChangedAt: Date | null
   lastAlertSentAt: Date | null
+  stepStartedAt: Date | null
+  stepCompletedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,6 +73,8 @@ export type FormSubmissionCountAggregateOutputType = {
   submittedAt: number
   statusChangedAt: number
   lastAlertSentAt: number
+  stepStartedAt: number
+  stepCompletedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -87,6 +93,8 @@ export type FormSubmissionMinAggregateInputType = {
   submittedAt?: true
   statusChangedAt?: true
   lastAlertSentAt?: true
+  stepStartedAt?: true
+  stepCompletedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,6 +111,8 @@ export type FormSubmissionMaxAggregateInputType = {
   submittedAt?: true
   statusChangedAt?: true
   lastAlertSentAt?: true
+  stepStartedAt?: true
+  stepCompletedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -120,6 +130,8 @@ export type FormSubmissionCountAggregateInputType = {
   submittedAt?: true
   statusChangedAt?: true
   lastAlertSentAt?: true
+  stepStartedAt?: true
+  stepCompletedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -210,6 +222,8 @@ export type FormSubmissionGroupByOutputType = {
   submittedAt: Date | null
   statusChangedAt: Date
   lastAlertSentAt: Date | null
+  stepStartedAt: Date | null
+  stepCompletedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: FormSubmissionCountAggregateOutputType | null
@@ -248,6 +262,8 @@ export type FormSubmissionWhereInput = {
   submittedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  stepStartedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  stepCompletedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   applicant?: Prisma.XOR<Prisma.ApplicantScalarRelationFilter, Prisma.ApplicantWhereInput>
@@ -266,6 +282,8 @@ export type FormSubmissionOrderByWithRelationInput = {
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  stepStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  stepCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   applicant?: Prisma.ApplicantOrderByWithRelationInput
@@ -288,6 +306,8 @@ export type FormSubmissionWhereUniqueInput = Prisma.AtLeast<{
   submittedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  stepStartedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  stepCompletedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   applicant?: Prisma.XOR<Prisma.ApplicantScalarRelationFilter, Prisma.ApplicantWhereInput>
@@ -306,6 +326,8 @@ export type FormSubmissionOrderByWithAggregationInput = {
   submittedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  stepStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  stepCompletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FormSubmissionCountOrderByAggregateInput
@@ -329,6 +351,8 @@ export type FormSubmissionScalarWhereWithAggregatesInput = {
   submittedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeWithAggregatesFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
+  stepStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
+  stepCompletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FormSubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FormSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FormSubmission"> | Date | string
 }
@@ -345,6 +369,8 @@ export type FormSubmissionCreateInput = {
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   applicant: Prisma.ApplicantCreateNestedOneWithoutFormSubmissionsInput
@@ -363,6 +389,8 @@ export type FormSubmissionUncheckedCreateInput = {
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -379,6 +407,8 @@ export type FormSubmissionUpdateInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicant?: Prisma.ApplicantUpdateOneRequiredWithoutFormSubmissionsNestedInput
@@ -397,6 +427,8 @@ export type FormSubmissionUncheckedUpdateInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -414,6 +446,8 @@ export type FormSubmissionCreateManyInput = {
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -430,6 +464,8 @@ export type FormSubmissionUpdateManyMutationInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -447,6 +483,8 @@ export type FormSubmissionUncheckedUpdateManyInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -479,6 +517,8 @@ export type FormSubmissionCountOrderByAggregateInput = {
   submittedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrder
+  stepStartedAt?: Prisma.SortOrder
+  stepCompletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -495,6 +535,8 @@ export type FormSubmissionMaxOrderByAggregateInput = {
   submittedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrder
+  stepStartedAt?: Prisma.SortOrder
+  stepCompletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -511,6 +553,8 @@ export type FormSubmissionMinOrderByAggregateInput = {
   submittedAt?: Prisma.SortOrder
   statusChangedAt?: Prisma.SortOrder
   lastAlertSentAt?: Prisma.SortOrder
+  stepStartedAt?: Prisma.SortOrder
+  stepCompletedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -577,6 +621,8 @@ export type FormSubmissionCreateWithoutApplicantInput = {
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -593,6 +639,8 @@ export type FormSubmissionUncheckedCreateWithoutApplicantInput = {
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -638,6 +686,8 @@ export type FormSubmissionScalarWhereInput = {
   submittedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   statusChangedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   lastAlertSentAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  stepStartedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
+  stepCompletedAt?: Prisma.DateTimeNullableFilter<"FormSubmission"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
 }
@@ -654,6 +704,8 @@ export type FormSubmissionCreateManyApplicantInput = {
   submittedAt?: Date | string | null
   statusChangedAt?: Date | string
   lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -670,6 +722,8 @@ export type FormSubmissionUpdateWithoutApplicantInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -686,6 +740,8 @@ export type FormSubmissionUncheckedUpdateWithoutApplicantInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -702,6 +758,8 @@ export type FormSubmissionUncheckedUpdateManyWithoutApplicantInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -721,6 +779,8 @@ export type FormSubmissionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
+  stepStartedAt?: boolean
+  stepCompletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
@@ -739,6 +799,8 @@ export type FormSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
+  stepStartedAt?: boolean
+  stepCompletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
@@ -757,6 +819,8 @@ export type FormSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
+  stepStartedAt?: boolean
+  stepCompletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
@@ -775,11 +839,13 @@ export type FormSubmissionSelectScalar = {
   submittedAt?: boolean
   statusChangedAt?: boolean
   lastAlertSentAt?: boolean
+  stepStartedAt?: boolean
+  stepCompletedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FormSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicantId" | "formType" | "status" | "formData" | "receiptFile" | "reviewedBy" | "reviewedAt" | "reviewNote" | "submittedAt" | "statusChangedAt" | "lastAlertSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["formSubmission"]>
+export type FormSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicantId" | "formType" | "status" | "formData" | "receiptFile" | "reviewedBy" | "reviewedAt" | "reviewNote" | "submittedAt" | "statusChangedAt" | "lastAlertSentAt" | "stepStartedAt" | "stepCompletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["formSubmission"]>
 export type FormSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
 }
@@ -808,6 +874,8 @@ export type $FormSubmissionPayload<ExtArgs extends runtime.Types.Extensions.Inte
     submittedAt: Date | null
     statusChangedAt: Date
     lastAlertSentAt: Date | null
+    stepStartedAt: Date | null
+    stepCompletedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["formSubmission"]>
@@ -1246,6 +1314,8 @@ export interface FormSubmissionFieldRefs {
   readonly submittedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
   readonly statusChangedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
   readonly lastAlertSentAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
+  readonly stepStartedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
+  readonly stepCompletedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FormSubmission", 'DateTime'>
 }

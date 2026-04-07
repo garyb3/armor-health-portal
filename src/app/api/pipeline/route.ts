@@ -63,6 +63,8 @@ export async function GET(request: NextRequest) {
             reviewedAt: true,
             reviewNote: true,
             lastAlertSentAt: true,
+            stepStartedAt: true,
+            stepCompletedAt: true,
             receiptFile: true,
           },
           orderBy: { createdAt: "asc" },
@@ -161,6 +163,8 @@ export async function GET(request: NextRequest) {
         reviewedAt: s.reviewedAt?.toISOString() ?? null,
         reviewNote: s.reviewNote,
         lastAlertSentAt: s.lastAlertSentAt?.toISOString() ?? null,
+        stepStartedAt: s.stepStartedAt?.toISOString() ?? null,
+        stepCompletedAt: s.stepCompletedAt?.toISOString() ?? null,
         hasReceipt: !!s.receiptFile,
       })),
     };
