@@ -6,7 +6,8 @@ import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
-import { Check, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Check, X, ChevronDown, ChevronRight, Trash2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { PipelineApplicant, FormProgress } from "@/types";
 
 const STAGE_SHORT: Record<string, string> = Object.fromEntries(
@@ -44,10 +45,12 @@ function sortApplicants(applicants: PipelineApplicant[]): PipelineApplicant[] {
 interface PipelineListProps {
   applicants: PipelineApplicant[];
   onSetOfferDate?: (id: string, date: string | null) => void;
+  onRemoveCandidate?: (id: string) => Promise<void>;
 }
 
-export function PipelineList({ applicants, onSetOfferDate }: PipelineListProps) {
+export function PipelineList({ applicants, onSetOfferDate, onRemoveCandidate }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -200,6 +203,34 @@ export function PipelineList({ applicants, onSetOfferDate }: PipelineListProps) 
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>
+
+                  {/* Remove Candidate */}
+                  {onRemoveCandidate && (
+                    <div className="flex justify-end mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={removingId === applicant.id}
+                        onClick={async () => {
+                          if (!confirm(`Are you sure you want to remove ${applicant.firstName} ${applicant.lastName} from the pipeline?`)) return;
+                          setRemovingId(applicant.id);
+                          try {
+                            await onRemoveCandidate(applicant.id);
+                          } finally {
+                            setRemovingId(null);
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                      >
+                        {removingId === applicant.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 mr-1.5" />
+                        )}
+                        Remove
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

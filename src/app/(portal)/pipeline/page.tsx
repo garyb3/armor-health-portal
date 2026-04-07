@@ -68,6 +68,19 @@ export default function PipelinePage() {
     }
   };
 
+  const handleRemoveCandidate = async (applicantId: string) => {
+    try {
+      const res = await apiFetch(`/api/pipeline/${applicantId}/remove`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        setApplicants((prev) => prev.filter((a) => a.id !== applicantId));
+      }
+    } catch (err) {
+      console.error("Failed to remove candidate:", err);
+    }
+  };
+
   const handleAddCandidate = async () => {
     if (!addForm.firstName.trim() || !addForm.lastName.trim()) {
       setAddError("First and last name are required");
@@ -233,7 +246,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} />
+      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} onRemoveCandidate={handleRemoveCandidate} />
     </div>
   );
 }
