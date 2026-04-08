@@ -67,7 +67,7 @@ export function Sidebar({ role }: SidebarProps) {
       }
     }
     loadSummary();
-  }, [pathname]);
+  }, []);
 
   return (
     <aside className="no-print w-60 bg-white dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
