@@ -51,11 +51,12 @@ model Applicant {
   formSubmissions FormSubmission[]
   sensitiveData   SensitiveData?
 
-  @@index([email])
   @@index([denied])
   @@index([role])
   @@index([approved])
   @@index([emailVerified])
+  @@index([role, approved])
+  @@index([role, denied])
   @@map("applicants")
 }
 
@@ -83,6 +84,8 @@ model FormSubmission {
   @@index([applicantId])
   @@index([status])
   @@index([applicantId, status])
+  @@index([status, statusChangedAt])
+  @@index([applicantId, createdAt])
   @@map("form_submissions")
 }
 
@@ -96,7 +99,7 @@ model Invite {
   createdBy String
   createdAt DateTime @default(now())
 
-  @@index([email, expiresAt])
+  @@index([email, used, expiresAt])
   @@map("invites")
 }
 
@@ -125,6 +128,7 @@ model AuditLog {
   @@index([userId])
   @@index([targetId])
   @@index([action])
+  @@index([userId, action, createdAt])
   @@map("audit_logs")
 }
 
@@ -141,6 +145,5 @@ model ApiKey {
   createdBy  String
   createdAt  DateTime  @default(now())
 
-  @@index([keyHash])
   @@map("api_keys")
 }
