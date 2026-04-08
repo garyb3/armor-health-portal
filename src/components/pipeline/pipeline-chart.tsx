@@ -182,9 +182,9 @@ export function PipelineChart({ summary }: PipelineChartProps) {
               <p className="text-sm text-gray-500">No applicants</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {selected.applicants.map((a, i) => (
+                {selected.applicants.map((a) => (
                   <div
-                    key={i}
+                    key={a.id}
                     className="flex items-center justify-between text-sm bg-gray-50 dark:bg-brand-700 rounded-md px-3 py-1.5"
                   >
                     <span className="text-gray-700 dark:text-gray-200 truncate mr-2">{a.name}</span>

@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
     }),
   ]);
 
-  const emptySummary = () => ({ count: 0, names: [] as string[], applicants: [] as { name: string; since: string }[] });
+  const emptySummary = () => ({ count: 0, names: [] as string[], applicants: [] as { id: string; name: string; since: string }[] });
   const byStage: Record<string, ReturnType<typeof emptySummary>> = {};
   const completedByStage: Record<string, ReturnType<typeof emptySummary>> = {};
   const dwellAccumulator: Record<string, { totalMs: number; count: number }> = {};
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
     const pendingSince = currentSub
       ? currentSub.statusChangedAt.toISOString()
       : a.createdAt.toISOString();
-    byStage[currentStage].applicants.push({ name, since: pendingSince });
+    byStage[currentStage].applicants.push({ id: a.id, name, since: pendingSince });
 
     // Accumulate dwell time for average computation (skip COMPLETED)
     if (currentStage !== "COMPLETED" && dwellAccumulator[currentStage]) {
@@ -123,6 +123,7 @@ export async function GET(request: NextRequest) {
         completedByStage[s.formType].count++;
         completedByStage[s.formType].names.push(name);
         completedByStage[s.formType].applicants.push({
+          id: a.id,
           name,
           since: s.statusChangedAt.toISOString(),
         });

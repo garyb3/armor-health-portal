@@ -67,6 +67,7 @@ export interface PipelineApplicant {
 }
 
 export interface StageApplicant {
+  id: string;
   name: string;
   since: string; // ISO date – when they entered this status
 }
