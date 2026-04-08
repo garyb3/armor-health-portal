@@ -15,6 +15,7 @@ export interface ApplicantProfile {
 export interface FormProgress {
   formType: FormType;
   status: FormStatus;
+  formData?: Record<string, unknown> | null;
   updatedAt: string;
   statusChangedAt: string;
   reviewedBy?: string;

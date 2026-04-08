@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 
@@ -72,6 +72,7 @@ export async function GET(
     progress: applicant.formSubmissions.map((s) => ({
       formType: s.formType,
       status: s.status,
+      formData: s.formData ? stripSsnFields(s.formData as Record<string, unknown>) : null,
       updatedAt: s.updatedAt.toISOString(),
       statusChangedAt: s.statusChangedAt.toISOString(),
       stepStartedAt: s.stepStartedAt?.toISOString() ?? null,
