@@ -107,6 +107,8 @@ export default function InviteRegisterPage() {
     );
   }
 
+  if (!inviteData) return null;
+
   return (
     <Card className="w-full max-w-md shadow-xl shadow-gray-200/50 border-gray-200/60">
       <CardHeader className="text-center pb-2">
@@ -124,7 +126,7 @@ export default function InviteRegisterPage() {
         <CardDescription className="text-gray-500">
           You&apos;ve been invited to join as{" "}
           <span className="font-semibold text-gray-700">
-            {ROLE_LABELS[inviteData!.role] || inviteData!.role}
+            {ROLE_LABELS[inviteData.role] || inviteData.role}
           </span>
         </CardDescription>
       </CardHeader>
@@ -170,7 +172,7 @@ export default function InviteRegisterPage() {
             <Input
               id="email"
               type="email"
-              value={inviteData!.email}
+              value={inviteData.email}
               readOnly
               className="mt-1 bg-gray-50 text-gray-500 cursor-not-allowed"
             />
@@ -179,7 +181,7 @@ export default function InviteRegisterPage() {
           <div>
             <Label>Role</Label>
             <div className="mt-1 flex h-10 w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500">
-              {ROLE_LABELS[inviteData!.role] || inviteData!.role}
+              {ROLE_LABELS[inviteData.role] || inviteData.role}
             </div>
             <input type="hidden" {...register("role")} />
           </div>

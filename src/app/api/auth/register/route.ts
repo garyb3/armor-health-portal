@@ -56,45 +56,57 @@ export async function POST(request: NextRequest) {
     }
     const role = invite.role;
 
-    const existing = await prisma.applicant.findUnique({ where: { email } });
-    if (existing) {
-      // Denied accounts cannot re-register (use generic message to avoid enumeration)
-      if (existing.denied) {
-        return NextResponse.json(
-          { error: "This account is not eligible for registration" },
-          { status: 403 }
-        );
-      }
-      return NextResponse.json(
-        { error: "An account with this email already exists" },
-        { status: 409 }
-      );
-    }
-
     const hashedPassword = await hashPassword(password);
-
     const needsApproval = ["HR", "ADMIN"].includes(role);
     const rawVerificationToken = randomBytes(32).toString("hex");
-    const applicant = await prisma.applicant.create({
-      data: {
-        email,
-        password: hashedPassword,
-        firstName,
-        lastName,
-        role: role as Role,
-        approved: !needsApproval,
-        emailVerified: false,
-        verificationToken: hashToken(rawVerificationToken),
-        phone: phone || null,
-      },
+
+    // Atomic transaction: re-check invite, check existing user, create applicant, mark invite used
+    const applicant = await prisma.$transaction(async (tx) => {
+      const freshInvite = await tx.invite.findUnique({ where: { id: invite.id } });
+      if (!freshInvite || freshInvite.used) {
+        throw new Error("INVITE_ALREADY_USED");
+      }
+
+      const existing = await tx.applicant.findUnique({ where: { email } });
+      if (existing) {
+        if (existing.denied) throw new Error("ACCOUNT_DENIED");
+        throw new Error("ACCOUNT_EXISTS");
+      }
+
+      const created = await tx.applicant.create({
+        data: {
+          email,
+          password: hashedPassword,
+          firstName,
+          lastName,
+          role: role as Role,
+          approved: !needsApproval,
+          emailVerified: false,
+          verificationToken: hashToken(rawVerificationToken),
+          phone: phone || null,
+        },
+      });
+
+      await tx.invite.update({
+        where: { id: invite.id },
+        data: { used: true },
+      });
+
+      return created;
     });
 
-    // Send verification email (fire-and-forget)
-    sendVerificationEmail({
-      userName: `${firstName} ${lastName}`,
-      userEmail: email,
-      verificationToken: rawVerificationToken,
-    }).catch((err) => console.error("[Register] Failed to send verification email:", err));
+    // Await verification email — warn user if it fails
+    let emailWarning: string | undefined;
+    try {
+      await sendVerificationEmail({
+        userName: `${firstName} ${lastName}`,
+        userEmail: email,
+        verificationToken: rawVerificationToken,
+      });
+    } catch (err) {
+      console.error("[Register] Failed to send verification email:", err);
+      emailWarning = "Account created but verification email could not be sent. Please contact support.";
+    }
 
     // Notify admin of new pending approval request (fire-and-forget)
     if (needsApproval) {
@@ -104,19 +116,6 @@ export async function POST(request: NextRequest) {
         userRole: role,
       }).catch((err) => console.error("[Register] Failed to send pending-approval email:", err));
     }
-
-    // Mark invite as used (inside transaction to prevent race conditions)
-    await prisma.$transaction(async (tx) => {
-      // Double-check invite hasn't been used concurrently
-      const freshInvite = await tx.invite.findUnique({ where: { id: invite.id } });
-      if (!freshInvite || freshInvite.used) {
-        throw new Error("INVITE_ALREADY_USED");
-      }
-      await tx.invite.update({
-        where: { id: invite.id },
-        data: { used: true },
-      });
-    });
 
     const tokenPayload = {
       sub: applicant.id,
@@ -145,6 +144,7 @@ export async function POST(request: NextRequest) {
         approved: applicant.approved,
         emailVerified: applicant.emailVerified,
       },
+      ...(emailWarning && { emailWarning }),
     });
 
     response.cookies.set("auth-token", token, ACCESS_COOKIE_OPTIONS);
@@ -155,6 +155,12 @@ export async function POST(request: NextRequest) {
     const err = error instanceof Error ? error : new Error(String(error));
     if (err.message === "INVITE_ALREADY_USED") {
       return NextResponse.json({ error: "Invite already used" }, { status: 400 });
+    }
+    if (err.message === "ACCOUNT_DENIED") {
+      return NextResponse.json({ error: "This account is not eligible for registration" }, { status: 403 });
+    }
+    if (err.message === "ACCOUNT_EXISTS") {
+      return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
     }
     console.error("Registration error:", err.message, err.stack);
     return NextResponse.json(
