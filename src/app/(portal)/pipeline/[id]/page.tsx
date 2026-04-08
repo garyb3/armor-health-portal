@@ -51,7 +51,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function ApplicantDetailPage() {
-  const params = useParams();
+  const { id } = useParams<{ id: string }>();
   const [applicant, setApplicant] = useState<ApplicantDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -60,7 +60,7 @@ export default function ApplicantDetailPage() {
 
   const loadApplicant = async () => {
     try {
-      const res = await apiFetch(`/api/pipeline/${params.id}`);
+      const res = await apiFetch(`/api/pipeline/${id}`);
       if (!res.ok) return;
       setApplicant(await res.json());
     } catch (err) {
@@ -70,7 +70,7 @@ export default function ApplicantDetailPage() {
 
   useEffect(() => {
     loadApplicant().finally(() => setLoading(false));
-  }, [params.id]);
+  }, [id]);
 
   const handleStepAction = async (
     formType: string,
@@ -83,7 +83,7 @@ export default function ApplicantDetailPage() {
     setActionLoading(`${formType}-${action}`);
     try {
       const res = await apiFetch(
-        `/api/pipeline/${params.id}/step/${slug}`,
+        `/api/pipeline/${id}/step/${slug}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
