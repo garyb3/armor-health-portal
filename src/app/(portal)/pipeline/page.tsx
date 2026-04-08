@@ -187,7 +187,8 @@ export default function PipelinePage() {
           `${a.firstName} ${a.lastName}`
             .toLowerCase()
             .includes(search.toLowerCase()) ||
-          a.email.toLowerCase().includes(search.toLowerCase())
+          a.email.toLowerCase().includes(search.toLowerCase()) ||
+          (a.phone && a.phone.includes(search))
       )
     : applicants;
 
@@ -289,7 +290,8 @@ export default function PipelinePage() {
       {/* Search */}
       <div className="max-w-sm">
         <Input
-          placeholder="Search by name or email..."
+          placeholder="Search by name, email, or phone..."
+          className="placeholder:text-black"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
