@@ -124,7 +124,7 @@ export async function PATCH(
         action: "APPLICANT_UPDATED",
         targetId: id,
         ipAddress: getClientIp(request),
-        metadata: JSON.stringify(Object.keys(data)),
+        metadata: Object.keys(data),
       },
     });
 
