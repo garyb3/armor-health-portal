@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
+import { getCurrentStep, countApproved } from "@/lib/pipeline-helpers";
+import type { FormType, FormStatus as AppFormStatus } from "@/types";
 
 const STAFF_ROLES: string[] = ["HR", "ADMIN"];
 
@@ -32,6 +34,9 @@ export async function GET(
           statusChangedAt: true,
           stepStartedAt: true,
           stepCompletedAt: true,
+          reviewedBy: true,
+          reviewedAt: true,
+          reviewNote: true,
         },
         orderBy: { createdAt: "asc" },
       },
@@ -42,21 +47,12 @@ export async function GET(
     return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
   }
 
-  const statusMap = new Map(
-    applicant.formSubmissions.map((s) => [s.formType, s.status])
-  );
-  let currentStage = "COMPLETED";
-  for (const step of FORM_STEPS) {
-    const status = statusMap.get(step.key);
-    if (status !== "COMPLETED" && status !== "APPROVED") {
-      currentStage = step.key;
-      break;
-    }
-  }
-
-  const completedCount = applicant.formSubmissions.filter(
-    (s) => s.status === "COMPLETED"
-  ).length;
+  const submissions = applicant.formSubmissions.map((s) => ({
+    formType: s.formType as FormType,
+    status: s.status as AppFormStatus,
+  }));
+  const currentStage = getCurrentStep(submissions);
+  const completedCount = countApproved(submissions);
 
   return NextResponse.json({
     id: applicant.id,
@@ -66,6 +62,8 @@ export async function GET(
     phone: applicant.phone,
     role: applicant.role,
     createdAt: applicant.createdAt.toISOString(),
+    offerAcceptedAt: applicant.offerAcceptedAt?.toISOString() ?? null,
+    notes: applicant.notes ?? null,
     currentStage,
     completedCount,
     totalCount: FORM_STEPS.length,
@@ -78,6 +76,9 @@ export async function GET(
       stepStartedAt: s.stepStartedAt?.toISOString() ?? null,
       stepCompletedAt: s.stepCompletedAt?.toISOString() ?? null,
       submittedAt: s.submittedAt?.toISOString() || null,
+      reviewedBy: s.reviewedBy ?? null,
+      reviewedAt: s.reviewedAt?.toISOString() ?? null,
+      reviewNote: s.reviewNote ?? null,
     })),
   });
   } catch (error) {
@@ -125,7 +126,7 @@ export async function PATCH(
           action: "APPLICANT_UPDATED",
           targetId: id,
           ipAddress: getClientIp(request),
-          metadata: Object.keys(data),
+          metadata: { updatedFields: Object.keys(data) },
         },
       }),
     ]);

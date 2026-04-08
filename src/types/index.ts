@@ -10,6 +10,12 @@ export interface ApplicantProfile {
   role: Role;
   phone: string | null;
   approved?: boolean;
+  denied?: boolean;
+  emailVerified?: boolean;
+  offerAcceptedAt?: string | null;
+  notes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface FormProgress {
