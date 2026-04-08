@@ -14,6 +14,11 @@ export async function POST(
 
   const { id } = await params;
 
+  const applicant = await prisma.applicant.findUnique({ where: { id } });
+  if (!applicant) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
   // Use transaction to prevent data loss if server crashes mid-operation
   const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
   await prisma.$transaction(async (tx) => {

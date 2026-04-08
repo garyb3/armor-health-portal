@@ -14,6 +14,11 @@ export async function POST(
 
   const { id } = await params;
   try {
+    const applicant = await prisma.applicant.findUnique({ where: { id } });
+    if (!applicant) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
     // Soft-deny: preserve the record for audit trail instead of hard-deleting.
     // Incrementing tokenVersion revokes any active sessions immediately.
     await prisma.$transaction([
