@@ -54,24 +54,23 @@ export async function PATCH(
       return badRequestResponse("No date fields provided");
     }
 
-    await prisma.formSubmission.update({
-      where: {
-        applicantId_formType: { applicantId, formType },
-      },
-      data,
-    });
-
-    // Audit log
-    const clientIp = getClientIp(request);
-    await prisma.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "STEP_DATES_UPDATED",
-        targetId: applicantId,
-        metadata: { formType, stepStartedAt, stepCompletedAt },
-        ipAddress: clientIp,
-      },
-    });
+    await prisma.$transaction([
+      prisma.formSubmission.update({
+        where: {
+          applicantId_formType: { applicantId, formType },
+        },
+        data,
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "STEP_DATES_UPDATED",
+          targetId: applicantId,
+          metadata: { formType, stepStartedAt, stepCompletedAt },
+          ipAddress: getClientIp(request),
+        },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -52,24 +52,25 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    await prisma.applicant.update({
-      where: { id: applicant.id },
-      data: {
-        password: hashedPassword,
-        resetToken: null,
-        resetTokenExpiresAt: null,
-        tokenVersion: { increment: 1 }, // Invalidate all existing sessions
-      },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: applicant.id,
-        action: "PASSWORD_RESET",
-        targetId: applicant.id,
-        ipAddress: ip,
-      },
-    });
+    await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id: applicant.id },
+        data: {
+          password: hashedPassword,
+          resetToken: null,
+          resetTokenExpiresAt: null,
+          tokenVersion: { increment: 1 }, // Invalidate all existing sessions
+        },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: applicant.id,
+          action: "PASSWORD_RESET",
+          targetId: applicant.id,
+          ipAddress: ip,
+        },
+      }),
+    ]);
 
     return NextResponse.json({
       success: true,

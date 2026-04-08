@@ -18,19 +18,20 @@ export async function POST(
   const { id } = await params;
 
   try {
-    await prisma.applicant.update({
-      where: { id },
-      data: { denied: true, tokenVersion: { increment: 1 } },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "PIPELINE_REMOVE_CANDIDATE",
-        targetId: id,
-        ipAddress: getClientIp(request),
-      },
-    });
+    await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id },
+        data: { denied: true, tokenVersion: { increment: 1 } },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "PIPELINE_REMOVE_CANDIDATE",
+          targetId: id,
+          ipAddress: getClientIp(request),
+        },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

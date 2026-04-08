@@ -30,15 +30,14 @@ export async function POST(
         data: { applicantId: id, formType, status: "NOT_STARTED" },
       });
     }
-  });
-
-  await prisma.auditLog.create({
-    data: {
-      userId: user.userId,
-      action: "ADMIN_RESET_PIPELINE",
-      targetId: id,
-      ipAddress: getClientIp(request),
-    },
+    await tx.auditLog.create({
+      data: {
+        userId: user.userId,
+        action: "ADMIN_RESET_PIPELINE",
+        targetId: id,
+        ipAddress: getClientIp(request),
+      },
+    });
   });
 
   return NextResponse.json({ success: true });

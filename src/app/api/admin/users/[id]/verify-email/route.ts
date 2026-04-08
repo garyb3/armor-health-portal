@@ -19,18 +19,20 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const updated = await prisma.applicant.update({
-      where: { id },
-      data: { emailVerified: true, verificationToken: null },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "ADMIN_VERIFY_EMAIL",
-        targetId: id,
-        ipAddress: getClientIp(request),
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const result = await tx.applicant.update({
+        where: { id },
+        data: { emailVerified: true, verificationToken: null },
+      });
+      await tx.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "ADMIN_VERIFY_EMAIL",
+          targetId: id,
+          ipAddress: getClientIp(request),
+        },
+      });
+      return result;
     });
 
     return NextResponse.json({

@@ -117,17 +117,18 @@ export async function PATCH(
       return NextResponse.json({ error: "No fields provided" }, { status: 400 });
     }
 
-    await prisma.applicant.update({ where: { id }, data });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "APPLICANT_UPDATED",
-        targetId: id,
-        ipAddress: getClientIp(request),
-        metadata: Object.keys(data),
-      },
-    });
+    await prisma.$transaction([
+      prisma.applicant.update({ where: { id }, data }),
+      prisma.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "APPLICANT_UPDATED",
+          targetId: id,
+          ipAddress: getClientIp(request),
+          metadata: Object.keys(data),
+        },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

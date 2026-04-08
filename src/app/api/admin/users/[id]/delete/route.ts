@@ -19,19 +19,20 @@ export async function POST(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    await prisma.applicant.update({
-      where: { id },
-      data: { denied: true, tokenVersion: { increment: 1 } },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "ADMIN_DELETE_USER",
-        targetId: id,
-        ipAddress: getClientIp(request),
-      },
-    });
+    await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id },
+        data: { denied: true, tokenVersion: { increment: 1 } },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "ADMIN_DELETE_USER",
+          targetId: id,
+          ipAddress: getClientIp(request),
+        },
+      }),
+    ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
