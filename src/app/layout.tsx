@@ -49,7 +49,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${greatVibes.variable} ${sacramento.variable} ${satisfy.variable} antialiased bg-gray-50 dark:bg-brand-900 dark:text-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${greatVibes.variable} ${sacramento.variable} ${satisfy.variable} antialiased bg-gray-200 dark:bg-brand-900 dark:text-gray-100`}
         suppressHydrationWarning
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>

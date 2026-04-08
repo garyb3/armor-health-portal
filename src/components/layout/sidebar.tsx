@@ -70,7 +70,7 @@ export function Sidebar({ role }: SidebarProps) {
   }, []);
 
   return (
-    <aside className="no-print w-60 bg-white dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
+    <aside className="no-print w-60 bg-gray-200 dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
       <div className="p-3 pt-4">
         <Link
           href="/pipeline"
