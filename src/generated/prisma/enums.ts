@@ -22,8 +22,7 @@ export const FormType = {
   VOLUNTEER_APP: 'VOLUNTEER_APP',
   PROFESSIONAL_LICENSE: 'PROFESSIONAL_LICENSE',
   DRUG_SCREEN: 'DRUG_SCREEN',
-  BACKGROUND_CHECK: 'BACKGROUND_CHECK',
-  WEB_CHECK: 'WEB_CHECK'
+  BACKGROUND_CHECK: 'BACKGROUND_CHECK'
 } as const
 
 export type FormType = (typeof FormType)[keyof typeof FormType]

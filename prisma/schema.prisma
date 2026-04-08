@@ -18,7 +18,6 @@ enum FormType {
   PROFESSIONAL_LICENSE
   DRUG_SCREEN
   BACKGROUND_CHECK
-  WEB_CHECK
 }
 
 enum FormStatus {
