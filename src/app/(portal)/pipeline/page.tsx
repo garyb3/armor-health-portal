@@ -199,7 +199,7 @@ export default function PipelinePage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             Applicant Pipeline
           </h1>
-          <p className="text-gray-400 mt-1 text-sm">
+          <p className="text-black mt-1 text-sm">
             Track where applicants are in the background clearance process.
           </p>
         </div>
