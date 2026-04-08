@@ -113,30 +113,6 @@ export async function POST(
       return badRequestResponse("Invalid action. Must be 'approve' or 'deny'.");
     }
 
-    // Find the submission
-    const submission = await prisma.formSubmission.findUnique({
-      where: {
-        applicantId_formType: {
-          applicantId,
-          formType,
-        },
-      },
-    });
-
-    if (!submission) {
-      return NextResponse.json(
-        { error: "Form submission not found" },
-        { status: 404 }
-      );
-    }
-
-    // Only allow approve/deny on PENDING_REVIEW status
-    if (submission.status !== "PENDING_REVIEW") {
-      return badRequestResponse(
-        `Cannot ${action} a step with status "${submission.status}". Step must be in "PENDING_REVIEW" status.`
-      );
-    }
-
     const applicant = await prisma.applicant.findUnique({
       where: { id: applicantId },
       select: { firstName: true, lastName: true, email: true },
@@ -153,36 +129,106 @@ export async function POST(
     const currentStep = FORM_STEPS.find((s) => s.key === formType);
     const stepTitle = currentStep?.title || formType;
 
-    if (action === "approve") {
-      // Update submission to APPROVED
-      await prisma.formSubmission.update({
-        where: { id: submission.id },
-        data: {
-          status: "APPROVED",
-          reviewedBy: user.userId,
-          reviewedAt: new Date(),
-          reviewNote: note || null,
+    const nextStep = action === "approve"
+      ? getNextStep(formType as unknown as AppFormType)
+      : null;
+
+    // Wrap read + status check + writes in a transaction to prevent
+    // concurrent requests from both passing the PENDING_REVIEW check
+    const result = await prisma.$transaction(async (tx) => {
+      // Fresh read inside the transaction — if another request already
+      // changed the status, we'll see it here and bail out
+      const submission = await tx.formSubmission.findUnique({
+        where: {
+          applicantId_formType: {
+            applicantId,
+            formType,
+          },
         },
       });
 
-      // Seed next step's timer
-      const nextStep = getNextStep(formType as unknown as AppFormType);
-      if (nextStep) {
-        await prisma.formSubmission.update({
-          where: {
-            applicantId_formType: {
-              applicantId,
-              formType: nextStep.key as FormType,
-            },
-          },
+      if (!submission) {
+        return { error: "Form submission not found", status: 404 } as const;
+      }
+
+      if (submission.status !== "PENDING_REVIEW") {
+        return {
+          error: `Cannot ${action} a step with status "${submission.status}". Step must be in "PENDING_REVIEW" status.`,
+          status: 400,
+        } as const;
+      }
+
+      if (action === "approve") {
+        await tx.formSubmission.update({
+          where: { id: submission.id },
           data: {
-            statusChangedAt: new Date(),
-            lastAlertSentAt: null,
+            status: "APPROVED",
+            reviewedBy: user.userId,
+            reviewedAt: new Date(),
+            reviewNote: note || null,
+          },
+        });
+
+        // Seed next step's timer
+        if (nextStep) {
+          await tx.formSubmission.update({
+            where: {
+              applicantId_formType: {
+                applicantId,
+                formType: nextStep.key as FormType,
+              },
+            },
+            data: {
+              statusChangedAt: new Date(),
+              lastAlertSentAt: null,
+            },
+          });
+        }
+
+        await tx.auditLog.create({
+          data: {
+            userId: user.userId,
+            action: "STEP_APPROVED",
+            targetId: applicantId,
+            metadata: { formType, stepTitle, note },
+            ipAddress: clientIp,
+          },
+        });
+      } else {
+        await tx.formSubmission.update({
+          where: { id: submission.id },
+          data: {
+            status: "DENIED",
+            reviewedBy: user.userId,
+            reviewedAt: new Date(),
+            reviewNote: note || null,
+          },
+        });
+
+        await tx.auditLog.create({
+          data: {
+            userId: user.userId,
+            action: "STEP_DENIED",
+            targetId: applicantId,
+            metadata: { formType, stepTitle, note },
+            ipAddress: clientIp,
           },
         });
       }
 
-      // Send approval email to applicant
+      return null; // success
+    });
+
+    // If the transaction returned an error, send it back
+    if (result) {
+      if (result.status === 404) {
+        return NextResponse.json({ error: result.error }, { status: 404 });
+      }
+      return badRequestResponse(result.error);
+    }
+
+    // Send emails after transaction commits (fire-and-forget)
+    if (action === "approve") {
       sendStepApprovedEmail({
         applicantName,
         applicantEmail: applicant.email,
@@ -191,30 +237,7 @@ export async function POST(
       }).catch((err) =>
         console.error("[Email] Step-approved email failed:", err)
       );
-
-      // Audit log
-      await prisma.auditLog.create({
-        data: {
-          userId: user.userId,
-          action: "STEP_APPROVED",
-          targetId: applicantId,
-          metadata: { formType, stepTitle, note },
-          ipAddress: clientIp,
-        },
-      });
     } else {
-      // Deny — update submission to DENIED
-      await prisma.formSubmission.update({
-        where: { id: submission.id },
-        data: {
-          status: "DENIED",
-          reviewedBy: user.userId,
-          reviewedAt: new Date(),
-          reviewNote: note || null,
-        },
-      });
-
-      // Send denial email to applicant
       sendStepDeniedEmail({
         applicantName,
         applicantEmail: applicant.email,
@@ -223,17 +246,6 @@ export async function POST(
       }).catch((err) =>
         console.error("[Email] Step-denied email failed:", err)
       );
-
-      // Audit log
-      await prisma.auditLog.create({
-        data: {
-          userId: user.userId,
-          action: "STEP_DENIED",
-          targetId: applicantId,
-          metadata: { formType, stepTitle, note },
-          ipAddress: clientIp,
-        },
-      });
     }
 
     return NextResponse.json({ success: true, action, formType });
