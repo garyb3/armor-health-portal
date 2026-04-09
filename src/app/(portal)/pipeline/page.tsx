@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PipelineList } from "@/components/pipeline/pipeline-list";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import type { PipelineApplicant } from "@/types";
 import { apiFetch } from "@/lib/api-client";
 import { FORM_STEPS } from "@/lib/constants";
@@ -33,6 +33,7 @@ export default function PipelinePage() {
   });
   const [addError, setAddError] = useState<string | null>(null);
   const [addSaving, setAddSaving] = useState(false);
+  const [avgOpen, setAvgOpen] = useState(false);
 
   const loadApplicants = async () => {
     try {
@@ -192,6 +193,25 @@ export default function PipelinePage() {
       )
     : applicants;
 
+  const avgDays = filtered.length > 0
+    ? Math.round(filtered.reduce((sum, a) => sum + (Date.now() - new Date(a.createdAt).getTime()), 0) / filtered.length / 86_400_000)
+    : 0;
+
+  const buckets = filtered.reduce(
+    (acc, a) => {
+      const d = Math.floor((Date.now() - new Date(a.createdAt).getTime()) / 86_400_000);
+      if (d <= 10) { acc[0].total += d; acc[0].count++; }
+      else if (d <= 20) { acc[1].total += d; acc[1].count++; }
+      else { acc[2].total += d; acc[2].count++; }
+      return acc;
+    },
+    [
+      { label: "1 - 10 days", total: 0, count: 0 },
+      { label: "11 - 20 days", total: 0, count: 0 },
+      { label: "21+ days", total: 0, count: 0 },
+    ]
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -295,6 +315,46 @@ export default function PipelinePage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+      </div>
+
+      {/* Average time dropdown */}
+      <div className="flex justify-end">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setAvgOpen((o) => !o)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-brand-800 ring-1 ring-gray-200 dark:ring-brand-700 shadow-sm hover:shadow transition-all text-sm"
+          >
+            <span className="text-gray-500 dark:text-gray-400">Avg. Time in Process</span>
+            <span className="font-semibold text-gray-900 dark:text-gray-100">{avgDays}d</span>
+            <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${avgOpen ? "rotate-180" : ""}`} />
+          </button>
+          {avgOpen && (
+            <div className="absolute right-0 top-full mt-2 w-64 rounded-lg bg-white dark:bg-brand-800 ring-1 ring-gray-200 dark:ring-brand-700 shadow-lg z-10 p-3 space-y-2">
+              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Breakdown by Duration</p>
+              {buckets.map((b, i) => {
+                const colors = [
+                  "bg-emerald-500",
+                  "bg-amber-400",
+                  "bg-rose-500",
+                ];
+                const avg = b.count > 0 ? Math.round(b.total / b.count) : 0;
+                return (
+                  <div key={b.label} className="flex items-center gap-3">
+                    <div className={`w-1 h-8 rounded-full ${colors[i]}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{b.label}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500">{b.count} candidate{b.count !== 1 ? "s" : ""}</p>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
+                      {b.count > 0 ? `${avg}d` : "—"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Applicant list */}
