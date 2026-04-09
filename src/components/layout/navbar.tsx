@@ -43,13 +43,13 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
           onClick={() => router.push("/pipeline")}
           className="flex items-center hover:opacity-80 transition-opacity"
         >
-          <div className="bg-white rounded-lg px-3 py-1.5">
+          <div className="bg-white rounded-lg px-4 py-2">
             <Image
               src="/armor-health-logo.jpg"
               alt="Armor Health"
-              width={160}
-              height={48}
-              className="h-8 w-auto object-contain"
+              width={200}
+              height={60}
+              className="h-10 w-auto object-contain"
               priority
             />
           </div>

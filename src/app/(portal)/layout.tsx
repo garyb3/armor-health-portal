@@ -35,10 +35,10 @@ export default function PortalLayout({
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar role={user?.role} />
-      <div className="flex-1 flex flex-col min-w-0">
-        <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
+    <div className="flex flex-col h-screen overflow-hidden">
+      <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar role={user?.role} />
         <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-gray-200 dark:bg-brand-900">
           {children}
         </main>
