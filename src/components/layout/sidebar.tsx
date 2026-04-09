@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { LayoutDashboard, Users, AlertTriangle, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api-client";
+import { getTimeBucket } from "@/lib/time-buckets";
 
 interface StaleCandidate {
   id: string;
@@ -46,8 +47,9 @@ export function Sidebar({ role }: SidebarProps) {
         for (const a of applicants) {
           if (a.currentStage === "COMPLETED") continue;
           const days = Math.floor((now - new Date(a.createdAt).getTime()) / 86_400_000);
-          if (days <= 10) newCount++;
-          else if (days <= 20) attentionCount++;
+          const bucket = getTimeBucket(a.createdAt);
+          if (bucket === "new") newCount++;
+          else if (bucket === "attention") attentionCount++;
           else overdueCount++;
           if (a.isStale) {
             staleCandidates.push({ id: a.id, name: `${a.firstName} ${a.lastName}`, days });
@@ -118,27 +120,45 @@ export function Sidebar({ role }: SidebarProps) {
               Time in Process
             </p>
             <div className="space-y-2">
-              <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200/60 dark:border-green-800/40">
+              <Link
+                href="/pipeline/category/new"
+                className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200/60 dark:border-green-800/40 transition-all hover:ring-2 hover:ring-green-400/50",
+                  pathname === "/pipeline/category/new" && "ring-2 ring-green-500 shadow-sm"
+                )}
+              >
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
                   <span className="text-sm font-medium text-green-800 dark:text-green-300">0 - 10 days</span>
                 </div>
                 <span className="text-lg font-bold text-green-700 dark:text-green-400">{summary.newCount}</span>
-              </div>
-              <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200/60 dark:border-yellow-800/40">
+              </Link>
+              <Link
+                href="/pipeline/category/attention"
+                className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200/60 dark:border-yellow-800/40 transition-all hover:ring-2 hover:ring-yellow-400/50",
+                  pathname === "/pipeline/category/attention" && "ring-2 ring-yellow-500 shadow-sm"
+                )}
+              >
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                   <span className="text-sm font-medium text-yellow-800 dark:text-yellow-300">11 - 20 days</span>
                 </div>
                 <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">{summary.attentionCount}</span>
-              </div>
-              <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/60 dark:border-red-800/40">
+              </Link>
+              <Link
+                href="/pipeline/category/overdue"
+                className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/60 dark:border-red-800/40 transition-all hover:ring-2 hover:ring-red-400/50",
+                  pathname === "/pipeline/category/overdue" && "ring-2 ring-red-500 shadow-sm"
+                )}
+              >
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
                   <span className="text-sm font-medium text-red-800 dark:text-red-300">21+ days</span>
                 </div>
                 <span className="text-lg font-bold text-red-700 dark:text-red-400">{summary.overdueCount}</span>
-              </div>
+              </Link>
             </div>
           </div>
 
