@@ -273,7 +273,7 @@ export default function ApplicantDetailPage() {
                   {prog?.reviewedAt && (
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {status === "APPROVED" ? "Approved" : "Denied"} on{" "}
-                      {new Date(prog.reviewedAt).toLocaleString()}
+                      {new Date(prog.reviewedAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                       {prog.reviewNote && (
                         <span className="block text-gray-400 dark:text-gray-500 mt-0.5">
                           Note: {prog.reviewNote}
@@ -289,7 +289,7 @@ export default function ApplicantDetailPage() {
                       <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         Since{" "}
-                        {new Date(prog.statusChangedAt).toLocaleString()}
+                        {new Date(prog.statusChangedAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                       </p>
                     )}
                 </div>
@@ -421,7 +421,7 @@ export default function ApplicantDetailPage() {
                   {note.authorName}
                 </span>
                 <span className="text-gray-400 dark:text-gray-500 text-xs">
-                  {new Date(note.createdAt).toLocaleString()}
+                  {new Date(note.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                 </span>
               </div>
               <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">

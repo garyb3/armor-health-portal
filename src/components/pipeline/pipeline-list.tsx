@@ -308,7 +308,7 @@ export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, on
                             {note.authorName}
                           </span>
                           <span className="text-gray-400 dark:text-gray-500 text-xs">
-                            {new Date(note.createdAt).toLocaleString()}
+                            {new Date(note.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                           </span>
                         </div>
                         <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
