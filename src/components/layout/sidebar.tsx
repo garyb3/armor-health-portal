@@ -103,7 +103,7 @@ export function Sidebar({ role }: SidebarProps) {
       </div>
 
       {summary && (
-        <div className="px-3 pt-5 pb-2 space-y-5 flex-1">
+        <div className="px-3 pt-5 pb-2 space-y-5 flex-1 overflow-y-auto">
           {/* Total candidates */}
           <div className="text-center bg-gray-50 dark:bg-brand-800 rounded-xl p-4">
             <div className="text-4xl font-extrabold text-gray-800 dark:text-gray-100 leading-none">
