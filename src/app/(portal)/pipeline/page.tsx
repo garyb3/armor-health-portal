@@ -122,7 +122,8 @@ export default function PipelinePage() {
       body: JSON.stringify({ content }),
     });
     if (!res.ok) {
-      throw new Error("Failed to add note");
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Failed to add note");
     }
     const newNote: CandidateNote = await res.json();
     setNotesMap((prev) => ({

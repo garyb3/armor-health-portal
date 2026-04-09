@@ -59,16 +59,18 @@ export async function POST(
 
     const authorName = `${user.userFirstName} ${user.userLastName}`.trim() || user.userEmail;
 
-    const [note] = await prisma.$transaction([
-      prisma.note.create({
-        data: {
-          content,
-          authorId: user.userId,
-          authorName,
-          applicantId: id,
-        },
-      }),
-      prisma.auditLog.create({
+    const note = await prisma.note.create({
+      data: {
+        content,
+        authorId: user.userId,
+        authorName,
+        applicantId: id,
+      },
+    });
+
+    // Audit log is best-effort — don't let it block note creation
+    try {
+      await prisma.auditLog.create({
         data: {
           userId: user.userId,
           action: "NOTE_ADDED",
@@ -76,8 +78,10 @@ export async function POST(
           ipAddress: getClientIp(request),
           metadata: { contentLength: content.length },
         },
-      }),
-    ]);
+      });
+    } catch (auditErr) {
+      console.error("Audit log failed for NOTE_ADDED:", auditErr);
+    }
 
     return NextResponse.json(
       {

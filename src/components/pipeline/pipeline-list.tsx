@@ -57,6 +57,7 @@ export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, on
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [newNoteText, setNewNoteText] = useState<Record<string, string>>({});
   const [addingNote, setAddingNote] = useState<string | null>(null);
+  const [noteError, setNoteError] = useState<string | null>(null);
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -275,9 +276,12 @@ export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, on
                           const text = newNoteText[applicant.id]?.trim();
                           if (!text) return;
                           setAddingNote(applicant.id);
+                          setNoteError(null);
                           try {
                             await onAddNote(applicant.id, text);
                             setNewNoteText((prev) => ({ ...prev, [applicant.id]: "" }));
+                          } catch {
+                            setNoteError("Failed to add note. Please try again.");
                           } finally {
                             setAddingNote(null);
                           }
@@ -291,6 +295,10 @@ export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, on
                         )}
                       </Button>
                     </div>
+
+                    {noteError && (
+                      <p className="text-sm text-red-500 mb-2">{noteError}</p>
+                    )}
 
                     {/* Notes list */}
                     {(notesMap[applicant.id] || []).map((note) => (
