@@ -6,7 +6,7 @@ import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import type { Role, FormStatus as AppFormStatus } from "@/types";
 
 const STAFF_ROLES: Role[] = ["HR", "ADMIN"];
-const STALE_THRESHOLD_DAYS = 15;
+const STALE_THRESHOLD_DAYS = 11;
 
 function getCurrentStage(
   submissions: { formType: string; status: string }[]
