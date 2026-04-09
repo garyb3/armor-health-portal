@@ -56,6 +56,7 @@ export const ModelName = {
   Invite: 'Invite',
   SensitiveData: 'SensitiveData',
   AuditLog: 'AuditLog',
+  Note: 'Note',
   ApiKey: 'ApiKey'
 } as const
 
@@ -155,6 +156,18 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const NoteScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  authorId: 'authorId',
+  authorName: 'authorName',
+  applicantId: 'applicantId',
+  createdAt: 'createdAt'
+} as const
+
+export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {

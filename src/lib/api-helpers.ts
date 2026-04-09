@@ -17,7 +17,9 @@ export function getUserFromRequest(request: NextRequest) {
     return null;
   }
   const userRole = request.headers.get("x-user-role") || "";
-  return { userId, userEmail, userRole };
+  const userFirstName = request.headers.get("x-user-first-name") || "";
+  const userLastName = request.headers.get("x-user-last-name") || "";
+  return { userId, userEmail, userRole, userFirstName, userLastName };
 }
 
 export function unauthorizedResponse() {

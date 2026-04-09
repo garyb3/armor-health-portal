@@ -322,6 +322,7 @@ export type ApplicantWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
   sensitiveData?: Prisma.XOR<Prisma.SensitiveDataNullableScalarRelationFilter, Prisma.SensitiveDataWhereInput> | null
+  candidateNotes?: Prisma.NoteListRelationFilter
 }
 
 export type ApplicantOrderByWithRelationInput = {
@@ -345,6 +346,7 @@ export type ApplicantOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   formSubmissions?: Prisma.FormSubmissionOrderByRelationAggregateInput
   sensitiveData?: Prisma.SensitiveDataOrderByWithRelationInput
+  candidateNotes?: Prisma.NoteOrderByRelationAggregateInput
 }
 
 export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
@@ -371,6 +373,7 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
   sensitiveData?: Prisma.XOR<Prisma.SensitiveDataNullableScalarRelationFilter, Prisma.SensitiveDataWhereInput> | null
+  candidateNotes?: Prisma.NoteListRelationFilter
 }, "id" | "email" | "verificationToken" | "resetToken">
 
 export type ApplicantOrderByWithAggregationInput = {
@@ -444,6 +447,7 @@ export type ApplicantCreateInput = {
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
   sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateInput = {
@@ -467,6 +471,7 @@ export type ApplicantUncheckedCreateInput = {
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
   sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUpdateInput = {
@@ -490,6 +495,7 @@ export type ApplicantUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
   sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateInput = {
@@ -513,6 +519,7 @@ export type ApplicantUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
   sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantCreateManyInput = {
@@ -714,6 +721,20 @@ export type ApplicantUpdateOneRequiredWithoutSensitiveDataNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicantUpdateToOneWithWhereWithoutSensitiveDataInput, Prisma.ApplicantUpdateWithoutSensitiveDataInput>, Prisma.ApplicantUncheckedUpdateWithoutSensitiveDataInput>
 }
 
+export type ApplicantCreateNestedOneWithoutCandidateNotesInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutCandidateNotesInput, Prisma.ApplicantUncheckedCreateWithoutCandidateNotesInput>
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutCandidateNotesInput
+  connect?: Prisma.ApplicantWhereUniqueInput
+}
+
+export type ApplicantUpdateOneRequiredWithoutCandidateNotesNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutCandidateNotesInput, Prisma.ApplicantUncheckedCreateWithoutCandidateNotesInput>
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutCandidateNotesInput
+  upsert?: Prisma.ApplicantUpsertWithoutCandidateNotesInput
+  connect?: Prisma.ApplicantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicantUpdateToOneWithWhereWithoutCandidateNotesInput, Prisma.ApplicantUpdateWithoutCandidateNotesInput>, Prisma.ApplicantUncheckedUpdateWithoutCandidateNotesInput>
+}
+
 export type ApplicantCreateWithoutFormSubmissionsInput = {
   id?: string
   email: string
@@ -734,6 +755,7 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
@@ -756,6 +778,7 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantCreateOrConnectWithoutFormSubmissionsInput = {
@@ -794,6 +817,7 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
@@ -816,6 +840,7 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantCreateWithoutSensitiveDataInput = {
@@ -838,6 +863,7 @@ export type ApplicantCreateWithoutSensitiveDataInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
+  candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
@@ -860,6 +886,7 @@ export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
+  candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantCreateOrConnectWithoutSensitiveDataInput = {
@@ -898,6 +925,7 @@ export type ApplicantUpdateWithoutSensitiveDataInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
@@ -920,6 +948,115 @@ export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
+}
+
+export type ApplicantCreateWithoutCandidateNotesInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
+}
+
+export type ApplicantUncheckedCreateWithoutCandidateNotesInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
+}
+
+export type ApplicantCreateOrConnectWithoutCandidateNotesInput = {
+  where: Prisma.ApplicantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutCandidateNotesInput, Prisma.ApplicantUncheckedCreateWithoutCandidateNotesInput>
+}
+
+export type ApplicantUpsertWithoutCandidateNotesInput = {
+  update: Prisma.XOR<Prisma.ApplicantUpdateWithoutCandidateNotesInput, Prisma.ApplicantUncheckedUpdateWithoutCandidateNotesInput>
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutCandidateNotesInput, Prisma.ApplicantUncheckedCreateWithoutCandidateNotesInput>
+  where?: Prisma.ApplicantWhereInput
+}
+
+export type ApplicantUpdateToOneWithWhereWithoutCandidateNotesInput = {
+  where?: Prisma.ApplicantWhereInput
+  data: Prisma.XOR<Prisma.ApplicantUpdateWithoutCandidateNotesInput, Prisma.ApplicantUncheckedUpdateWithoutCandidateNotesInput>
+}
+
+export type ApplicantUpdateWithoutCandidateNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
+}
+
+export type ApplicantUncheckedUpdateWithoutCandidateNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
 }
 
 
@@ -929,10 +1066,12 @@ export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
 
 export type ApplicantCountOutputType = {
   formSubmissions: number
+  candidateNotes: number
 }
 
 export type ApplicantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | ApplicantCountOutputTypeCountFormSubmissionsArgs
+  candidateNotes?: boolean | ApplicantCountOutputTypeCountCandidateNotesArgs
 }
 
 /**
@@ -950,6 +1089,13 @@ export type ApplicantCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
  */
 export type ApplicantCountOutputTypeCountFormSubmissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FormSubmissionWhereInput
+}
+
+/**
+ * ApplicantCountOutputType without action
+ */
+export type ApplicantCountOutputTypeCountCandidateNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NoteWhereInput
 }
 
 
@@ -974,6 +1120,7 @@ export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   updatedAt?: boolean
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
+  candidateNotes?: boolean | Prisma.Applicant$candidateNotesArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["applicant"]>
 
@@ -1044,6 +1191,7 @@ export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type ApplicantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
+  candidateNotes?: boolean | Prisma.Applicant$candidateNotesArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ApplicantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1054,6 +1202,7 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     formSubmissions: Prisma.$FormSubmissionPayload<ExtArgs>[]
     sensitiveData: Prisma.$SensitiveDataPayload<ExtArgs> | null
+    candidateNotes: Prisma.$NotePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1470,6 +1619,7 @@ export interface Prisma__ApplicantClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   formSubmissions<T extends Prisma.Applicant$formSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$formSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sensitiveData<T extends Prisma.Applicant$sensitiveDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$sensitiveDataArgs<ExtArgs>>): Prisma.Prisma__SensitiveDataClient<runtime.Types.Result.GetResult<Prisma.$SensitiveDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  candidateNotes<T extends Prisma.Applicant$candidateNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$candidateNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1943,6 +2093,30 @@ export type Applicant$sensitiveDataArgs<ExtArgs extends runtime.Types.Extensions
    */
   include?: Prisma.SensitiveDataInclude<ExtArgs> | null
   where?: Prisma.SensitiveDataWhereInput
+}
+
+/**
+ * Applicant.candidateNotes
+ */
+export type Applicant$candidateNotesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Note
+   */
+  select?: Prisma.NoteSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Note
+   */
+  omit?: Prisma.NoteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NoteInclude<ExtArgs> | null
+  where?: Prisma.NoteWhereInput
+  orderBy?: Prisma.NoteOrderByWithRelationInput | Prisma.NoteOrderByWithRelationInput[]
+  cursor?: Prisma.NoteWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NoteScalarFieldEnum | Prisma.NoteScalarFieldEnum[]
 }
 
 /**

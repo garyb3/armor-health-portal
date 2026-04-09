@@ -93,6 +93,15 @@ export interface PipelineSummary {
   staleCount?: number;
 }
 
+export interface CandidateNote {
+  id: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  applicantId: string;
+  createdAt: string;
+}
+
 export interface PipelineResponse {
   applicants: PipelineApplicant[];
   summary: PipelineSummary;

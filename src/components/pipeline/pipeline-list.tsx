@@ -8,7 +8,7 @@ import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
 import { Check, X, ChevronDown, ChevronRight, Trash2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { PipelineApplicant, FormProgress } from "@/types";
+import type { PipelineApplicant, FormProgress, CandidateNote } from "@/types";
 
 const STAGE_SHORT: Record<string, string> = Object.fromEntries(
   PIPELINE_STAGES.map((s) => [s.key, s.shortTitle])
@@ -44,22 +44,29 @@ function sortApplicants(applicants: PipelineApplicant[]): PipelineApplicant[] {
 
 interface PipelineListProps {
   applicants: PipelineApplicant[];
+  notesMap: Record<string, CandidateNote[]>;
+  onFetchNotes: (id: string) => void;
+  onAddNote: (id: string, content: string) => Promise<void>;
   onSetOfferDate?: (id: string, date: string | null) => void;
   onSetStepDates?: (applicantId: string, formType: string, dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }) => void;
   onRemoveCandidate?: (id: string) => Promise<void>;
-  onUpdateNotes?: (id: string, notes: string) => void;
 }
 
-export function PipelineList({ applicants, onSetOfferDate, onSetStepDates, onRemoveCandidate, onUpdateNotes }: PipelineListProps) {
+export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, onSetOfferDate, onSetStepDates, onRemoveCandidate }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [removingId, setRemovingId] = useState<string | null>(null);
-  const [localNotes, setLocalNotes] = useState<Record<string, string>>({});
+  const [newNoteText, setNewNoteText] = useState<Record<string, string>>({});
+  const [addingNote, setAddingNote] = useState<string | null>(null);
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        onFetchNotes(id);
+      }
       return next;
     });
 
@@ -244,28 +251,67 @@ export function PipelineList({ applicants, onSetOfferDate, onSetStepDates, onRem
 
                   {/* Notes */}
                   <div className="mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
-                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">
+                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-2 block font-medium">
                       Notes
                     </label>
-                    <textarea
-                      rows={3}
-                      placeholder="Add notes about this candidate..."
-                      value={localNotes[applicant.id] ?? applicant.notes ?? ""}
-                      onChange={(e) => {
-                        setLocalNotes((prev) => ({
-                          ...prev,
-                          [applicant.id]: e.target.value,
-                        }));
-                      }}
-                      onBlur={() => {
-                        const current = localNotes[applicant.id];
-                        if (current !== undefined && current !== (applicant.notes ?? "")) {
-                          onUpdateNotes?.(applicant.id, current);
+
+                    {/* Add note form */}
+                    <div className="flex gap-2 mb-3">
+                      <textarea
+                        rows={2}
+                        placeholder="Add a note..."
+                        value={newNoteText[applicant.id] || ""}
+                        onChange={(e) =>
+                          setNewNoteText((prev) => ({ ...prev, [applicant.id]: e.target.value }))
                         }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-full text-sm rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-3 py-2 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
-                    />
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 text-sm rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-3 py-2 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                      />
+                      <Button
+                        size="sm"
+                        disabled={!newNoteText[applicant.id]?.trim() || addingNote === applicant.id}
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const text = newNoteText[applicant.id]?.trim();
+                          if (!text) return;
+                          setAddingNote(applicant.id);
+                          try {
+                            await onAddNote(applicant.id, text);
+                            setNewNoteText((prev) => ({ ...prev, [applicant.id]: "" }));
+                          } finally {
+                            setAddingNote(null);
+                          }
+                        }}
+                        className="self-end"
+                      >
+                        {addingNote === applicant.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Add"
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Notes list */}
+                    {(notesMap[applicant.id] || []).map((note) => (
+                      <div key={note.id} className="mb-2 p-2 rounded-lg bg-gray-50 dark:bg-brand-900/50 text-sm">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
+                            {note.authorName}
+                          </span>
+                          <span className="text-gray-400 dark:text-gray-500 text-xs">
+                            {new Date(note.createdAt).toLocaleString()}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                          {note.content}
+                        </p>
+                      </div>
+                    ))}
+
+                    {notesMap[applicant.id] && notesMap[applicant.id].length === 0 && (
+                      <p className="text-xs text-gray-400 dark:text-gray-500 italic">No notes yet.</p>
+                    )}
                   </div>
 
                   {/* Remove Candidate */}

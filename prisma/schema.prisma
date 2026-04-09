@@ -50,6 +50,7 @@ model Applicant {
   updatedAt       DateTime         @updatedAt
   formSubmissions FormSubmission[]
   sensitiveData   SensitiveData?
+  candidateNotes  Note[]
 
   @@index([denied])
   @@index([role])
@@ -130,6 +131,21 @@ model AuditLog {
   @@index([action])
   @@index([userId, action, createdAt])
   @@map("audit_logs")
+}
+
+model Note {
+  id          String   @id @default(cuid())
+  content     String
+  authorId    String
+  authorName  String
+  applicantId String
+  createdAt   DateTime @default(now())
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+
+  @@index([applicantId, createdAt])
+  @@index([authorId])
+  @@map("notes")
 }
 
 model ApiKey {

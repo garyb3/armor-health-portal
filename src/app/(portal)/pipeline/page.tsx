@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { PipelineList } from "@/components/pipeline/pipeline-list";
 import { Loader2, Plus, ChevronDown, ChevronRight } from "lucide-react";
-import type { PipelineApplicant } from "@/types";
+import type { PipelineApplicant, CandidateNote } from "@/types";
 import { apiFetch } from "@/lib/api-client";
 import { FORM_STEPS } from "@/lib/constants";
 
@@ -34,6 +34,7 @@ export default function PipelinePage() {
   const [addError, setAddError] = useState<string | null>(null);
   const [addSaving, setAddSaving] = useState(false);
   const [avgOpen, setAvgOpen] = useState(false);
+  const [notesMap, setNotesMap] = useState<Record<string, CandidateNote[]>>({});
 
   const loadApplicants = async () => {
     try {
@@ -102,21 +103,32 @@ export default function PipelinePage() {
     }
   };
 
-  const handleUpdateNotes = async (applicantId: string, notes: string) => {
+  const handleFetchNotes = async (applicantId: string) => {
     try {
-      const res = await apiFetch(`/api/pipeline/${applicantId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ notes }),
-      });
+      const res = await apiFetch(`/api/pipeline/${applicantId}/notes`);
       if (res.ok) {
-        setApplicants((prev) =>
-          prev.map((a) => (a.id === applicantId ? { ...a, notes } : a))
-        );
+        const notes: CandidateNote[] = await res.json();
+        setNotesMap((prev) => ({ ...prev, [applicantId]: notes }));
       }
     } catch (err) {
-      console.error("Failed to update notes:", err);
+      console.error("Failed to fetch notes:", err);
     }
+  };
+
+  const handleAddNote = async (applicantId: string, content: string) => {
+    const res = await apiFetch(`/api/pipeline/${applicantId}/notes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+      throw new Error("Failed to add note");
+    }
+    const newNote: CandidateNote = await res.json();
+    setNotesMap((prev) => ({
+      ...prev,
+      [applicantId]: [newNote, ...(prev[applicantId] || [])],
+    }));
   };
 
   const handleRemoveCandidate = async (applicantId: string) => {
@@ -358,7 +370,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} onUpdateNotes={handleUpdateNotes} />
+      <PipelineList applicants={filtered} notesMap={notesMap} onFetchNotes={handleFetchNotes} onAddNote={handleAddNote} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} />
     </div>
   );
 }

@@ -43,6 +43,11 @@ export type SensitiveData = Prisma.SensitiveDataModel
  */
 export type AuditLog = Prisma.AuditLogModel
 /**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel
+/**
  * Model ApiKey
  * 
  */

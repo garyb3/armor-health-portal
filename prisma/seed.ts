@@ -448,12 +448,12 @@ async function main() {
         password: personalPassword,
         firstName: "Nick",
         lastName: "Campo",
-        role: "APPLICANT",
+        role: "HR",
         approved: true,
         emailVerified: true,
       },
     });
-    console.log("Created personal test account: ncampo305@gmail.com [APPLICANT]");
+    console.log("Created personal test account: ncampo305@gmail.com [HR]");
   } else {
     console.log("Skipping ncampo305@gmail.com (already exists)");
   }

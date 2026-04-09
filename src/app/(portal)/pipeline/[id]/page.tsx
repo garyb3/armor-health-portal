@@ -23,7 +23,7 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
-import type { FormProgress } from "@/types";
+import type { FormProgress, CandidateNote } from "@/types";
 import { apiFetch } from "@/lib/api-client";
 
 interface ApplicantDetail {
@@ -57,6 +57,9 @@ export default function ApplicantDetailPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [denyNote, setDenyNote] = useState<string>("");
   const [denyingStep, setDenyingStep] = useState<string | null>(null);
+  const [notes, setNotes] = useState<CandidateNote[]>([]);
+  const [newNote, setNewNote] = useState("");
+  const [addingNote, setAddingNote] = useState(false);
 
   const loadApplicant = async () => {
     try {
@@ -68,8 +71,39 @@ export default function ApplicantDetailPage() {
     }
   };
 
+  const loadNotes = async () => {
+    try {
+      const res = await apiFetch(`/api/pipeline/${id}/notes`);
+      if (res.ok) setNotes(await res.json());
+    } catch (err) {
+      console.error("Failed to load notes:", err);
+    }
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+    setAddingNote(true);
+    try {
+      const res = await apiFetch(`/api/pipeline/${id}/notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newNote.trim() }),
+      });
+      if (res.ok) {
+        const created: CandidateNote = await res.json();
+        setNotes((prev) => [created, ...prev]);
+        setNewNote("");
+      }
+    } catch (err) {
+      console.error("Failed to add note:", err);
+    } finally {
+      setAddingNote(false);
+    }
+  };
+
   useEffect(() => {
     loadApplicant().finally(() => setLoading(false));
+    loadNotes();
   }, [id]);
 
   const handleStepAction = async (
@@ -347,6 +381,58 @@ export default function ApplicantDetailPage() {
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+
+      {/* Notes */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Notes</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Add note form */}
+          <div className="flex gap-2">
+            <textarea
+              rows={2}
+              placeholder="Add a note..."
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              className="flex-1 text-sm rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-3 py-2 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+            />
+            <Button
+              size="sm"
+              disabled={!newNote.trim() || addingNote}
+              onClick={handleAddNote}
+              className="self-end"
+            >
+              {addingNote ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                "Add"
+              )}
+            </Button>
+          </div>
+
+          {/* Notes list */}
+          {notes.map((note) => (
+            <div key={note.id} className="p-3 rounded-lg bg-gray-50 dark:bg-brand-900/50 text-sm">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
+                  {note.authorName}
+                </span>
+                <span className="text-gray-400 dark:text-gray-500 text-xs">
+                  {new Date(note.createdAt).toLocaleString()}
+                </span>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                {note.content}
+              </p>
+            </div>
+          ))}
+
+          {notes.length === 0 && (
+            <p className="text-sm text-gray-400 dark:text-gray-500 italic">No notes yet.</p>
+          )}
         </CardContent>
       </Card>
     </div>
