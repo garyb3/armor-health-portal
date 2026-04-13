@@ -21,24 +21,29 @@ export async function POST(
 
   // Use transaction to prevent data loss if server crashes mid-operation
   const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
-  await prisma.$transaction(async (tx) => {
-    await tx.formSubmission.deleteMany({
-      where: { applicantId: id },
-    });
-    for (const formType of formTypes) {
-      await tx.formSubmission.create({
-        data: { applicantId: id, formType, status: "NOT_STARTED" },
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.formSubmission.deleteMany({
+        where: { applicantId: id },
       });
-    }
-    await tx.auditLog.create({
-      data: {
-        userId: user.userId,
-        action: "ADMIN_RESET_PIPELINE",
-        targetId: id,
-        ipAddress: getClientIp(request),
-      },
+      for (const formType of formTypes) {
+        await tx.formSubmission.create({
+          data: { applicantId: id, formType, status: "NOT_STARTED" },
+        });
+      }
+      await tx.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "ADMIN_RESET_PIPELINE",
+          targetId: id,
+          ipAddress: getClientIp(request),
+        },
+      });
     });
-  });
+  } catch (error) {
+    console.error("Pipeline reset failed for applicant:", id, error);
+    return NextResponse.json({ error: "Pipeline reset failed" }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }

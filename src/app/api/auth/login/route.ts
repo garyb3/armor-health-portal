@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = parsed.data;
 
-    const applicant = await prisma.applicant.findUnique({
-      where: { email },
+    const applicant = await prisma.applicant.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
     });
 
     // Always run bcrypt to prevent timing-based email enumeration
