@@ -134,9 +134,9 @@ export async function GET(request: NextRequest) {
       isApprovedOrCompleted(s.status as AppFormStatus)
     ).length;
 
-    // Stale detection: 15+ total days in process
+    // Stale detection: 11+ total days in process
     const totalDaysInProcess = Math.floor((Date.now() - a.createdAt.getTime()) / 86_400_000);
-    const isStale = currentStage !== "COMPLETED" && totalDaysInProcess >= STALE_THRESHOLD_DAYS;
+    const isStale = totalDaysInProcess >= STALE_THRESHOLD_DAYS;
 
     return {
       id: a.id,
