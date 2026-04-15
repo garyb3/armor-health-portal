@@ -130,8 +130,8 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const completedCount = a.formSubmissions.filter((s) =>
-      isApprovedOrCompleted(s.status as AppFormStatus)
+    const completedCount = a.formSubmissions.filter(
+      (s) => s.stepStartedAt && s.stepCompletedAt
     ).length;
 
     // Stale detection: 11+ total days in process

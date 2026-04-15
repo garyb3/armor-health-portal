@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
-import { getCurrentStep, countApproved } from "@/lib/pipeline-helpers";
+import { getCurrentStep } from "@/lib/pipeline-helpers";
 import type { FormType, FormStatus as AppFormStatus } from "@/types";
 
 const STAFF_ROLES: string[] = ["HR", "ADMIN"];
@@ -52,7 +52,9 @@ export async function GET(
     status: s.status as AppFormStatus,
   }));
   const currentStage = getCurrentStep(submissions);
-  const completedCount = countApproved(submissions);
+  const completedCount = applicant.formSubmissions.filter(
+    (s) => s.stepStartedAt && s.stepCompletedAt
+  ).length;
 
   return NextResponse.json({
     id: applicant.id,

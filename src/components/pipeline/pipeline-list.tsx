@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
-import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
 import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2, AlertTriangle } from "lucide-react";
@@ -15,16 +14,11 @@ const STAGE_SHORT: Record<string, string> = Object.fromEntries(
 );
 
 function sortedStages(progress: FormProgress[]) {
-  const steps = FORM_STEPS.map((step) => {
+  return FORM_STEPS.map((step) => {
     const p = progress.find((pr) => pr.formType === step.key);
-    const done = p ? isApprovedOrCompleted(p.status) : false;
+    const done = !!(p?.stepStartedAt && p?.stepCompletedAt);
     return { ...step, progress: p, done };
   });
-  // Incomplete first, then completed — within each group keep natural order
-  return [
-    ...steps.filter((s) => !s.done),
-    ...steps.filter((s) => s.done),
-  ];
 }
 
 function getCompletionDate(applicant: PipelineApplicant): string | null {
@@ -124,7 +118,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                   {applicant.firstName} {applicant.lastName}
                 </span>
                 <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
-                  ({applicant.completedCount}/{applicant.totalCount})
+                  ({applicant.progress.filter((p) => p.stepStartedAt && p.stepCompletedAt).length}/{applicant.totalCount})
                 </span>
                 <span className="ml-2 text-sm font-bold text-gray-700 dark:text-gray-300">
                   • {formatElapsed(applicant.createdAt)} in process
