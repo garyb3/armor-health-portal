@@ -68,6 +68,7 @@ export default function ApplicantDetailPage() {
     lastName: "",
     email: "",
     phone: "",
+    offerAcceptedAt: "",
   });
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
@@ -80,6 +81,9 @@ export default function ApplicantDetailPage() {
       lastName: applicant.lastName,
       email: applicant.email,
       phone: applicant.phone ?? "",
+      offerAcceptedAt: applicant.offerAcceptedAt
+        ? applicant.offerAcceptedAt.slice(0, 10)
+        : "",
     });
     setEditError(null);
     setEditEmailError(null);
@@ -111,7 +115,13 @@ export default function ApplicantDetailPage() {
       const res = await apiFetch(`/api/pipeline/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, phone }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phone,
+          offerAcceptedAt: editForm.offerAcceptedAt || null,
+        }),
       });
       if (res.status === 409) {
         setEditEmailError("Email already in use");
@@ -358,6 +368,21 @@ export default function ApplicantDetailPage() {
                       }
                     />
                   </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-900 dark:text-gray-50 mb-1">
+                      Offer accepted
+                    </label>
+                    <Input
+                      type="date"
+                      value={editForm.offerAcceptedAt}
+                      onChange={(e) =>
+                        setEditForm((f) => ({
+                          ...f,
+                          offerAcceptedAt: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
                   {editError && (
                     <p className="text-xs text-red-600 dark:text-red-400">
                       {editError}
@@ -412,16 +437,11 @@ export default function ApplicantDetailPage() {
               <div className="mt-3 space-y-1">
                 <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
                   <Calendar className="h-4 w-4 text-gray-900 dark:text-gray-50" />
-                  Registered{" "}
-                  {new Date(applicant.createdAt).toLocaleDateString()}
+                  Offer accepted{" "}
+                  {applicant.offerAcceptedAt
+                    ? new Date(applicant.offerAcceptedAt).toLocaleDateString()
+                    : "—"}
                 </div>
-                {applicant.offerAcceptedAt && (
-                  <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
-                    <Calendar className="h-4 w-4 text-gray-900 dark:text-gray-50" />
-                    Offer accepted{" "}
-                    {new Date(applicant.offerAcceptedAt).toLocaleDateString()}
-                  </div>
-                )}
               </div>
             </div>
 
