@@ -47,9 +47,18 @@ export async function GET(
     return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
   }
 
-  const submissions = applicant.formSubmissions.map((s) => ({
+  const REVIEW_STATUSES = new Set(["PENDING_REVIEW", "APPROVED", "COMPLETED", "DENIED"]);
+  const effectiveSubmissions = applicant.formSubmissions.map((s) => ({
+    ...s,
+    effectiveStatus:
+      !REVIEW_STATUSES.has(s.status) && s.stepStartedAt && s.stepCompletedAt
+        ? "COMPLETED"
+        : s.status,
+  }));
+
+  const submissions = effectiveSubmissions.map((s) => ({
     formType: s.formType as FormType,
-    status: s.status as AppFormStatus,
+    status: s.effectiveStatus as AppFormStatus,
   }));
   const currentStage = getCurrentStep(submissions);
   const completedCount = applicant.formSubmissions.filter(
@@ -69,9 +78,9 @@ export async function GET(
     currentStage,
     completedCount,
     totalCount: FORM_STEPS.length,
-    progress: applicant.formSubmissions.map((s) => ({
+    progress: effectiveSubmissions.map((s) => ({
       formType: s.formType,
-      status: s.status,
+      status: s.effectiveStatus,
       formData: s.formData ? stripSsnFields(s.formData as Record<string, unknown>) : null,
       updatedAt: s.updatedAt.toISOString(),
       statusChangedAt: s.statusChangedAt.toISOString(),

@@ -367,7 +367,7 @@ export default function ApplicantDetailPage() {
                   {(status === "APPROVED" || status === "COMPLETED") && (
                     <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
                       <CheckCircle2 className="h-4 w-4" />
-                      Approved
+                      Completed
                     </span>
                   )}
 
