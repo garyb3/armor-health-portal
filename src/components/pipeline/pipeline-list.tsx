@@ -6,7 +6,7 @@ import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
-import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2 } from "lucide-react";
+import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { PipelineApplicant, FormProgress, CandidateNote } from "@/types";
 
@@ -65,6 +65,8 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
   const [editNoteText, setEditNoteText] = useState("");
   const [savingNote, setSavingNote] = useState<string | null>(null);
   const [deletingNote, setDeletingNote] = useState<string | null>(null);
+  const [confirmingDeleteNoteId, setConfirmingDeleteNoteId] = useState<string | null>(null);
+  const [confirmingEditNoteId, setConfirmingEditNoteId] = useState<string | null>(null);
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -309,7 +311,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
 
                     {/* Notes list */}
                     {(notesMap[applicant.id] || []).map((note) => (
-                      <div key={note.id} className="mb-2 p-2 rounded-lg bg-gray-50 dark:bg-brand-900/50 text-sm">
+                      <div key={note.id} className="relative mb-2 p-2 rounded-lg bg-gray-50 dark:bg-brand-900/50 text-sm">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
                             {note.authorName}
@@ -336,18 +338,10 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                               </button>
                               <button
                                 disabled={deletingNote === note.id}
-                                onClick={async (e) => {
+                                onClick={(e) => {
                                   e.stopPropagation();
-                                  if (!window.confirm("Delete this note?")) return;
-                                  setDeletingNote(note.id);
+                                  setConfirmingDeleteNoteId(note.id);
                                   setNoteError(null);
-                                  try {
-                                    await onDeleteNote(applicant.id, note.id);
-                                  } catch {
-                                    setNoteError("Failed to delete note.");
-                                  } finally {
-                                    setDeletingNote(null);
-                                  }
                                 }}
                                 className="text-gray-400 hover:text-red-500 dark:hover:text-red-400"
                                 title="Delete note"
@@ -373,29 +367,20 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                               <Button
                                 size="sm"
                                 disabled={!editNoteText.trim() || savingNote === note.id}
-                                onClick={async () => {
-                                  setSavingNote(note.id);
+                                onClick={() => {
                                   setNoteError(null);
-                                  try {
-                                    await onEditNote(applicant.id, note.id, editNoteText.trim());
-                                    setEditingNoteId(null);
-                                  } catch {
-                                    setNoteError("Failed to save note.");
-                                  } finally {
-                                    setSavingNote(null);
-                                  }
+                                  setConfirmingEditNoteId(note.id);
                                 }}
                               >
-                                {savingNote === note.id ? (
-                                  <Loader2 className="h-3 w-3 animate-spin" />
-                                ) : (
-                                  "Save"
-                                )}
+                                Save
                               </Button>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => setEditingNoteId(null)}
+                                onClick={() => {
+                                  setEditingNoteId(null);
+                                  setConfirmingEditNoteId(null);
+                                }}
                               >
                                 Cancel
                               </Button>
@@ -405,6 +390,93 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
                             {note.content}
                           </p>
+                        )}
+
+                        {confirmingEditNoteId === note.id && (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute left-2 right-2 bottom-2 flex items-center justify-between gap-2 rounded-md bg-white/95 dark:bg-brand-900/95 border border-red-300 dark:border-red-800 px-2 py-1 shadow-sm z-10"
+                          >
+                            <span className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-200">
+                              <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                              Save this change?
+                            </span>
+                            <div className="flex gap-1">
+                              <button
+                                disabled={savingNote === note.id}
+                                onClick={() => setConfirmingEditNoteId(null)}
+                                className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-brand-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                disabled={savingNote === note.id}
+                                onClick={async () => {
+                                  setSavingNote(note.id);
+                                  setNoteError(null);
+                                  try {
+                                    await onEditNote(applicant.id, note.id, editNoteText.trim());
+                                    setEditingNoteId(null);
+                                    setConfirmingEditNoteId(null);
+                                  } catch {
+                                    setNoteError("Failed to save note.");
+                                  } finally {
+                                    setSavingNote(null);
+                                  }
+                                }}
+                                className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                              >
+                                {savingNote === note.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  "Confirm"
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {confirmingDeleteNoteId === note.id && (
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="absolute inset-0 flex items-center justify-between gap-2 rounded-lg bg-white/95 dark:bg-brand-900/95 border border-red-300 dark:border-red-800 px-2 py-1 shadow-sm z-10"
+                          >
+                            <span className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-200">
+                              <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                              Delete this note?
+                            </span>
+                            <div className="flex gap-1">
+                              <button
+                                disabled={deletingNote === note.id}
+                                onClick={() => setConfirmingDeleteNoteId(null)}
+                                className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-brand-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                disabled={deletingNote === note.id}
+                                onClick={async () => {
+                                  setDeletingNote(note.id);
+                                  setNoteError(null);
+                                  try {
+                                    await onDeleteNote(applicant.id, note.id);
+                                    setConfirmingDeleteNoteId(null);
+                                  } catch {
+                                    setNoteError("Failed to delete note.");
+                                  } finally {
+                                    setDeletingNote(null);
+                                  }
+                                }}
+                                className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                              >
+                                {deletingNote === note.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  "Delete"
+                                )}
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
                     ))}

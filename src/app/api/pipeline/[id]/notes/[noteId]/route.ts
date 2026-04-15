@@ -32,7 +32,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
     const updated = await prisma.note.update({
       where: { id: noteId },
-      data: { content },
+      data: { content, updatedAt: new Date() },
     });
 
     try {

@@ -66,6 +66,7 @@ export async function POST(
         authorId: user.userId,
         authorName,
         applicantId: id,
+        updatedAt: new Date(),
       },
     });
 
@@ -97,8 +98,7 @@ export async function POST(
       { status: 201 }
     );
   } catch (error) {
-    console.error("Failed to create note:", error instanceof Error ? error.message : error);
-    console.error("Full error:", JSON.stringify(error, Object.getOwnPropertyNames(error as object)));
-    return NextResponse.json({ error: "Failed to create note", detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    console.error("Failed to create note:", error);
+    return NextResponse.json({ error: "Failed to create note" }, { status: 500 });
   }
 }

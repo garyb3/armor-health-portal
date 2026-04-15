@@ -32,9 +32,14 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = parsed.data;
 
-    const applicant = await prisma.applicant.findFirst({
-      where: { email: { equals: email, mode: "insensitive" } },
-    });
+    // SQLite-safe case-insensitive email lookup.
+    // Prisma's `mode: "insensitive"` is Postgres/Mongo only — not valid on SQLite.
+    const rows = await prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM applicants WHERE LOWER(email) = LOWER(${email}) LIMIT 1
+    `;
+    const applicant = rows[0]
+      ? await prisma.applicant.findUnique({ where: { id: rows[0].id } })
+      : null;
 
     // Always run bcrypt to prevent timing-based email enumeration
     const isValid = await verifyPassword(password, applicant?.password ?? DUMMY_HASH);
