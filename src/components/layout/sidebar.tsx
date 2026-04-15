@@ -80,7 +80,7 @@ export function Sidebar({ role }: SidebarProps) {
             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
             pathname === "/pipeline"
               ? "bg-brand-900 text-white shadow-sm"
-              : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-brand-800"
+              : "text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
           )}
         >
           <LayoutDashboard className="h-4.5 w-4.5" />
@@ -93,7 +93,7 @@ export function Sidebar({ role }: SidebarProps) {
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 mt-0.5",
               pathname === "/admin"
                 ? "bg-brand-900 text-white shadow-sm"
-                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-brand-800"
+                : "text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
             )}
           >
             <Users className="h-4.5 w-4.5" />
@@ -109,14 +109,14 @@ export function Sidebar({ role }: SidebarProps) {
             <div className="text-4xl font-extrabold text-gray-800 dark:text-gray-100 leading-none">
               {summary.total}
             </div>
-            <div className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+            <div className="text-sm font-medium text-gray-900 dark:text-gray-50 mt-1">
               Total Candidates
             </div>
           </div>
 
           {/* Time in process */}
           <div>
-            <p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3 px-1">
+            <p className="text-[11px] font-semibold text-gray-900 dark:text-gray-50 uppercase tracking-wider mb-3 px-1">
               Time in Process
             </p>
             <div className="space-y-2">

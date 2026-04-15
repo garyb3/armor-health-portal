@@ -30,7 +30,7 @@ const STAGE_COLORS: Record<string, { border: string; iconBg: string; iconText: s
   COMPLETED:            { border: "border-t-emerald-400", iconBg: "bg-emerald-50 dark:bg-emerald-950", iconText: "text-emerald-500 dark:text-emerald-400" },
 };
 
-const DEFAULT_COLORS = { border: "border-t-gray-400", iconBg: "bg-gray-100 dark:bg-brand-700", iconText: "text-gray-500" };
+const DEFAULT_COLORS = { border: "border-t-gray-400", iconBg: "bg-gray-100 dark:bg-brand-700", iconText: "text-gray-900" };
 
 interface PipelineColumnProps {
   title: string;
@@ -77,7 +77,7 @@ export function PipelineColumn({
             Bottleneck
           </span>
         )}
-        <span className="ml-auto text-xs font-medium text-gray-400 bg-white dark:bg-brand-700 rounded-full px-2 py-0.5 ring-1 ring-gray-200/60 dark:ring-brand-600/60 tabular-nums shrink-0">
+        <span className="ml-auto text-xs font-medium text-gray-900 bg-white dark:bg-brand-700 rounded-full px-2 py-0.5 ring-1 ring-gray-200/60 dark:ring-brand-600/60 tabular-nums shrink-0">
           {filtered.length}
         </span>
       </div>
@@ -90,10 +90,10 @@ export function PipelineColumn({
             ? "bg-red-50/60 dark:bg-red-950/40"
             : "bg-white/60 dark:bg-brand-700/40"
         )}>
-          <Timer className={cn("h-3.5 w-3.5 shrink-0", isBottleneck ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
+          <Timer className={cn("h-3.5 w-3.5 shrink-0", isBottleneck ? "text-red-400" : "text-gray-900 dark:text-gray-50")} />
           <span className={cn(
             "text-xs font-semibold tabular-nums",
-            isBottleneck ? "text-red-600 dark:text-red-400" : "text-gray-600 dark:text-gray-300"
+            isBottleneck ? "text-red-600 dark:text-red-400" : "text-gray-900 dark:text-gray-50"
           )}>
             Avg. {formatDurationMs(avgTimeMs)}
           </span>
@@ -112,7 +112,7 @@ export function PipelineColumn({
                 <Icon className="h-4 w-4 text-gray-300 dark:text-gray-600" />
               </div>
             )}
-            <p className="text-xs text-gray-500">No applicants</p>
+            <p className="text-xs text-gray-900">No applicants</p>
           </div>
         ) : (
           filtered.map((applicant) => (

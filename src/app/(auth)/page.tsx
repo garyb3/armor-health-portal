@@ -46,7 +46,7 @@ export default function LoginPage() {
           />
         </div>
         <p className="text-lg font-semibold text-gray-900">Welcome back</p>
-        <CardDescription className="text-gray-500">
+        <CardDescription className="text-gray-900">
           Sign in to the staff portal
         </CardDescription>
       </CardHeader>

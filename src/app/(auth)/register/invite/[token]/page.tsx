@@ -73,7 +73,7 @@ export default function InviteRegisterPage() {
     return (
       <Card className="w-full max-w-md shadow-xl shadow-gray-200/50 border-gray-200/60">
         <CardContent className="flex items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
         </CardContent>
       </Card>
     );
@@ -94,7 +94,7 @@ export default function InviteRegisterPage() {
             />
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">Invalid Invite</CardTitle>
-          <CardDescription className="text-gray-500">
+          <CardDescription className="text-gray-900">
             This invite link is invalid, expired, or has already been used.
           </CardDescription>
         </CardHeader>
@@ -123,7 +123,7 @@ export default function InviteRegisterPage() {
           />
         </div>
         <CardTitle className="text-2xl font-bold text-gray-900">Staff Registration</CardTitle>
-        <CardDescription className="text-gray-500">
+        <CardDescription className="text-gray-900">
           You&apos;ve been invited to join as{" "}
           <span className="font-semibold text-gray-700">
             {ROLE_LABELS[inviteData.role] || inviteData.role}
@@ -174,13 +174,13 @@ export default function InviteRegisterPage() {
               type="email"
               value={inviteData.email}
               readOnly
-              className="mt-1 bg-gray-50 text-gray-500 cursor-not-allowed"
+              className="mt-1 bg-gray-50 text-gray-900 cursor-not-allowed"
             />
             <input type="hidden" {...register("email")} />
           </div>
           <div>
             <Label>Role</Label>
-            <div className="mt-1 flex h-10 w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500">
+            <div className="mt-1 flex h-10 w-full items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900">
               {ROLE_LABELS[inviteData.role] || inviteData.role}
             </div>
             <input type="hidden" {...register("role")} />
@@ -233,7 +233,7 @@ export default function InviteRegisterPage() {
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Create Account
           </Button>
-          <p className="text-sm text-gray-500 text-center">
+          <p className="text-sm text-gray-900 text-center">
             Already have an account?{" "}
             <Link href="/" className="text-accent-500 hover:underline font-medium">
               Sign in

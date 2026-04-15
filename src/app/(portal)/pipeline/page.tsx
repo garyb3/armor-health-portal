@@ -271,7 +271,7 @@ export default function PipelinePage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             Applicant Pipeline
           </h1>
-          <p className="text-black dark:text-gray-300 mt-1 text-sm">
+          <p className="text-black dark:text-gray-50 mt-1 text-sm">
             Track where applicants are in the pipeline process.
           </p>
         </div>
@@ -376,13 +376,13 @@ export default function PipelinePage() {
             onClick={() => setAvgOpen((o) => !o)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-brand-800 ring-1 ring-gray-200 dark:ring-brand-700 shadow-sm hover:shadow transition-all text-sm"
           >
-            <span className="text-gray-500 dark:text-gray-400">Avg. Time in Process</span>
+            <span className="text-gray-900 dark:text-gray-50">Avg. Time in Process</span>
             <span className="font-semibold text-gray-900 dark:text-gray-100">{avgDays}d</span>
-            <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${avgOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-4 w-4 text-gray-900 transition-transform ${avgOpen ? "rotate-180" : ""}`} />
           </button>
           {avgOpen && (
             <div className="absolute right-0 top-full mt-2 w-64 rounded-lg bg-white dark:bg-brand-800 ring-1 ring-gray-200 dark:ring-brand-700 shadow-lg z-10 p-3 space-y-2">
-              <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Breakdown by Duration</p>
+              <p className="text-xs font-medium text-gray-900 dark:text-gray-50 uppercase tracking-wider mb-2">Breakdown by Duration</p>
               {buckets.map((b, i) => {
                 const colors = [
                   "bg-emerald-500",
@@ -395,7 +395,7 @@ export default function PipelinePage() {
                     <div className={`w-1 h-8 rounded-full ${colors[i]}`} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{b.label}</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">{b.count} candidate{b.count !== 1 ? "s" : ""}</p>
+                      <p className="text-xs text-gray-900 dark:text-gray-50">{b.count} candidate{b.count !== 1 ? "s" : ""}</p>
                     </div>
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 tabular-nums">
                       {b.count > 0 ? `${avg}d` : "—"}

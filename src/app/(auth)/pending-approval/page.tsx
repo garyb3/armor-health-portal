@@ -46,7 +46,7 @@ export default function PendingApprovalPage() {
           <h1 className="text-xl font-bold text-gray-900 tracking-tight">
             Account Pending Approval
           </h1>
-          <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+          <p className="text-sm text-gray-900 mt-3 leading-relaxed">
             Your account has been created but requires administrator approval
             before you can access the portal. Please check back later or contact
             your administrator.

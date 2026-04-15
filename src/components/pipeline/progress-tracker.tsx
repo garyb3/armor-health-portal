@@ -42,7 +42,7 @@ export function ProgressTracker({
       {/* Header */}
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium text-gray-700 dark:text-gray-200">Overall Progress</span>
-        <span className="text-gray-400 dark:text-gray-500 tabular-nums">
+        <span className="text-gray-900 dark:text-gray-50 tabular-nums">
           {completedCount} of {totalCount} steps completed
         </span>
       </div>
@@ -112,7 +112,7 @@ export function ProgressTracker({
                     ? "text-red-600"
                     : status === "IN_PROGRESS" || status === "PENDING_REVIEW"
                     ? "text-amber-600"
-                    : "text-gray-400 dark:text-gray-500"
+                    : "text-gray-900 dark:text-gray-50"
                 }`}
               >
                 {step.title}

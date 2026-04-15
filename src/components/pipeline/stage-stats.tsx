@@ -42,9 +42,9 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
               : "border-gray-200/60 dark:border-brand-700/60 bg-gray-50 dark:bg-brand-800 cursor-default"
           )}
         >
-          <UserX className={cn("h-4 w-4 shrink-0", hasStale ? "text-red-400" : "text-gray-400 dark:text-gray-500")} />
+          <UserX className={cn("h-4 w-4 shrink-0", hasStale ? "text-red-400" : "text-gray-900 dark:text-gray-50")} />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 truncate">
+            <p className="text-[11px] text-gray-900 dark:text-gray-50 truncate">
               Stale (15d+)
             </p>
             <p className={cn(
@@ -81,13 +81,13 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-red-700 dark:group-hover:text-red-400">
                       {a.firstName} {a.lastName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{a.email}</p>
+                    <p className="text-xs text-gray-900 dark:text-gray-50 truncate">{a.email}</p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-xs font-medium text-red-600 dark:text-red-400">
                       {formatElapsed(since)} in stage
                     </p>
-                    <p className="text-[11px] text-gray-400 dark:text-gray-500">
+                    <p className="text-[11px] text-gray-900 dark:text-gray-50">
                       {STAGE_LABEL[a.currentStage] || a.currentStage}
                     </p>
                   </div>

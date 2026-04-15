@@ -66,7 +66,7 @@ function VerifyEmailContent() {
               <h1 className="text-xl font-bold text-gray-900 tracking-tight">
                 Verification Failed
               </h1>
-              <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+              <p className="text-sm text-gray-900 mt-3 leading-relaxed">
                 {error === "invalid-token"
                   ? "This verification link is invalid or has already been used."
                   : error === "missing-token"
@@ -84,7 +84,7 @@ function VerifyEmailContent() {
               <h1 className="text-xl font-bold text-gray-900 tracking-tight">
                 Check Your Email
               </h1>
-              <p className="text-sm text-gray-500 mt-3 leading-relaxed">
+              <p className="text-sm text-gray-900 mt-3 leading-relaxed">
                 We&apos;ve sent a verification link to your email address.
                 Please click the link to verify your account.
               </p>
@@ -115,7 +115,7 @@ function VerifyEmailContent() {
           )}
           <Button
             variant="ghost"
-            className="w-full text-gray-500"
+            className="w-full text-gray-900"
             onClick={async () => {
               await apiFetch("/api/auth/logout", { method: "POST" });
               window.location.href = "/";

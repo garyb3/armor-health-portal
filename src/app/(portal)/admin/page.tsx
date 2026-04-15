@@ -118,7 +118,7 @@ export default function AdminPage() {
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
           User Management
         </h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-gray-900 mt-1">
           Manage user accounts and approval requests
         </p>
       </div>
@@ -144,13 +144,13 @@ export default function AdminPage() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
         </div>
       ) : users.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">
+            <Users className="h-12 w-12 text-gray-900 mx-auto mb-3" />
+            <p className="text-gray-900 text-sm">
               {filter === "pending"
                 ? "No pending approval requests"
                 : "No user accounts found"}
@@ -185,8 +185,8 @@ export default function AdminPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 truncate">{u.email}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-sm text-gray-900 truncate">{u.email}</p>
+                  <p className="text-xs text-gray-900 mt-0.5">
                     Registered {new Date(u.createdAt).toLocaleDateString()}
                   </p>
                 </div>

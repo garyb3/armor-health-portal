@@ -78,7 +78,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
 
   if (sorted.length === 0) {
     return (
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-sm text-gray-900 dark:text-gray-50">
         No applicants found.
       </p>
     );
@@ -108,19 +108,19 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
               className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-brand-700/50 rounded-xl transition-colors"
             >
               {isOpen ? (
-                <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
+                <ChevronDown className="h-4 w-4 text-gray-900 shrink-0" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-gray-400 shrink-0" />
+                <ChevronRight className="h-4 w-4 text-gray-900 shrink-0" />
               )}
 
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {applicant.firstName} {applicant.lastName}
                 </span>
-                <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                <span className="ml-2 text-sm text-gray-900 dark:text-gray-50">
                   ({applicant.progress.filter((p) => p.stepStartedAt && p.stepCompletedAt).length}/{applicant.totalCount})
                 </span>
-                <span className="ml-2 text-sm font-bold text-gray-700 dark:text-gray-300">
+                <span className="ml-2 text-sm font-bold text-gray-700 dark:text-gray-50">
                   • {formatElapsed(applicant.createdAt)} in process
                 </span>
                 {applicant.offerAcceptedAt && (() => {
@@ -183,7 +183,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           className={cn(
                             "min-w-0",
                             done
-                              ? "text-gray-500 dark:text-gray-400"
+                              ? "text-gray-900 dark:text-gray-50"
                               : "text-gray-900 dark:text-gray-100 font-medium"
                           )}
                         >
@@ -203,7 +203,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                             onClick={(e) => e.stopPropagation()}
                             title="Started date"
                           />
-                          <span className="text-xs text-gray-400">→</span>
+                          <span className="text-xs text-gray-900">→</span>
                           <input
                             type="date"
                             className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
@@ -218,11 +218,11 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                             title="Completed date"
                           />
                           {daysBetween !== null ? (
-                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 tabular-nums w-8 text-right">
+                            <span className="text-xs font-semibold text-gray-700 dark:text-gray-50 tabular-nums w-8 text-right">
                               {daysBetween}d
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-400 tabular-nums w-8 text-right">
+                            <span className="text-xs text-gray-900 tabular-nums w-8 text-right">
                               —
                             </span>
                           )}
@@ -233,13 +233,13 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
 
                   {/* Offer Accepted Date */}
                   <div className="flex items-center gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">Offer accepted:</span>
+                    <span className="text-xs text-gray-900 dark:text-gray-50">Offer accepted:</span>
                     {applicant.offerAcceptedAt ? (
-                      <span className="text-xs text-gray-700 dark:text-gray-300">
+                      <span className="text-xs text-gray-700 dark:text-gray-50">
                         {new Date(applicant.offerAcceptedAt).toLocaleDateString()}
                       </span>
                     ) : (
-                      <span className="text-xs text-gray-400 italic">Not set</span>
+                      <span className="text-xs text-gray-900 italic">Not set</span>
                     )}
                     <input
                       type="date"
@@ -255,7 +255,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
 
                   {/* Notes */}
                   <div className="mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
-                    <label className="text-xs text-gray-500 dark:text-gray-400 mb-2 block font-medium">
+                    <label className="text-xs text-gray-900 dark:text-gray-50 mb-2 block font-medium">
                       Notes
                     </label>
 
@@ -310,7 +310,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
                             {note.authorName}
                           </span>
-                          <span className="text-gray-400 dark:text-gray-500 text-xs">
+                          <span className="text-gray-900 dark:text-gray-50 text-xs">
                             {new Date(note.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                             {note.updatedAt && note.updatedAt !== note.createdAt && (
                               <span className="italic ml-1">(edited)</span>
@@ -325,7 +325,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                                   setEditNoteText(note.content);
                                   setNoteError(null);
                                 }}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                className="text-gray-900 hover:text-gray-900 dark:hover:text-gray-50"
                                 title="Edit note"
                               >
                                 <Pencil className="h-3 w-3" />
@@ -337,7 +337,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                                   setConfirmingDeleteNoteId(note.id);
                                   setNoteError(null);
                                 }}
-                                className="text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                                className="text-gray-900 hover:text-red-500 dark:hover:text-red-400"
                                 title="Delete note"
                               >
                                 {deletingNote === note.id ? (
@@ -381,7 +381,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                             </div>
                           </div>
                         ) : (
-                          <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                          <p className="text-gray-900 dark:text-gray-50 whitespace-pre-wrap">
                             {note.content}
                           </p>
                         )}
@@ -399,7 +399,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                               <button
                                 disabled={savingNote === note.id}
                                 onClick={() => setConfirmingEditNoteId(null)}
-                                className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-brand-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800"
+                                className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-brand-700 text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
                               >
                                 Cancel
                               </button>
@@ -443,7 +443,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                               <button
                                 disabled={deletingNote === note.id}
                                 onClick={() => setConfirmingDeleteNoteId(null)}
-                                className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-brand-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800"
+                                className="text-xs px-2 py-0.5 rounded border border-gray-300 dark:border-brand-700 text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
                               >
                                 Cancel
                               </button>
@@ -476,7 +476,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                     ))}
 
                     {notesMap[applicant.id] && notesMap[applicant.id].length === 0 && (
-                      <p className="text-xs text-gray-400 dark:text-gray-500 italic">No notes yet.</p>
+                      <p className="text-xs text-gray-900 dark:text-gray-50 italic">No notes yet.</p>
                     )}
                   </div>
 

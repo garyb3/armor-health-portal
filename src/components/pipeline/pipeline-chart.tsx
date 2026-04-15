@@ -36,7 +36,7 @@ function durationColor(since: string): string {
   const days = Math.floor((Date.now() - new Date(since).getTime()) / 86_400_000);
   if (days >= 7) return "text-red-600";
   if (days >= 3) return "text-amber-600";
-  return "text-gray-400";
+  return "text-gray-900";
 }
 
 function BarWithTooltip({
@@ -58,7 +58,7 @@ function BarWithTooltip({
 }) {
   return (
     <div className="relative flex flex-col items-center justify-end h-full">
-      <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-400 tabular-nums mb-0.5">
+      <span className="text-[10px] font-semibold text-gray-900 dark:text-gray-50 tabular-nums mb-0.5">
         {count}
       </span>
       <div
@@ -95,12 +95,12 @@ export function PipelineChart({ summary }: PipelineChartProps) {
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
                 {summary.total}
               </p>
-              <p className="text-xs text-gray-500">Total Applicants</p>
+              <p className="text-xs text-gray-900">Total Applicants</p>
             </div>
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-5 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-5 text-xs text-gray-900 dark:text-gray-50">
             <div className="flex items-center gap-1.5">
               <div className={`w-3 h-3 rounded-sm ${PENDING_COLOR}`} />
               <span>Pending</span>
@@ -150,7 +150,7 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                     </>
                   )}
                 </div>
-                <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-tight line-clamp-2 w-full mt-1">
+                <span className="text-[10px] font-medium text-gray-900 dark:text-gray-50 text-center leading-tight line-clamp-2 w-full mt-1">
                   {stage.title}
                 </span>
               </div>
@@ -167,19 +167,19 @@ export function PipelineChart({ summary }: PipelineChartProps) {
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {selected.stageTitle}
                 </h3>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-900">
                   — {selected.label} ({selected.applicants.length})
                 </span>
               </div>
               <button
                 onClick={() => setSelected(null)}
-                className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+                className="text-gray-900 hover:text-gray-900 dark:text-gray-50 dark:hover:text-gray-50 transition-colors"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             {selected.applicants.length === 0 ? (
-              <p className="text-sm text-gray-500">No applicants</p>
+              <p className="text-sm text-gray-900">No applicants</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                 {selected.applicants.map((a) => (

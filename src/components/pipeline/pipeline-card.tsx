@@ -56,7 +56,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
                 <span className="text-[10px] bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 px-1 rounded shrink-0">Stale</span>
               )}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{applicant.email}</p>
+            <p className="text-xs text-gray-900 dark:text-gray-50 truncate">{applicant.email}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
               className="flex-1 h-1.5"
               indicatorClassName={overdue ? "bg-red-500" : warning ? "bg-yellow-400" : "bg-green-500"}
             />
-            <span className="text-xs text-gray-500 shrink-0">
+            <span className="text-xs text-gray-900 shrink-0">
               {applicant.completedCount}/{applicant.totalCount}
             </span>
             {applicant.hasAnyReceipt && (
@@ -92,8 +92,8 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
               </>
             ) : (
               <>
-                <Clock className="h-3 w-3 text-gray-400" />
-                <span className="text-gray-500">
+                <Clock className="h-3 w-3 text-gray-900" />
+                <span className="text-gray-900">
                   {formatElapsed(stageChangedAt)} in stage
                 </span>
               </>
@@ -102,7 +102,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
 
           <div className="flex items-center gap-1.5">
             <span className={cn("inline-block h-2 w-2 rounded-full shrink-0", urgencyDot)} />
-            <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+            <span className="text-sm font-bold text-gray-700 dark:text-gray-50">
               {formatElapsed(applicant.createdAt)} in process
             </span>
           </div>
@@ -117,7 +117,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
           )}
 
           {applicant.lastAlertSentAt && (
-            <div className="flex items-center gap-1 text-xs text-gray-400">
+            <div className="flex items-center gap-1 text-xs text-gray-900">
               <Bell className="h-3 w-3" />
               <span>Alerted {formatElapsed(applicant.lastAlertSentAt)} ago</span>
             </div>

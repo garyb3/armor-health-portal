@@ -147,7 +147,7 @@ export default function ApplicantDetailPage() {
   if (!applicant) {
     return (
       <div className="max-w-4xl mx-auto text-center py-16">
-        <p className="text-gray-500">Applicant not found.</p>
+        <p className="text-gray-900">Applicant not found.</p>
         <Link
           href="/pipeline"
           className="text-accent-500 text-sm mt-2 inline-block hover:underline"
@@ -167,7 +167,7 @@ export default function ApplicantDetailPage() {
       {/* Back link */}
       <Link
         href="/pipeline"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Dashboard
@@ -181,29 +181,29 @@ export default function ApplicantDetailPage() {
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
                 {applicant.firstName} {applicant.lastName}
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              <p className="text-sm text-gray-900 dark:text-gray-50 mt-0.5">
                 {ROLE_LABELS[applicant.role] || applicant.role}
               </p>
 
               <div className="mt-3 space-y-1">
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                  <Mail className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
+                  <Mail className="h-4 w-4 text-gray-900 dark:text-gray-50" />
                   {applicant.email}
                 </div>
                 {applicant.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <Phone className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
+                    <Phone className="h-4 w-4 text-gray-900 dark:text-gray-50" />
                     {applicant.phone}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                  <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
+                  <Calendar className="h-4 w-4 text-gray-900 dark:text-gray-50" />
                   Registered{" "}
                   {new Date(applicant.createdAt).toLocaleDateString()}
                 </div>
                 {applicant.offerAcceptedAt && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <Calendar className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <div className="flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
+                    <Calendar className="h-4 w-4 text-gray-900 dark:text-gray-50" />
                     Offer accepted{" "}
                     {new Date(applicant.offerAcceptedAt).toLocaleDateString()}
                   </div>
@@ -223,7 +223,7 @@ export default function ApplicantDetailPage() {
                   ? "All Complete"
                   : `Current: ${stageLabel}`}
               </Badge>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-900 dark:text-gray-50">
                 {applicant.completedCount} of {applicant.totalCount} steps
                 completed
               </p>
@@ -258,7 +258,7 @@ export default function ApplicantDetailPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase">
+                    <span className="text-xs font-medium text-gray-900 dark:text-gray-50 uppercase">
                       Step {step.order}
                     </span>
                     <Badge className={STATUS_COLORS[status] || ""}>
@@ -271,11 +271,11 @@ export default function ApplicantDetailPage() {
 
                   {/* Review info */}
                   {prog?.reviewedAt && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-xs text-gray-900 dark:text-gray-50 mt-1">
                       {status === "APPROVED" ? "Approved" : "Denied"} on{" "}
                       {new Date(prog.reviewedAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                       {prog.reviewNote && (
-                        <span className="block text-gray-400 dark:text-gray-500 mt-0.5">
+                        <span className="block text-gray-900 dark:text-gray-50 mt-0.5">
                           Note: {prog.reviewNote}
                         </span>
                       )}
@@ -286,7 +286,7 @@ export default function ApplicantDetailPage() {
                   {prog?.statusChangedAt &&
                     status !== "APPROVED" &&
                     status !== "COMPLETED" && (
-                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 flex items-center gap-1">
+                      <p className="text-xs text-gray-900 dark:text-gray-50 mt-1 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         Since{" "}
                         {new Date(prog.statusChangedAt).toLocaleString(undefined, { timeZoneName: 'short' })}
@@ -420,18 +420,18 @@ export default function ApplicantDetailPage() {
                 <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
                   {note.authorName}
                 </span>
-                <span className="text-gray-400 dark:text-gray-500 text-xs">
+                <span className="text-gray-900 dark:text-gray-50 text-xs">
                   {new Date(note.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
                 </span>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+              <p className="text-gray-900 dark:text-gray-50 whitespace-pre-wrap">
                 {note.content}
               </p>
             </div>
           ))}
 
           {notes.length === 0 && (
-            <p className="text-sm text-gray-400 dark:text-gray-500 italic">No notes yet.</p>
+            <p className="text-sm text-gray-900 dark:text-gray-50 italic">No notes yet.</p>
           )}
         </CardContent>
       </Card>

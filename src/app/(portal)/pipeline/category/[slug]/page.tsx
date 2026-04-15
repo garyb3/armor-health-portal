@@ -193,7 +193,7 @@ export default function CategoryPage() {
       <div>
         <Link
           href="/pipeline"
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-3"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-3"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
@@ -203,11 +203,11 @@ export default function CategoryPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
             {config.label}
           </h1>
-          <span className="text-lg font-semibold text-gray-500 dark:text-gray-400">
+          <span className="text-lg font-semibold text-gray-900 dark:text-gray-50">
             ({filtered.length})
           </span>
         </div>
-        <p className="text-black dark:text-gray-300 mt-1 text-sm ml-6">
+        <p className="text-black dark:text-gray-50 mt-1 text-sm ml-6">
           Candidates who have been in the pipeline for {config.label.toLowerCase()}.
         </p>
       </div>

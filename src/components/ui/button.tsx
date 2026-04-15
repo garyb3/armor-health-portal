@@ -11,8 +11,8 @@ const buttonVariants = cva(
         default: "bg-brand-900 text-white hover:bg-brand-800 shadow-sm",
         secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-brand-700 dark:text-gray-200 dark:hover:bg-brand-600",
         outline:
-          "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-300 dark:hover:bg-brand-700",
-        ghost: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-brand-800",
+          "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-50 dark:hover:bg-brand-700",
+        ghost: "text-gray-700 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-brand-800",
         destructive: "bg-gradient-to-b from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-sm shadow-red-500/25",
         link: "text-accent-500 underline-offset-4 hover:underline",
       },
