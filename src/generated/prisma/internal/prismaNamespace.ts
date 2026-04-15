@@ -390,6 +390,7 @@ export const ModelName = {
   SensitiveData: 'SensitiveData',
   AuditLog: 'AuditLog',
   Note: 'Note',
+  NoteComment: 'NoteComment',
   ApiKey: 'ApiKey'
 } as const
 
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "applicant" | "formSubmission" | "invite" | "sensitiveData" | "auditLog" | "note" | "apiKey"
+    modelProps: "applicant" | "formSubmission" | "invite" | "sensitiveData" | "auditLog" | "note" | "noteComment" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -854,6 +855,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NoteComment: {
+      payload: Prisma.$NoteCommentPayload<ExtArgs>
+      fields: Prisma.NoteCommentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NoteCommentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NoteCommentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>
+        }
+        findFirst: {
+          args: Prisma.NoteCommentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NoteCommentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>
+        }
+        findMany: {
+          args: Prisma.NoteCommentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>[]
+        }
+        create: {
+          args: Prisma.NoteCommentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>
+        }
+        createMany: {
+          args: Prisma.NoteCommentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NoteCommentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>[]
+        }
+        delete: {
+          args: Prisma.NoteCommentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>
+        }
+        update: {
+          args: Prisma.NoteCommentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>
+        }
+        deleteMany: {
+          args: Prisma.NoteCommentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NoteCommentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NoteCommentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>[]
+        }
+        upsert: {
+          args: Prisma.NoteCommentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NoteCommentPayload>
+        }
+        aggregate: {
+          args: Prisma.NoteCommentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNoteComment>
+        }
+        groupBy: {
+          args: Prisma.NoteCommentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NoteCommentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NoteCommentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NoteCommentCountAggregateOutputType> | number
+        }
+      }
+    }
     ApiKey: {
       payload: Prisma.$ApiKeyPayload<ExtArgs>
       fields: Prisma.ApiKeyFieldRefs
@@ -1060,6 +1135,19 @@ export const NoteScalarFieldEnum = {
 } as const
 
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
+
+
+export const NoteCommentScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  authorId: 'authorId',
+  authorName: 'authorName',
+  noteId: 'noteId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NoteCommentScalarFieldEnum = (typeof NoteCommentScalarFieldEnum)[keyof typeof NoteCommentScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {
@@ -1296,6 +1384,7 @@ export type GlobalOmitConfig = {
   sensitiveData?: Prisma.SensitiveDataOmit
   auditLog?: Prisma.AuditLogOmit
   note?: Prisma.NoteOmit
+  noteComment?: Prisma.NoteCommentOmit
   apiKey?: Prisma.ApiKeyOmit
 }
 

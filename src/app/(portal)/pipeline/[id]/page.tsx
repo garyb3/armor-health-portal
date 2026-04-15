@@ -24,8 +24,12 @@ import {
   XCircle,
   Pencil,
   AlertTriangle,
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  MessageSquare,
 } from "lucide-react";
-import type { FormProgress, CandidateNote } from "@/types";
+import type { FormProgress, CandidateNote, NoteComment } from "@/types";
 import { apiFetch } from "@/lib/api-client";
 
 interface ApplicantDetail {
@@ -62,6 +66,20 @@ export default function ApplicantDetailPage() {
   const [notes, setNotes] = useState<CandidateNote[]>([]);
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editNoteDraft, setEditNoteDraft] = useState("");
+  const [savingNoteId, setSavingNoteId] = useState<string | null>(null);
+  const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
+  const [expandedNoteIds, setExpandedNoteIds] = useState<Set<string>>(new Set());
+  const [commentsByNote, setCommentsByNote] = useState<Record<string, NoteComment[]>>({});
+  const [loadingCommentsFor, setLoadingCommentsFor] = useState<Set<string>>(new Set());
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
+  const [postingCommentFor, setPostingCommentFor] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentDraft, setEditCommentDraft] = useState("");
+  const [savingCommentId, setSavingCommentId] = useState<string | null>(null);
+  const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -182,9 +200,208 @@ export default function ApplicantDetailPage() {
     }
   };
 
+  const startEditNote = (note: CandidateNote) => {
+    setEditingNoteId(note.id);
+    setEditNoteDraft(note.content);
+  };
+
+  const cancelEditNote = () => {
+    setEditingNoteId(null);
+    setEditNoteDraft("");
+  };
+
+  const handleSaveNote = async (noteId: string) => {
+    const content = editNoteDraft.trim();
+    if (!content) return;
+    setSavingNoteId(noteId);
+    try {
+      const res = await apiFetch(`/api/pipeline/${id}/notes/${noteId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (res.ok) {
+        const updated: CandidateNote = await res.json();
+        setNotes((prev) =>
+          prev.map((n) => (n.id === noteId ? { ...n, ...updated } : n))
+        );
+        cancelEditNote();
+      }
+    } catch (err) {
+      console.error("Failed to update note:", err);
+    } finally {
+      setSavingNoteId(null);
+    }
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    if (!confirm("Delete this note? This cannot be undone.")) return;
+    setDeletingNoteId(noteId);
+    try {
+      const res = await apiFetch(`/api/pipeline/${id}/notes/${noteId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setNotes((prev) => prev.filter((n) => n.id !== noteId));
+        setExpandedNoteIds((prev) => {
+          const next = new Set(prev);
+          next.delete(noteId);
+          return next;
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete note:", err);
+    } finally {
+      setDeletingNoteId(null);
+    }
+  };
+
+  const loadCommentsForNote = async (noteId: string) => {
+    setLoadingCommentsFor((prev) => new Set(prev).add(noteId));
+    try {
+      const res = await apiFetch(
+        `/api/pipeline/${id}/notes/${noteId}/comments`
+      );
+      if (res.ok) {
+        const data: NoteComment[] = await res.json();
+        setCommentsByNote((prev) => ({ ...prev, [noteId]: data }));
+      }
+    } catch (err) {
+      console.error("Failed to load comments:", err);
+    } finally {
+      setLoadingCommentsFor((prev) => {
+        const next = new Set(prev);
+        next.delete(noteId);
+        return next;
+      });
+    }
+  };
+
+  const toggleNoteExpanded = (noteId: string) => {
+    setExpandedNoteIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(noteId)) {
+        next.delete(noteId);
+      } else {
+        next.add(noteId);
+        if (!commentsByNote[noteId]) loadCommentsForNote(noteId);
+      }
+      return next;
+    });
+  };
+
+  const handlePostComment = async (noteId: string) => {
+    const content = (commentDrafts[noteId] ?? "").trim();
+    if (!content) return;
+    setPostingCommentFor(noteId);
+    try {
+      const res = await apiFetch(
+        `/api/pipeline/${id}/notes/${noteId}/comments`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        }
+      );
+      if (res.ok) {
+        const created: NoteComment = await res.json();
+        setCommentsByNote((prev) => ({
+          ...prev,
+          [noteId]: [...(prev[noteId] ?? []), created],
+        }));
+        setCommentDrafts((prev) => ({ ...prev, [noteId]: "" }));
+        setNotes((prev) =>
+          prev.map((n) =>
+            n.id === noteId
+              ? { ...n, commentCount: (n.commentCount ?? 0) + 1 }
+              : n
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to post comment:", err);
+    } finally {
+      setPostingCommentFor(null);
+    }
+  };
+
+  const startEditComment = (c: NoteComment) => {
+    setEditingCommentId(c.id);
+    setEditCommentDraft(c.content);
+  };
+
+  const cancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditCommentDraft("");
+  };
+
+  const handleSaveComment = async (noteId: string, commentId: string) => {
+    const content = editCommentDraft.trim();
+    if (!content) return;
+    setSavingCommentId(commentId);
+    try {
+      const res = await apiFetch(
+        `/api/pipeline/${id}/notes/${noteId}/comments/${commentId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content }),
+        }
+      );
+      if (res.ok) {
+        const updated: NoteComment = await res.json();
+        setCommentsByNote((prev) => ({
+          ...prev,
+          [noteId]: (prev[noteId] ?? []).map((c) =>
+            c.id === commentId ? { ...c, ...updated } : c
+          ),
+        }));
+        cancelEditComment();
+      }
+    } catch (err) {
+      console.error("Failed to update comment:", err);
+    } finally {
+      setSavingCommentId(null);
+    }
+  };
+
+  const handleDeleteComment = async (noteId: string, commentId: string) => {
+    if (!confirm("Delete this comment?")) return;
+    setDeletingCommentId(commentId);
+    try {
+      const res = await apiFetch(
+        `/api/pipeline/${id}/notes/${noteId}/comments/${commentId}`,
+        { method: "DELETE" }
+      );
+      if (res.ok) {
+        setCommentsByNote((prev) => ({
+          ...prev,
+          [noteId]: (prev[noteId] ?? []).filter((c) => c.id !== commentId),
+        }));
+        setNotes((prev) =>
+          prev.map((n) =>
+            n.id === noteId
+              ? { ...n, commentCount: Math.max(0, (n.commentCount ?? 1) - 1) }
+              : n
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to delete comment:", err);
+    } finally {
+      setDeletingCommentId(null);
+    }
+  };
+
   useEffect(() => {
     loadApplicant().finally(() => setLoading(false));
     loadNotes();
+    apiFetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.user?.id) setCurrentUserId(data.user.id);
+      })
+      .catch(() => {});
   }, [id]);
 
   useEffect(() => {
@@ -713,21 +930,269 @@ d
           </div>
 
           {/* Notes list */}
-          {notes.map((note) => (
-            <div key={note.id} className="p-3 rounded-lg bg-gray-50 dark:bg-brand-900/50 border border-transparent dark:border-white/40 text-sm">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
-                  {note.authorName}
-                </span>
-                <span className="text-gray-900 dark:text-gray-50 text-xs">
-                  {new Date(note.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
-                </span>
+          {notes.map((note) => {
+            const isAuthor = note.authorId === currentUserId;
+            const isEditing = editingNoteId === note.id;
+            const edited =
+              note.updatedAt &&
+              new Date(note.updatedAt).getTime() -
+                new Date(note.createdAt).getTime() >
+                1000;
+            const isExpanded = expandedNoteIds.has(note.id);
+            const comments = commentsByNote[note.id] ?? [];
+            const commentCount = note.commentCount ?? comments.length;
+
+            return (
+              <div
+                key={note.id}
+                className="p-3 rounded-lg bg-gray-50 dark:bg-brand-900/50 border border-transparent dark:border-white/40 text-sm"
+              >
+                {/* Header: author + original createdAt (stays at top) */}
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-medium text-gray-700 dark:text-gray-200 text-xs">
+                    {note.authorName}
+                  </span>
+                  <span className="text-gray-900 dark:text-gray-50 text-xs">
+                    {new Date(note.createdAt).toLocaleString(undefined, {
+                      timeZoneName: "short",
+                    })}
+                  </span>
+                </div>
+
+                {/* Body: content or edit form */}
+                {isEditing ? (
+                  <div className="mt-1">
+                    <textarea
+                      rows={3}
+                      value={editNoteDraft}
+                      onChange={(e) => setEditNoteDraft(e.target.value)}
+                      className="w-full text-sm rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                    />
+                    <div className="flex gap-1 mt-1">
+                      <Button
+                        size="sm"
+                        disabled={
+                          !editNoteDraft.trim() || savingNoteId === note.id
+                        }
+                        onClick={() => handleSaveNote(note.id)}
+                      >
+                        {savingNoteId === note.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Save"
+                        )}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={cancelEditNote}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-900 dark:text-gray-50 whitespace-pre-wrap">
+                    {note.content}
+                  </p>
+                )}
+
+                {/* Footer: edited timestamp + author actions + comments toggle */}
+                <div className="mt-2 flex items-center flex-wrap gap-x-3 gap-y-1 text-xs">
+                  {edited && (
+                    <span className="italic text-gray-600 dark:text-gray-400">
+                      Edited{" "}
+                      {new Date(note.updatedAt!).toLocaleString(undefined, {
+                        timeZoneName: "short",
+                      })}
+                    </span>
+                  )}
+                  {isAuthor && !isEditing && (
+                    <>
+                      <button
+                        onClick={() => startEditNote(note)}
+                        className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-50"
+                        title="Edit note"
+                      >
+                        <Pencil className="h-3 w-3" /> Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteNote(note.id)}
+                        disabled={deletingNoteId === note.id}
+                        className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50"
+                        title="Delete note"
+                      >
+                        {deletingNoteId === note.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3 w-3" />
+                        )}{" "}
+                        Delete
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => toggleNoteExpanded(note.id)}
+                    className="ml-auto inline-flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-50"
+                    aria-expanded={isExpanded}
+                  >
+                    <MessageSquare className="h-3 w-3" />
+                    Comments ({commentCount})
+                    {isExpanded ? (
+                      <ChevronDown className="h-3 w-3" />
+                    ) : (
+                      <ChevronRight className="h-3 w-3" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Expanded comments panel */}
+                {isExpanded && (
+                  <div className="mt-3 pl-3 border-l-2 border-gray-200 dark:border-brand-700 space-y-2">
+                    {loadingCommentsFor.has(note.id) && comments.length === 0 && (
+                      <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Loading…
+                      </div>
+                    )}
+                    {comments.length === 0 && !loadingCommentsFor.has(note.id) && (
+                      <p className="text-xs italic text-gray-600 dark:text-gray-400">
+                        No comments yet.
+                      </p>
+                    )}
+                    {comments.map((c) => {
+                      const cIsAuthor = c.authorId === currentUserId;
+                      const cIsEditing = editingCommentId === c.id;
+                      const cEdited =
+                        c.updatedAt &&
+                        new Date(c.updatedAt).getTime() -
+                          new Date(c.createdAt).getTime() >
+                          1000;
+                      return (
+                        <div
+                          key={c.id}
+                          className="p-2 rounded-md bg-white dark:bg-brand-900 border border-gray-200 dark:border-brand-700 text-xs"
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-gray-700 dark:text-gray-200">
+                              {c.authorName}
+                            </span>
+                            <span className="text-gray-900 dark:text-gray-50">
+                              {new Date(c.createdAt).toLocaleString(undefined, {
+                                timeZoneName: "short",
+                              })}
+                            </span>
+                          </div>
+                          {cIsEditing ? (
+                            <div>
+                              <textarea
+                                rows={2}
+                                value={editCommentDraft}
+                                onChange={(e) =>
+                                  setEditCommentDraft(e.target.value)
+                                }
+                                className="w-full text-xs rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                              />
+                              <div className="flex gap-1 mt-1">
+                                <Button
+                                  size="sm"
+                                  disabled={
+                                    !editCommentDraft.trim() ||
+                                    savingCommentId === c.id
+                                  }
+                                  onClick={() =>
+                                    handleSaveComment(note.id, c.id)
+                                  }
+                                >
+                                  {savingCommentId === c.id ? (
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    "Save"
+                                  )}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={cancelEditComment}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-gray-900 dark:text-gray-50 whitespace-pre-wrap">
+                              {c.content}
+                            </p>
+                          )}
+                          <div className="mt-1 flex items-center gap-3">
+                            {cEdited && (
+                              <span className="italic text-gray-600 dark:text-gray-400">
+                                Edited{" "}
+                                {new Date(c.updatedAt!).toLocaleString(
+                                  undefined,
+                                  { timeZoneName: "short" }
+                                )}
+                              </span>
+                            )}
+                            {cIsAuthor && !cIsEditing && (
+                              <>
+                                <button
+                                  onClick={() => startEditComment(c)}
+                                  className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-50"
+                                >
+                                  <Pencil className="h-3 w-3" /> Edit
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    handleDeleteComment(note.id, c.id)
+                                  }
+                                  disabled={deletingCommentId === c.id}
+                                  className="inline-flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50"
+                                >
+                                  {deletingCommentId === c.id ? (
+                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                  ) : (
+                                    <Trash2 className="h-3 w-3" />
+                                  )}{" "}
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Add-comment composer */}
+                    <div className="flex gap-2 pt-1">
+                      <textarea
+                        rows={2}
+                        placeholder="Add a comment..."
+                        value={commentDrafts[note.id] ?? ""}
+                        onChange={(e) =>
+                          setCommentDrafts((prev) => ({
+                            ...prev,
+                            [note.id]: e.target.value,
+                          }))
+                        }
+                        className="flex-1 text-xs rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-2 py-1 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                      />
+                      <Button
+                        size="sm"
+                        disabled={
+                          !(commentDrafts[note.id] ?? "").trim() ||
+                          postingCommentFor === note.id
+                        }
+                        onClick={() => handlePostComment(note.id)}
+                        className="self-end !bg-black !text-white hover:!bg-gray-900 disabled:!bg-black disabled:!opacity-100 dark:!bg-white dark:!text-black dark:hover:!bg-gray-100"
+                      >
+                        {postingCommentFor === note.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Post"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="text-gray-900 dark:text-gray-50 whitespace-pre-wrap">
-                {note.content}
-              </p>
-            </div>
-          ))}
+            );
+          })}
 
           {notes.length === 0 && (
             <p className="text-sm text-gray-900 dark:text-gray-50 italic">No notes yet.</p>

@@ -48,6 +48,11 @@ export type AuditLog = Prisma.AuditLogModel
  */
 export type Note = Prisma.NoteModel
 /**
+ * Model NoteComment
+ * 
+ */
+export type NoteComment = Prisma.NoteCommentModel
+/**
  * Model ApiKey
  * 
  */

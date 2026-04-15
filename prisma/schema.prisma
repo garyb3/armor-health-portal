@@ -143,10 +143,27 @@ model Note {
   updatedAt   DateTime @updatedAt
 
   applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  comments  NoteComment[]
 
   @@index([applicantId, createdAt])
   @@index([authorId])
   @@map("notes")
+}
+
+model NoteComment {
+  id         String   @id @default(cuid())
+  content    String
+  authorId   String
+  authorName String
+  noteId     String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@index([noteId, createdAt])
+  @@index([authorId])
+  @@map("note_comments")
 }
 
 model ApiKey {

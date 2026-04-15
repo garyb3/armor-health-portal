@@ -57,6 +57,7 @@ export const ModelName = {
   SensitiveData: 'SensitiveData',
   AuditLog: 'AuditLog',
   Note: 'Note',
+  NoteComment: 'NoteComment',
   ApiKey: 'ApiKey'
 } as const
 
@@ -169,6 +170,19 @@ export const NoteScalarFieldEnum = {
 } as const
 
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
+
+
+export const NoteCommentScalarFieldEnum = {
+  id: 'id',
+  content: 'content',
+  authorId: 'authorId',
+  authorName: 'authorName',
+  noteId: 'noteId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NoteCommentScalarFieldEnum = (typeof NoteCommentScalarFieldEnum)[keyof typeof NoteCommentScalarFieldEnum]
 
 
 export const ApiKeyScalarFieldEnum = {

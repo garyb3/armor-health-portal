@@ -101,6 +101,17 @@ export interface CandidateNote {
   applicantId: string;
   createdAt: string;
   updatedAt?: string;
+  commentCount?: number;
+}
+
+export interface NoteComment {
+  id: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  noteId: string;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface PipelineResponse {

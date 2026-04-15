@@ -20,6 +20,7 @@ export async function GET(
     const notes = await prisma.note.findMany({
       where: { applicantId: id },
       orderBy: { createdAt: "desc" },
+      include: { _count: { select: { comments: true } } },
     });
 
     return NextResponse.json(
@@ -31,6 +32,7 @@ export async function GET(
         applicantId: n.applicantId,
         createdAt: n.createdAt.toISOString(),
         updatedAt: n.updatedAt?.toISOString() ?? n.createdAt.toISOString(),
+        commentCount: n._count.comments,
       }))
     );
   } catch (error) {
