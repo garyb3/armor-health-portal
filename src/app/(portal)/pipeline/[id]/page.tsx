@@ -22,8 +22,8 @@ import {
   Calendar,
   CheckCircle2,
   XCircle,
-  Clock,
   Pencil,
+  AlertTriangle,
 } from "lucide-react";
 import type { FormProgress, CandidateNote } from "@/types";
 import { apiFetch } from "@/lib/api-client";
@@ -176,6 +176,50 @@ export default function ApplicantDetailPage() {
     loadApplicant().finally(() => setLoading(false));
     loadNotes();
   }, [id]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        loadApplicant();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [id]);
+
+  const handleSetStepDates = async (
+    formType: string,
+    dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }
+  ) => {
+    const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
+    if (!slug) return;
+    setApplicant((prev) =>
+      prev
+        ? {
+            ...prev,
+            progress: prev.progress.map((p) =>
+              p.formType === formType ? { ...p, ...dates } : p
+            ),
+          }
+        : prev
+    );
+    try {
+      const res = await apiFetch(`/api/pipeline/${id}/step/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dates),
+      });
+      if (res.ok) {
+        await loadApplicant();
+      }
+    } catch (err) {
+      console.error("Failed to update step dates:", err);
+    }
+  };
 
   const handleStepAction = async (
     formType: string,
@@ -412,7 +456,43 @@ export default function ApplicantDetailPage() {
       {/* Step-by-step admin controls */}
       <Card>
         <CardHeader>
-          <CardTitle>Pipeline Steps</CardTitle>
+          <div className="flex items-center justify-between gap-4">
+            <CardTitle>Pipeline Steps</CardTitle>
+            {(() => {
+              const diffs = applicant.progress
+                .filter((p) => p.stepStartedAt && p.stepCompletedAt)
+                .map((p) =>
+                  Math.max(
+                    0,
+                    Math.floor(
+                      (new Date(p.stepCompletedAt!).getTime() -
+                        new Date(p.stepStartedAt!).getTime()) /
+                        86_400_000
+                    )
+                  )
+                );
+              const avg =
+                diffs.length > 0
+                  ? Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length)
+                  : null;
+              return (
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xs text-gray-900 dark:text-gray-50 uppercase">
+                    Avg
+                  </span>
+                  {avg !== null ? (
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums leading-none">
+                      {avg}d
+                    </span>
+                  ) : (
+                    <span className="text-2xl font-bold text-gray-400 dark:text-gray-500 tabular-nums leading-none">
+                      —
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {FORM_STEPS.map((step) => {
@@ -428,6 +508,9 @@ export default function ApplicantDetailPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
+                    {status === "NOT_STARTED" && (
+                      <AlertTriangle className="h-3.5 w-3.5 text-red-500 shrink-0" />
+                    )}
                     <span className="text-xs font-medium text-gray-900 dark:text-gray-50 uppercase">
                       Step {step.order}
                     </span>
@@ -439,33 +522,43 @@ export default function ApplicantDetailPage() {
                     {step.title}
                   </p>
 
-                  {/* Review info */}
-                  {prog?.reviewedAt && (
+                  <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                    <input
+                      type="date"
+                      className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
+                      value={prog?.stepStartedAt ? new Date(prog.stepStartedAt).toLocaleDateString("en-CA") : ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        handleSetStepDates(step.key, {
+                          stepStartedAt: val ? new Date(val).toISOString() : null,
+                        });
+                      }}
+                      title="Started date"
+                    />
+                    <span className="text-xs text-gray-900 dark:text-gray-50">→</span>
+                    <input
+                      type="date"
+                      className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
+                      value={prog?.stepCompletedAt ? new Date(prog.stepCompletedAt).toLocaleDateString("en-CA") : ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        handleSetStepDates(step.key, {
+                          stepCompletedAt: val ? new Date(val).toISOString() : null,
+                        });
+                      }}
+                      title="Completed date"
+                    />
+                  </div>
+
+                  {prog?.reviewNote && (
                     <p className="text-xs text-gray-900 dark:text-gray-50 mt-1">
-                      {status === "APPROVED" ? "Approved" : "Denied"} on{" "}
-                      {new Date(prog.reviewedAt).toLocaleString(undefined, { timeZoneName: 'short' })}
-                      {prog.reviewNote && (
-                        <span className="block text-gray-900 dark:text-gray-50 mt-0.5">
-                          Note: {prog.reviewNote}
-                        </span>
-                      )}
+                      Note: {prog.reviewNote}
                     </p>
                   )}
-
-                  {/* Elapsed time */}
-                  {prog?.statusChangedAt &&
-                    status !== "APPROVED" &&
-                    status !== "COMPLETED" && (
-                      <p className="text-xs text-gray-900 dark:text-gray-50 mt-1 flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        Since{" "}
-                        {new Date(prog.statusChangedAt).toLocaleString(undefined, { timeZoneName: 'short' })}
-                      </p>
-                    )}
                 </div>
 
                 {/* Admin actions */}
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex flex-col items-end gap-1 shrink-0">
                   {status === "PENDING_REVIEW" && (
                     <>
                       <Button
@@ -546,6 +639,22 @@ export default function ApplicantDetailPage() {
                       <XCircle className="h-4 w-4" />
                       Denied
                     </span>
+                  )}
+
+                  {prog?.stepStartedAt && prog?.stepCompletedAt ? (
+                    <span className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums leading-none">
+                      {Math.max(
+                        0,
+                        Math.floor(
+                          (new Date(prog.stepCompletedAt).getTime() -
+                            new Date(prog.stepStartedAt).getTime()) /
+                            86_400_000
+                        )
+                      )}
+d
+                    </span>
+                  ) : (
+                    <span className="text-2xl font-bold text-gray-400 dark:text-gray-500 tabular-nums leading-none">—</span>
                   )}
                 </div>
               </div>
