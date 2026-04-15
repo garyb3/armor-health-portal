@@ -164,7 +164,8 @@ export const NoteScalarFieldEnum = {
   authorId: 'authorId',
   authorName: 'authorName',
   applicantId: 'applicantId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]

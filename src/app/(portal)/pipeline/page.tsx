@@ -35,6 +35,7 @@ export default function PipelinePage() {
   const [addSaving, setAddSaving] = useState(false);
   const [avgOpen, setAvgOpen] = useState(false);
   const [notesMap, setNotesMap] = useState<Record<string, CandidateNote[]>>({});
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const loadApplicants = async () => {
     try {
@@ -50,6 +51,10 @@ export default function PipelinePage() {
 
   useEffect(() => {
     loadApplicants().finally(() => setLoading(false));
+    apiFetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data?.user?.id) setCurrentUserId(data.user.id); })
+      .catch(() => {});
   }, []);
 
   const handleSetOfferDate = async (applicantId: string, date: string | null) => {
@@ -129,6 +134,39 @@ export default function PipelinePage() {
     setNotesMap((prev) => ({
       ...prev,
       [applicantId]: [newNote, ...(prev[applicantId] || [])],
+    }));
+  };
+
+  const handleEditNote = async (applicantId: string, noteId: string, content: string) => {
+    const res = await apiFetch(`/api/pipeline/${applicantId}/notes/${noteId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Failed to edit note");
+    }
+    const updated: CandidateNote = await res.json();
+    setNotesMap((prev) => ({
+      ...prev,
+      [applicantId]: (prev[applicantId] || []).map((n) =>
+        n.id === noteId ? updated : n
+      ),
+    }));
+  };
+
+  const handleDeleteNote = async (applicantId: string, noteId: string) => {
+    const res = await apiFetch(`/api/pipeline/${applicantId}/notes/${noteId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Failed to delete note");
+    }
+    setNotesMap((prev) => ({
+      ...prev,
+      [applicantId]: (prev[applicantId] || []).filter((n) => n.id !== noteId),
     }));
   };
 
@@ -371,7 +409,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} notesMap={notesMap} onFetchNotes={handleFetchNotes} onAddNote={handleAddNote} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} />
+      <PipelineList applicants={filtered} notesMap={notesMap} currentUserId={currentUserId} onFetchNotes={handleFetchNotes} onAddNote={handleAddNote} onEditNote={handleEditNote} onDeleteNote={handleDeleteNote} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} />
     </div>
   );
 }

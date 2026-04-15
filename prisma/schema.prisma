@@ -140,6 +140,7 @@ model Note {
   authorName  String
   applicantId String
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
 

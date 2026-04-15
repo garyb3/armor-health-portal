@@ -100,6 +100,7 @@ export interface CandidateNote {
   authorName: string;
   applicantId: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface PipelineResponse {

@@ -30,6 +30,7 @@ export async function GET(
         authorName: n.authorName,
         applicantId: n.applicantId,
         createdAt: n.createdAt.toISOString(),
+        updatedAt: n.updatedAt?.toISOString() ?? n.createdAt.toISOString(),
       }))
     );
   } catch (error) {
@@ -91,11 +92,13 @@ export async function POST(
         authorName: note.authorName,
         applicantId: note.applicantId,
         createdAt: note.createdAt.toISOString(),
+        updatedAt: note.updatedAt?.toISOString() ?? note.createdAt.toISOString(),
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Failed to create note:", error);
-    return NextResponse.json({ error: "Failed to create note" }, { status: 500 });
+    console.error("Failed to create note:", error instanceof Error ? error.message : error);
+    console.error("Full error:", JSON.stringify(error, Object.getOwnPropertyNames(error as object)));
+    return NextResponse.json({ error: "Failed to create note", detail: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }

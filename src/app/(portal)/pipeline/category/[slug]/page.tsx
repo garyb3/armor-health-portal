@@ -18,6 +18,7 @@ export default function CategoryPage() {
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);
   const [loading, setLoading] = useState(true);
   const [notesMap, setNotesMap] = useState<Record<string, CandidateNote[]>>({});
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const valid = isValidBucket(slug);
 
@@ -40,6 +41,10 @@ export default function CategoryPage() {
       }
     }
     load();
+    apiFetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => { if (data?.user?.id) setCurrentUserId(data.user.id); })
+      .catch(() => {});
   }, [valid, router]);
 
   if (!valid) return null;
@@ -128,6 +133,39 @@ export default function CategoryPage() {
     }));
   };
 
+  const handleEditNote = async (applicantId: string, noteId: string, content: string) => {
+    const res = await apiFetch(`/api/pipeline/${applicantId}/notes/${noteId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Failed to edit note");
+    }
+    const updated: CandidateNote = await res.json();
+    setNotesMap((prev) => ({
+      ...prev,
+      [applicantId]: (prev[applicantId] || []).map((n) =>
+        n.id === noteId ? updated : n
+      ),
+    }));
+  };
+
+  const handleDeleteNote = async (applicantId: string, noteId: string) => {
+    const res = await apiFetch(`/api/pipeline/${applicantId}/notes/${noteId}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || "Failed to delete note");
+    }
+    setNotesMap((prev) => ({
+      ...prev,
+      [applicantId]: (prev[applicantId] || []).filter((n) => n.id !== noteId),
+    }));
+  };
+
   const handleRemoveCandidate = async (applicantId: string) => {
     try {
       const res = await apiFetch(`/api/pipeline/${applicantId}/remove`, {
@@ -178,8 +216,11 @@ export default function CategoryPage() {
       <PipelineList
         applicants={filtered}
         notesMap={notesMap}
+        currentUserId={currentUserId}
         onFetchNotes={handleFetchNotes}
         onAddNote={handleAddNote}
+        onEditNote={handleEditNote}
+        onDeleteNote={handleDeleteNote}
         onSetOfferDate={handleSetOfferDate}
         onSetStepDates={handleSetStepDates}
         onRemoveCandidate={handleRemoveCandidate}

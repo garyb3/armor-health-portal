@@ -6,7 +6,7 @@ import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
-import { Check, X, ChevronDown, ChevronRight, Trash2, Loader2 } from "lucide-react";
+import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { PipelineApplicant, FormProgress, CandidateNote } from "@/types";
 
@@ -45,19 +45,26 @@ function sortApplicants(applicants: PipelineApplicant[]): PipelineApplicant[] {
 interface PipelineListProps {
   applicants: PipelineApplicant[];
   notesMap: Record<string, CandidateNote[]>;
+  currentUserId?: string | null;
   onFetchNotes: (id: string) => void;
   onAddNote: (id: string, content: string) => Promise<void>;
+  onEditNote: (applicantId: string, noteId: string, content: string) => Promise<void>;
+  onDeleteNote: (applicantId: string, noteId: string) => Promise<void>;
   onSetOfferDate?: (id: string, date: string | null) => void;
   onSetStepDates?: (applicantId: string, formType: string, dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }) => void;
   onRemoveCandidate?: (id: string) => Promise<void>;
 }
 
-export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, onSetOfferDate, onSetStepDates, onRemoveCandidate }: PipelineListProps) {
+export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes, onAddNote, onEditNote, onDeleteNote, onSetOfferDate, onSetStepDates, onRemoveCandidate }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [newNoteText, setNewNoteText] = useState<Record<string, string>>({});
   const [addingNote, setAddingNote] = useState<string | null>(null);
   const [noteError, setNoteError] = useState<string | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editNoteText, setEditNoteText] = useState("");
+  const [savingNote, setSavingNote] = useState<string | null>(null);
+  const [deletingNote, setDeletingNote] = useState<string | null>(null);
 
   const toggle = (id: string) =>
     setExpanded((prev) => {
@@ -309,11 +316,96 @@ export function PipelineList({ applicants, notesMap, onFetchNotes, onAddNote, on
                           </span>
                           <span className="text-gray-400 dark:text-gray-500 text-xs">
                             {new Date(note.createdAt).toLocaleString(undefined, { timeZoneName: 'short' })}
+                            {note.updatedAt && note.updatedAt !== note.createdAt && (
+                              <span className="italic ml-1">(edited)</span>
+                            )}
                           </span>
+                          {note.authorId === currentUserId && editingNoteId !== note.id && (
+                            <div className="ml-auto flex items-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingNoteId(note.id);
+                                  setEditNoteText(note.content);
+                                  setNoteError(null);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                title="Edit note"
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </button>
+                              <button
+                                disabled={deletingNote === note.id}
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  if (!window.confirm("Delete this note?")) return;
+                                  setDeletingNote(note.id);
+                                  setNoteError(null);
+                                  try {
+                                    await onDeleteNote(applicant.id, note.id);
+                                  } catch {
+                                    setNoteError("Failed to delete note.");
+                                  } finally {
+                                    setDeletingNote(null);
+                                  }
+                                }}
+                                className="text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                                title="Delete note"
+                              >
+                                {deletingNote === note.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3 w-3" />
+                                )}
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
-                          {note.content}
-                        </p>
+                        {editingNoteId === note.id ? (
+                          <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+                            <textarea
+                              rows={2}
+                              value={editNoteText}
+                              onChange={(e) => setEditNoteText(e.target.value)}
+                              className="w-full text-sm rounded-md border border-gray-300 dark:border-brand-700 bg-white dark:bg-brand-800 dark:text-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+                            />
+                            <div className="flex gap-1 mt-1">
+                              <Button
+                                size="sm"
+                                disabled={!editNoteText.trim() || savingNote === note.id}
+                                onClick={async () => {
+                                  setSavingNote(note.id);
+                                  setNoteError(null);
+                                  try {
+                                    await onEditNote(applicant.id, note.id, editNoteText.trim());
+                                    setEditingNoteId(null);
+                                  } catch {
+                                    setNoteError("Failed to save note.");
+                                  } finally {
+                                    setSavingNote(null);
+                                  }
+                                }}
+                              >
+                                {savingNote === note.id ? (
+                                  <Loader2 className="h-3 w-3 animate-spin" />
+                                ) : (
+                                  "Save"
+                                )}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingNoteId(null)}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                            {note.content}
+                          </p>
+                        )}
                       </div>
                     ))}
 
