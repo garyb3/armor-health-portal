@@ -125,22 +125,55 @@ export async function PATCH(
         : null;
     }
 
+    if (body.firstName !== undefined) {
+      const v = String(body.firstName).trim();
+      if (!v) return NextResponse.json({ error: "First name is required" }, { status: 400 });
+      if (v.length > 100) return NextResponse.json({ error: "First name is too long" }, { status: 400 });
+      data.firstName = v;
+    }
+    if (body.lastName !== undefined) {
+      const v = String(body.lastName).trim();
+      if (!v) return NextResponse.json({ error: "Last name is required" }, { status: 400 });
+      if (v.length > 100) return NextResponse.json({ error: "Last name is too long" }, { status: 400 });
+      data.lastName = v;
+    }
+    if (body.email !== undefined) {
+      const v = String(body.email).trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+        return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+      }
+      const current = await prisma.applicant.findUnique({ where: { id }, select: { email: true } });
+      if (!current) return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
+      if (current.email.toLowerCase() !== v) data.email = v;
+    }
+    if (body.phone !== undefined) {
+      const v = body.phone === null ? "" : String(body.phone).trim();
+      data.phone = v ? v : null;
+    }
+
     if (Object.keys(data).length === 0) {
       return NextResponse.json({ error: "No fields provided" }, { status: 400 });
     }
 
-    await prisma.$transaction([
-      prisma.applicant.update({ where: { id }, data }),
-      prisma.auditLog.create({
-        data: {
-          userId: user.userId,
-          action: "APPLICANT_UPDATED",
-          targetId: id,
-          ipAddress: getClientIp(request),
-          metadata: { updatedFields: Object.keys(data) },
-        },
-      }),
-    ]);
+    try {
+      await prisma.$transaction([
+        prisma.applicant.update({ where: { id }, data }),
+        prisma.auditLog.create({
+          data: {
+            userId: user.userId,
+            action: "APPLICANT_UPDATED",
+            targetId: id,
+            ipAddress: getClientIp(request),
+            metadata: { updatedFields: Object.keys(data) },
+          },
+        }),
+      ]);
+    } catch (e: unknown) {
+      if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2002") {
+        return NextResponse.json({ error: "Email already in use" }, { status: 409 });
+      }
+      throw e;
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
