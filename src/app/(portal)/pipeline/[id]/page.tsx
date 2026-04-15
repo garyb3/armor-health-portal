@@ -403,7 +403,7 @@ export default function ApplicantDetailPage() {
               size="sm"
               disabled={!newNote.trim() || addingNote}
               onClick={handleAddNote}
-              className="self-end"
+              className="self-end !bg-black !text-white hover:!bg-gray-900 disabled:!bg-black disabled:!opacity-100 dark:!bg-white dark:!text-black dark:hover:!bg-gray-100"
             >
               {addingNote ? (
                 <Loader2 className="h-3 w-3 animate-spin" />

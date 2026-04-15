@@ -53,7 +53,7 @@ export function ProgressTracker({
         <div className="relative h-2.5 w-full rounded-full bg-gray-100 dark:bg-brand-700">
           {/* Bar fill */}
           <div
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-accent-400 to-accent-500 transition-all duration-500 ease-in-out"
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-500 ease-in-out"
             style={{ width: `${fillPercent}%` }}
           />
         </div>

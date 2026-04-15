@@ -55,7 +55,7 @@ export const STATUS_LABELS: Record<string, string> = {
 };
 
 export const STATUS_COLORS: Record<string, string> = {
-  NOT_STARTED: "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50",
+  NOT_STARTED: "bg-red-100 text-gray-900 dark:bg-red-900/50 dark:text-gray-50",
   IN_PROGRESS: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400",
   COMPLETED: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
   PENDING_REVIEW: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
