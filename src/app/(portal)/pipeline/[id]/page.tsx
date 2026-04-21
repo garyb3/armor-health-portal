@@ -803,7 +803,7 @@ export default function ApplicantDetailPage() {
                         onClick={() =>
                           handleStepAction(step.key, "approve")
                         }
-                        disabled={actionLoading !== null}
+                        disabled={actionLoading === `${step.key}-approve`}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1"
                       >
                         {actionLoading === `${step.key}-approve` ? (
@@ -828,7 +828,7 @@ export default function ApplicantDetailPage() {
                             onClick={() =>
                               handleStepAction(step.key, "deny", denyNote)
                             }
-                            disabled={actionLoading !== null}
+                            disabled={actionLoading === `${step.key}-deny`}
                             className="gap-1"
                           >
                             {actionLoading === `${step.key}-deny` ? (
@@ -854,7 +854,7 @@ export default function ApplicantDetailPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => setDenyingStep(step.key)}
-                          disabled={actionLoading !== null}
+                          disabled={actionLoading === `${step.key}-approve`}
                           className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 gap-1"
                         >
                           <XCircle className="h-3 w-3" />

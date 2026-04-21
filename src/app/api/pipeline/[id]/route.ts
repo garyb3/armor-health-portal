@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields, parseOptionalDate } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 import { getCurrentStep } from "@/lib/pipeline-helpers";
@@ -120,9 +120,14 @@ export async function PATCH(
 
     if (body.notes !== undefined) data.notes = body.notes || null;
     if (body.offerAcceptedAt !== undefined) {
-      data.offerAcceptedAt = body.offerAcceptedAt
-        ? new Date(body.offerAcceptedAt)
-        : null;
+      const parsed = parseOptionalDate(body.offerAcceptedAt);
+      if (parsed === "invalid") {
+        return NextResponse.json({ error: "Invalid offerAcceptedAt" }, { status: 400 });
+      }
+      if (parsed && parsed.getTime() > Date.now()) {
+        return NextResponse.json({ error: "offerAcceptedAt cannot be in the future" }, { status: 400 });
+      }
+      data.offerAcceptedAt = parsed;
     }
 
     if (body.firstName !== undefined) {

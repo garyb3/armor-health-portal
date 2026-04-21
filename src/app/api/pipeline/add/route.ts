@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, parseOptionalDate } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 import bcrypt from "bcryptjs";
@@ -21,9 +21,20 @@ export async function POST(request: NextRequest) {
     const lastName = String(body.lastName ?? "").trim();
     const email = String(body.email ?? "").trim().toLowerCase();
     const phone = body.phone ? String(body.phone).trim() : null;
-    const offerAcceptedAt = body.offerAcceptedAt
-      ? new Date(body.offerAcceptedAt)
-      : null;
+    const offerAcceptedAt = parseOptionalDate(body.offerAcceptedAt);
+
+    if (offerAcceptedAt === "invalid") {
+      return NextResponse.json(
+        { error: "Invalid offerAcceptedAt" },
+        { status: 400 }
+      );
+    }
+    if (offerAcceptedAt && offerAcceptedAt.getTime() > Date.now()) {
+      return NextResponse.json(
+        { error: "offerAcceptedAt cannot be in the future" },
+        { status: 400 }
+      );
+    }
 
     if (!firstName || !lastName) {
       return NextResponse.json(
@@ -32,7 +43,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!email || !email.includes("@")) {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: "A valid email address is required" },
         { status: 400 }

@@ -5,6 +5,7 @@ import {
   unauthorizedResponse,
   badRequestResponse,
   getClientIp,
+  parseOptionalDate,
 } from "@/lib/api-helpers";
 import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
 import { getNextStep } from "@/lib/pipeline-helpers";
@@ -44,10 +45,22 @@ export async function PATCH(
     // Build update data only for provided fields
     const data: Record<string, Date | null> = {};
     if (stepStartedAt !== undefined) {
-      data.stepStartedAt = stepStartedAt ? new Date(stepStartedAt) : null;
+      const parsed = parseOptionalDate(stepStartedAt);
+      if (parsed === "invalid") return badRequestResponse("Invalid stepStartedAt");
+      data.stepStartedAt = parsed;
     }
     if (stepCompletedAt !== undefined) {
-      data.stepCompletedAt = stepCompletedAt ? new Date(stepCompletedAt) : null;
+      const parsed = parseOptionalDate(stepCompletedAt);
+      if (parsed === "invalid") return badRequestResponse("Invalid stepCompletedAt");
+      data.stepCompletedAt = parsed;
+    }
+
+    if (
+      data.stepStartedAt instanceof Date &&
+      data.stepCompletedAt instanceof Date &&
+      data.stepCompletedAt.getTime() < data.stepStartedAt.getTime()
+    ) {
+      return badRequestResponse("stepCompletedAt cannot be before stepStartedAt");
     }
 
     if (Object.keys(data).length === 0) {

@@ -30,6 +30,19 @@ export function badRequestResponse(message: string) {
   return NextResponse.json({ error: message }, { status: 400 });
 }
 
+/**
+ * Parse an optional ISO date from a JSON request body.
+ * Returns a Date for valid strings, null for null/undefined/empty, or "invalid" for garbage.
+ * Callers must check for "invalid" and return a 400 — `new Date("garbage")` silently returns Invalid Date.
+ */
+export function parseOptionalDate(value: unknown): Date | null | "invalid" {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value !== "string") return "invalid";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "invalid";
+  return d;
+}
+
 /** Basic IPv4/IPv6 format check to reject obviously spoofed values. */
 const IP_PATTERN = /^[\d.]+$|^[a-fA-F\d:]+$/;
 

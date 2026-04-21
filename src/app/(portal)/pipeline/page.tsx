@@ -362,7 +362,6 @@ export default function PipelinePage() {
       <div className="max-w-sm">
         <Input
           placeholder="Search by name, email, or phone..."
-          className="placeholder:text-black"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
