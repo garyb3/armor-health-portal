@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, MailCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { AlertCircle, CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api-client";
@@ -22,6 +22,14 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function showFeedback(kind: "ok" | "err", msg: string) {
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    setFeedback({ kind, msg });
+    feedbackTimerRef.current = setTimeout(() => setFeedback(null), 4000);
+  }
 
   async function loadUsers(f: string) {
     setLoading(true);
@@ -48,12 +56,13 @@ export default function AdminPage() {
       const res = await apiFetch(`/api/admin/users/${id}/approve`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(`Failed to approve: ${data.error || res.statusText}`);
+        showFeedback("err", `Failed to approve: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
+      showFeedback("ok", "User approved");
     } catch (err) {
-      alert(`Network error: ${err}`);
+      showFeedback("err", `Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
@@ -66,12 +75,13 @@ export default function AdminPage() {
       const res = await apiFetch(`/api/admin/users/${id}/deny`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(`Failed to deny: ${data.error || res.statusText}`);
+        showFeedback("err", `Failed to deny: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
+      showFeedback("ok", "User denied");
     } catch (err) {
-      alert(`Network error: ${err}`);
+      showFeedback("err", `Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
@@ -84,12 +94,13 @@ export default function AdminPage() {
       const res = await apiFetch(`/api/admin/users/${id}/delete`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(`Failed to remove: ${data.error || res.statusText}`);
+        showFeedback("err", `Failed to remove: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
+      showFeedback("ok", "User removed");
     } catch (err) {
-      alert(`Network error: ${err}`);
+      showFeedback("err", `Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
@@ -101,12 +112,13 @@ export default function AdminPage() {
       const res = await apiFetch(`/api/admin/users/${id}/verify-email`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(`Failed to verify email: ${data.error || res.statusText}`);
+        showFeedback("err", `Failed to verify email: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
+      showFeedback("ok", "Email marked verified");
     } catch (err) {
-      alert(`Network error: ${err}`);
+      showFeedback("err", `Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
@@ -122,6 +134,32 @@ export default function AdminPage() {
           Manage user accounts and approval requests
         </p>
       </div>
+
+      {feedback && (
+        <div
+          role={feedback.kind === "err" ? "alert" : "status"}
+          className={
+            feedback.kind === "ok"
+              ? "flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+              : "flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200"
+          }
+        >
+          {feedback.kind === "ok" ? (
+            <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
+          ) : (
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+          )}
+          <span className="flex-1">{feedback.msg}</span>
+          <button
+            type="button"
+            onClick={() => setFeedback(null)}
+            className="text-xs opacity-70 hover:opacity-100"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <Button
