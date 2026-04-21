@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
         userEmail: applicant.email,
         verificationToken: rawVerificationToken,
       });
-    } catch (emailErr) {
-      console.error("Failed to send verification email:", emailErr);
+    } catch {
+      // email.ts logs the failure internally; just surface a 500 to the caller
       return NextResponse.json({ error: "Failed to send verification email" }, { status: 500 });
     }
 

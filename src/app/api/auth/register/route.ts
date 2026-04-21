@@ -114,7 +114,9 @@ export async function POST(request: NextRequest) {
         userName: `${firstName} ${lastName}`,
         userEmail: email,
         userRole: role,
-      }).catch((err) => console.error("[Register] Failed to send pending-approval email:", err));
+      }).catch(() => {
+        // email.ts logs the failure internally; swallow here to avoid double-log
+      });
     }
 
     const tokenPayload = {

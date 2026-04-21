@@ -270,18 +270,18 @@ export async function POST(
         applicantEmail: applicant.email,
         approvedStep: stepTitle,
         nextStep: nextStep?.title,
-      }).catch((err) =>
-        console.error("[Email] Step-approved email failed:", err)
-      );
+      }).catch(() => {
+        // email.ts logs the failure internally; swallow here to avoid double-log
+      });
     } else {
       sendStepDeniedEmail({
         applicantName,
         applicantEmail: applicant.email,
         deniedStep: stepTitle,
         note,
-      }).catch((err) =>
-        console.error("[Email] Step-denied email failed:", err)
-      );
+      }).catch(() => {
+        // email.ts logs the failure internally; swallow here to avoid double-log
+      });
     }
 
     return NextResponse.json({ success: true, action, formType });
