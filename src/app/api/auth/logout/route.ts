@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth";
+import {
+  ACCESS_COOKIE_OPTIONS,
+  REFRESH_COOKIE_OPTIONS,
+  verifyToken,
+} from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   // Increment tokenVersion to invalidate all existing refresh tokens
@@ -21,19 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   const response = NextResponse.json({ success: true });
-  response.cookies.set("auth-token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 0,
-    path: "/",
-  });
-  response.cookies.set("refresh-token", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 0,
-    path: "/",
-  });
+  response.cookies.set("auth-token", "", { ...ACCESS_COOKIE_OPTIONS, maxAge: 0 });
+  response.cookies.set("refresh-token", "", { ...REFRESH_COOKIE_OPTIONS, maxAge: 0 });
   return response;
 }
