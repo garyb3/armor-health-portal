@@ -31,10 +31,18 @@ export async function POST(
 
     // Soft-deny: preserve the record for audit trail instead of hard-deleting.
     // Incrementing tokenVersion revokes any active sessions immediately.
+    // Purge SensitiveData (SSN) on deny — data minimization: once a candidate
+    // is denied, we no longer have a business reason to retain their SSN.
+    // If compliance later requires a statutory retention window (e.g. EEOC
+    // 1-year hold for federal contractors), replace this deleteMany with a
+    // sensitiveDataPurgedAt field + scheduled job.
     await prisma.$transaction([
       prisma.applicant.update({
         where: { id },
         data: { approved: false, denied: true, tokenVersion: { increment: 1 } },
+      }),
+      prisma.sensitiveData.deleteMany({
+        where: { applicantId: id },
       }),
       prisma.auditLog.create({
         data: {
@@ -42,6 +50,7 @@ export async function POST(
           action: "ADMIN_DENY_USER",
           targetId: id,
           ipAddress: getClientIp(request),
+          metadata: { sensitiveDataPurged: true },
         },
       }),
     ]);
