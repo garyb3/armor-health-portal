@@ -853,7 +853,10 @@ export default function ApplicantDetailPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setDenyingStep(step.key)}
+                          onClick={() => {
+                            setDenyingStep(step.key);
+                            setDenyNote("");
+                          }}
                           disabled={actionLoading === `${step.key}-approve`}
                           className="text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950 gap-1"
                         >
