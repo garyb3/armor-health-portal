@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -50,6 +50,9 @@ export async function POST(request: NextRequest, { params }: Params) {
   if (!STAFF_ROLES.includes(user.userRole)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+
+  const oversized = enforceMaxBodySize(request, 256 * 1024);
+  if (oversized) return oversized;
 
   const ip = getClientIp(request);
   const { limited, retryAfterMs } = await rateLimit(`comments:${ip}`, 30, 60_000);

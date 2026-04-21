@@ -6,6 +6,7 @@ import {
   badRequestResponse,
   getClientIp,
   parseOptionalDate,
+  enforceMaxBodySize,
 } from "@/lib/api-helpers";
 import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
 import { getNextStep } from "@/lib/pipeline-helpers";
@@ -30,6 +31,9 @@ export async function PATCH(
     if (!STAFF_ROLES.includes(user.userRole)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const oversized = enforceMaxBodySize(request, 32 * 1024);
+    if (oversized) return oversized;
 
     const ip = getClientIp(request);
     const { limited, retryAfterMs } = await rateLimit(`step-patch:${ip}`, 30, 60_000);
@@ -116,6 +120,9 @@ export async function POST(
     if (!STAFF_ROLES.includes(user.userRole)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const oversized = enforceMaxBodySize(request, 256 * 1024);
+    if (oversized) return oversized;
 
     const clientIp = getClientIp(request);
     const { limited, retryAfterMs } = await rateLimit(`step-submit:${clientIp}`, 30, 60_000);

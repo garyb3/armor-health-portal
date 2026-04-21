@@ -43,6 +43,20 @@ export function parseOptionalDate(value: unknown): Date | null | "invalid" {
   return d;
 }
 
+/**
+ * Reject oversized request bodies before parsing. Returns a 413 response if
+ * Content-Length is present and exceeds the limit, otherwise null. Doesn't
+ * guard against clients that omit Content-Length or stream — call sites
+ * should still bound their inputs (content .length check, Zod refine, etc.).
+ */
+export function enforceMaxBodySize(request: NextRequest, maxBytes: number) {
+  const len = Number(request.headers.get("content-length") ?? 0);
+  if (len > maxBytes) {
+    return NextResponse.json({ error: "Payload too large" }, { status: 413 });
+  }
+  return null;
+}
+
 /** Basic IPv4/IPv6 format check to reject obviously spoofed values. */
 const IP_PATTERN = /^[\d.]+$|^[a-fA-F\d:]+$/;
 
