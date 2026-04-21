@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -37,6 +37,11 @@ export default function PipelinePage() {
   const [notesMap, setNotesMap] = useState<Record<string, CandidateNote[]>>({});
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+  // Per-applicant AbortControllers for in-flight offer-date PATCHes.
+  // Rapid edits abort the previous request so responses can't land out of order
+  // and overwrite newer local state with older server-echoed values.
+  const offerDateAbortersRef = useRef<Map<string, AbortController>>(new Map());
+
   const loadApplicants = async () => {
     try {
       const res = await apiFetch("/api/pipeline");
@@ -58,11 +63,15 @@ export default function PipelinePage() {
   }, []);
 
   const handleSetOfferDate = async (applicantId: string, date: string | null) => {
+    offerDateAbortersRef.current.get(applicantId)?.abort();
+    const controller = new AbortController();
+    offerDateAbortersRef.current.set(applicantId, controller);
     try {
       const res = await apiFetch(`/api/pipeline/${applicantId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ offerAcceptedAt: date }),
+        signal: controller.signal,
       });
       if (res.ok) {
         setApplicants((prev) =>
@@ -72,7 +81,12 @@ export default function PipelinePage() {
         );
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       console.error("Failed to update offer date:", err);
+    } finally {
+      if (offerDateAbortersRef.current.get(applicantId) === controller) {
+        offerDateAbortersRef.current.delete(applicantId);
+      }
     }
   };
 
