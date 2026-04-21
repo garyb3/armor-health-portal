@@ -188,7 +188,7 @@ export default function PipelinePage() {
       setAddError("First and last name are required");
       return;
     }
-    if (!addForm.email.trim() || !addForm.email.includes("@")) {
+    if (!addForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(addForm.email.trim())) {
       setAddError("A valid email is required");
       return;
     }
