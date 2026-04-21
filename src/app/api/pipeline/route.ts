@@ -202,7 +202,7 @@ export async function GET(request: NextRequest) {
       staleCount,
     },
   });
-  response.headers.set("Cache-Control", "private, max-age=60");
+  response.headers.set("Cache-Control", "private, no-store");
   return response;
   } catch (error) {
     console.error("Pipeline fetch error:", error);
