@@ -7,16 +7,29 @@ export const ROLE_OPTIONS = [
 
 export const STAFF_ROLES = ["HR", "ADMIN"] as const;
 
+// NIST 800-63B–aligned policy: length over composition rules.
+// Minimum 12 chars, maximum 128 (bcrypt truncates at 72 but we allow more input so the
+// user's memorable phrase isn't silently cropped at the boundary), and a small hard-blocklist
+// of obvious-choice passwords so nobody ships "Password1234".
+const COMMON_PASSWORDS = new Set([
+  "password1234",
+  "passwordpassword",
+  "armorhealth123",
+  "qwerty123456",
+  "123456789012",
+  "aaaaaaaaaaaa",
+  "letmeinletmein",
+]);
+export const passwordSchema = z
+  .string()
+  .min(12, "Password must be at least 12 characters")
+  .max(128, "Password must be at most 128 characters")
+  .refine((p) => !COMMON_PASSWORDS.has(p.toLowerCase()), "Password is too common");
+
 export const registerSchema = z
   .object({
     email: z.email("Please enter a valid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .refine((p) => /[A-Z]/.test(p), "Password must include an uppercase letter")
-      .refine((p) => /[a-z]/.test(p), "Password must include a lowercase letter")
-      .refine((p) => /[0-9]/.test(p), "Password must include a number")
-      .refine((p) => /[^A-Za-z0-9]/.test(p), "Password must include a special character"),
+    password: passwordSchema,
     confirmPassword: z.string(),
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),

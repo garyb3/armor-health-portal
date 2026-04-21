@@ -4,16 +4,11 @@ import { hashPassword } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { z } from "zod/v4";
+import { passwordSchema } from "@/schemas/auth";
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, "Reset token is required"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .refine((p) => /[A-Z]/.test(p), "Password must include an uppercase letter")
-    .refine((p) => /[a-z]/.test(p), "Password must include a lowercase letter")
-    .refine((p) => /[0-9]/.test(p), "Password must include a number")
-    .refine((p) => /[^A-Za-z0-9]/.test(p), "Password must include a special character"),
+  password: passwordSchema,
 });
 
 export async function POST(request: NextRequest) {
