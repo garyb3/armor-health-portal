@@ -763,7 +763,7 @@ export default function ApplicantDetailPage() {
                     <input
                       type="date"
                       className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
-                      value={prog?.stepStartedAt ? new Date(prog.stepStartedAt).toLocaleDateString("en-CA") : ""}
+                      value={prog?.stepStartedAt ? new Date(prog.stepStartedAt).toLocaleDateString("en-CA", { timeZone: "UTC" }) : ""}
                       onChange={(e) => {
                         const val = e.target.value;
                         handleSetStepDates(step.key, {
@@ -776,7 +776,7 @@ export default function ApplicantDetailPage() {
                     <input
                       type="date"
                       className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
-                      value={prog?.stepCompletedAt ? new Date(prog.stepCompletedAt).toLocaleDateString("en-CA") : ""}
+                      value={prog?.stepCompletedAt ? new Date(prog.stepCompletedAt).toLocaleDateString("en-CA", { timeZone: "UTC" }) : ""}
                       onChange={(e) => {
                         const val = e.target.value;
                         handleSetStepDates(step.key, {

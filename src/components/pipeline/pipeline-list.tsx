@@ -340,7 +340,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           <input
                             type="date"
                             className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
-                            value={p?.stepStartedAt ? new Date(p.stepStartedAt).toLocaleDateString('en-CA') : ""}
+                            value={p?.stepStartedAt ? new Date(p.stepStartedAt).toLocaleDateString('en-CA', { timeZone: 'UTC' }) : ""}
                             onChange={(e) => {
                               const val = e.target.value;
                               onSetStepDates?.(applicant.id, stage.key, {
@@ -354,7 +354,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           <input
                             type="date"
                             className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5"
-                            value={p?.stepCompletedAt ? new Date(p.stepCompletedAt).toLocaleDateString('en-CA') : ""}
+                            value={p?.stepCompletedAt ? new Date(p.stepCompletedAt).toLocaleDateString('en-CA', { timeZone: 'UTC' }) : ""}
                             onChange={(e) => {
                               const val = e.target.value;
                               onSetStepDates?.(applicant.id, stage.key, {
@@ -391,7 +391,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                     <input
                       type="date"
                       className="text-xs border border-gray-300 dark:border-brand-700 dark:bg-brand-800 dark:text-gray-200 rounded px-1.5 py-0.5 ml-auto"
-                      value={applicant.offerAcceptedAt ? new Date(applicant.offerAcceptedAt).toLocaleDateString('en-CA') : ""}
+                      value={applicant.offerAcceptedAt ? new Date(applicant.offerAcceptedAt).toLocaleDateString('en-CA', { timeZone: 'UTC' }) : ""}
                       onChange={(e) => {
                         const val = e.target.value;
                         onSetOfferDate?.(applicant.id, val ? new Date(val).toISOString() : null);
