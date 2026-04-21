@@ -35,9 +35,21 @@ export async function POST(request: NextRequest) {
       return successResponse;
     }
 
+    // Per-account throttle: if a token was issued in the last 60s, skip re-issuing.
+    // Complements the per-IP rate limit above (blocks an attacker rotating IPs).
+    // Returns the same successResponse so timing doesn't leak "is there a pending reset".
+    if (
+      applicant.resetTokenExpiresAt &&
+      applicant.resetTokenExpiresAt.getTime() - Date.now() > 59 * 60 * 1000
+    ) {
+      return successResponse;
+    }
+
     const rawResetToken = randomBytes(32).toString("hex");
     const resetTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
+    // Overwriting resetToken + resetTokenExpiresAt in a single update atomically
+    // invalidates any previously-issued token — the old hash is gone after this write.
     await prisma.applicant.update({
       where: { id: applicant.id },
       data: { resetToken: hashToken(rawResetToken), resetTokenExpiresAt },
