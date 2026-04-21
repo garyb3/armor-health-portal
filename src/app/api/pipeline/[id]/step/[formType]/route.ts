@@ -13,6 +13,7 @@ import {
   sendStepApprovedEmail,
   sendStepDeniedEmail,
 } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
 import type { FormType } from "@/generated/prisma/client";
 import type { FormType as AppFormType } from "@/types";
 
@@ -28,6 +29,15 @@ export async function PATCH(
 
     if (!STAFF_ROLES.includes(user.userRole)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const ip = getClientIp(request);
+    const { limited, retryAfterMs } = await rateLimit(`step-patch:${ip}`, 30, 60_000);
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+      );
     }
 
     const { id: applicantId, formType: slug } = await params;
@@ -108,6 +118,13 @@ export async function POST(
     }
 
     const clientIp = getClientIp(request);
+    const { limited, retryAfterMs } = await rateLimit(`step-submit:${clientIp}`, 30, 60_000);
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+      );
+    }
 
     const { id: applicantId, formType: slug } = await params;
     const formType = FORM_TYPE_MAP[slug] as FormType | undefined;

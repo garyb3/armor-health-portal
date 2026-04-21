@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 const STAFF_ROLES: string[] = ["HR", "ADMIN"];
 
@@ -49,6 +50,15 @@ export async function POST(
   if (!user) return unauthorizedResponse();
   if (!STAFF_ROLES.includes(user.userRole)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const ip = getClientIp(request);
+  const { limited, retryAfterMs } = await rateLimit(`notes:${ip}`, 30, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+    );
   }
 
   const { id } = await params;
