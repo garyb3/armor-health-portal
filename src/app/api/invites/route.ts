@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, role } = parsed.data;
+    const { email: rawEmail, role } = parsed.data;
+    const email = rawEmail.trim().toLowerCase();
 
     // Only ADMIN can create ADMIN invites — defense-in-depth (schema also excludes ADMIN)
     if ((role as string) === "ADMIN" && user.userRole !== "ADMIN") {
