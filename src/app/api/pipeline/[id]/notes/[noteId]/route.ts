@@ -16,24 +16,23 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id, noteId } = await params;
 
   try {
-    const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id) {
-      return NextResponse.json({ error: "Note not found" }, { status: 404 });
-    }
-    if (note.authorId !== user.userId) {
-      return NextResponse.json({ error: "You can only edit your own notes" }, { status: 403 });
-    }
-
     const body = await request.json();
     const content = body.content?.trim();
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
 
-    const updated = await prisma.note.update({
-      where: { id: noteId },
+    // Fold ownership + applicant-scoping into a single atomic updateMany.
+    // count=0 means "not found OR not yours" — return 404 either way (don't leak existence).
+    const { count } = await prisma.note.updateMany({
+      where: { id: noteId, applicantId: id, authorId: user.userId },
       data: { content, updatedAt: new Date() },
     });
+    if (count === 0) {
+      return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    }
+
+    const updated = await prisma.note.findUniqueOrThrow({ where: { id: noteId } });
 
     try {
       await prisma.auditLog.create({
@@ -74,15 +73,13 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const { id, noteId } = await params;
 
   try {
-    const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id) {
+    // Fold ownership + applicant-scoping into a single atomic deleteMany (no check-then-act race).
+    const { count } = await prisma.note.deleteMany({
+      where: { id: noteId, applicantId: id, authorId: user.userId },
+    });
+    if (count === 0) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
-    if (note.authorId !== user.userId) {
-      return NextResponse.json({ error: "You can only delete your own notes" }, { status: 403 });
-    }
-
-    await prisma.note.delete({ where: { id: noteId } });
 
     try {
       await prisma.auditLog.create({
