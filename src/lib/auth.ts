@@ -110,7 +110,7 @@ export async function verifyRefreshToken(token: string): Promise<TokenPayload | 
 export const ACCESS_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: "lax" as const,
   maxAge: 15 * 60, // 15 minutes
   path: "/",
 };
@@ -119,7 +119,7 @@ export const ACCESS_COOKIE_OPTIONS = {
 export const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: "lax" as const,
   maxAge: 60 * 60 * 24 * 3, // 3 days
   path: "/",
 };
