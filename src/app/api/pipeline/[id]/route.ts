@@ -117,6 +117,7 @@ export async function PATCH(
   try {
     const body = await request.json();
     const data: Record<string, unknown> = {};
+    let emailChanged: { from: string; to: string } | null = null;
 
     if (body.notes !== undefined) data.notes = body.notes || null;
     if (body.offerAcceptedAt !== undefined) {
@@ -147,9 +148,26 @@ export async function PATCH(
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
         return NextResponse.json({ error: "Invalid email" }, { status: 400 });
       }
-      const current = await prisma.applicant.findUnique({ where: { id }, select: { email: true } });
+      const current = await prisma.applicant.findUnique({
+        where: { id },
+        select: { email: true, role: true },
+      });
       if (!current) return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-      if (current.email.toLowerCase() !== v) data.email = v;
+      if (current.email.toLowerCase() !== v) {
+        // Staff email changes must be done by the account owner — otherwise HR
+        // could swap a colleague's email and take over via forgot-password.
+        if (STAFF_ROLES.includes(current.role)) {
+          return NextResponse.json(
+            { error: "Staff email changes must be done by the account owner" },
+            { status: 403 }
+          );
+        }
+        data.email = v;
+        // Invalidate any in-flight password reset aimed at the old address.
+        data.resetToken = null;
+        data.resetTokenExpiresAt = null;
+        emailChanged = { from: current.email, to: v };
+      }
     }
     if (body.phone !== undefined) {
       const v = body.phone === null ? "" : String(body.phone).trim();
@@ -169,7 +187,10 @@ export async function PATCH(
             action: "APPLICANT_UPDATED",
             targetId: id,
             ipAddress: getClientIp(request),
-            metadata: { updatedFields: Object.keys(data) },
+            metadata: {
+              updatedFields: Object.keys(data),
+              ...(emailChanged ? { emailChanged } : {}),
+            },
           },
         }),
       ]);
