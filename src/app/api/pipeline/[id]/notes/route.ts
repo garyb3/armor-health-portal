@@ -94,7 +94,7 @@ export async function POST(
         },
       });
     } catch (auditErr) {
-      console.error("Audit log failed for NOTE_ADDED:", auditErr);
+      console.error("[AUDIT_LOG_FAIL] NOTE_ADDED:", auditErr);
     }
 
     return NextResponse.json(

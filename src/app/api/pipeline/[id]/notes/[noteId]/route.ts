@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
         },
       });
     } catch (auditErr) {
-      console.error("Audit log failed for NOTE_EDITED:", auditErr);
+      console.error("[AUDIT_LOG_FAIL] NOTE_EDITED:", auditErr);
     }
 
     return NextResponse.json({
@@ -95,7 +95,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
         },
       });
     } catch (auditErr) {
-      console.error("Audit log failed for NOTE_DELETED:", auditErr);
+      console.error("[AUDIT_LOG_FAIL] NOTE_DELETED:", auditErr);
     }
 
     return NextResponse.json({ success: true });
