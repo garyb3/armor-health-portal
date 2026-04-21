@@ -107,9 +107,9 @@ export function ProgressTracker({
               <p
                 className={`text-xs font-medium truncate ${
                   isApproved(status)
-                    ? "text-emerald-600"
+                    ? "text-emerald-600 dark:text-emerald-400"
                     : status === "DENIED"
-                    ? "text-red-600"
+                    ? "text-red-600 dark:text-red-400"
                     : status === "IN_PROGRESS" || status === "PENDING_REVIEW"
                     ? "text-amber-600"
                     : "text-gray-900 dark:text-gray-50"

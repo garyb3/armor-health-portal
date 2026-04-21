@@ -865,14 +865,14 @@ export default function ApplicantDetailPage() {
                   )}
 
                   {(status === "APPROVED" || status === "COMPLETED") && (
-                    <span className="inline-flex items-center gap-1 text-sm text-emerald-600">
+                    <span className="inline-flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="h-4 w-4" />
                       Completed
                     </span>
                   )}
 
                   {status === "DENIED" && (
-                    <span className="inline-flex items-center gap-1 text-sm text-red-600">
+                    <span className="inline-flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                       <XCircle className="h-4 w-4" />
                       Denied
                     </span>
