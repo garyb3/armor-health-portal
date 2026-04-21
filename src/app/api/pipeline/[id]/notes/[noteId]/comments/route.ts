@@ -104,10 +104,8 @@ export async function POST(request: NextRequest, { params }: Params) {
     );
   } catch (error) {
     console.error("Failed to create comment:", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to create comment";
     return NextResponse.json(
-      { error: `Failed to create comment: ${message}` },
+      { error: "Failed to create comment" },
       { status: 500 }
     );
   }
