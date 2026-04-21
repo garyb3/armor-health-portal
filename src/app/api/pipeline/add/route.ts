@@ -50,6 +50,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Pre-check for duplicate email — gives a clean 409 on the happy-path collision.
+    // The P2002 catch below still handles the true race (two concurrent adds).
+    const existing = await prisma.applicant.findUnique({
+      where: { email },
+      select: { id: true },
+    });
+    if (existing) {
+      return NextResponse.json(
+        { error: "A candidate with this email already exists" },
+        { status: 409 }
+      );
+    }
+
     // Generate a random password hash — candidates don't log in
     const placeholder = randomBytes(32).toString("hex");
     const hashedPassword = await bcrypt.hash(placeholder, 10);
