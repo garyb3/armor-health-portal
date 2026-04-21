@@ -12,20 +12,28 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
   const [resendStatus, setResendStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [pollError, setPollError] = useState(false);
 
   // Poll for verification status every 5 seconds
   useEffect(() => {
+    let consecutiveFailures = 0;
     const interval = setInterval(async () => {
       try {
         const res = await apiFetch("/api/auth/check-verification");
         if (res.ok) {
+          consecutiveFailures = 0;
+          setPollError(false);
           const data = await res.json();
           if (data.emailVerified) {
             window.location.href = "/pipeline";
           }
+        } else {
+          consecutiveFailures += 1;
+          if (consecutiveFailures >= 3) setPollError(true);
         }
       } catch {
-        // ignore errors, will retry
+        consecutiveFailures += 1;
+        if (consecutiveFailures >= 3) setPollError(true);
       }
     }, 5000);
     return () => clearInterval(interval);
@@ -90,6 +98,12 @@ function VerifyEmailContent() {
               </p>
             </div>
           </>
+        )}
+
+        {pollError && !error && (
+          <p className="text-xs text-amber-600 dark:text-amber-400">
+            We&apos;re having trouble checking your status. Refresh the page if you&apos;ve already verified.
+          </p>
         )}
 
         <div className="space-y-3">
