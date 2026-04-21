@@ -12,7 +12,7 @@ const STEP_TITLE_MAP: Record<string, string> = Object.fromEntries(
   FORM_STEPS.map((s) => [s.key, s.title])
 );
 
-export async function GET(request: NextRequest) {
+export async function POST(request: NextRequest) {
   // Authenticate with CRON_SECRET
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
