@@ -41,6 +41,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
         <button
           type="button"
           onClick={() => router.push("/pipeline")}
+          aria-label="Go to dashboard"
           className="flex items-center hover:opacity-80 transition-opacity"
         >
           <div className="bg-white rounded-lg px-4 py-2">
