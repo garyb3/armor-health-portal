@@ -198,8 +198,8 @@ export function Sidebar({ role }: SidebarProps) {
           <Link
             href="/pipeline/archived"
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800 transition-colors",
-              pathname === "/pipeline/archived" && "bg-gray-100 dark:bg-brand-800 text-gray-900 dark:text-gray-100"
+              "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 transition-all hover:ring-2 hover:ring-blue-400/50",
+              pathname === "/pipeline/archived" && "ring-2 ring-blue-500 shadow-sm"
             )}
           >
             <Archive className="h-4 w-4" />
