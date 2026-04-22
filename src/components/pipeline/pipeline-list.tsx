@@ -5,9 +5,10 @@ import Link from "next/link";
 import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
-import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2, AlertTriangle, MessageSquare } from "lucide-react";
+import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2, AlertTriangle, MessageSquare, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api-client";
+import { isArchivable } from "@/lib/pipeline-helpers";
 import type { PipelineApplicant, FormProgress, CandidateNote, NoteComment } from "@/types";
 
 const STAGE_SHORT: Record<string, string> = Object.fromEntries(
@@ -48,11 +49,13 @@ interface PipelineListProps {
   onSetOfferDate?: (id: string, date: string | null) => void;
   onSetStepDates?: (applicantId: string, formType: string, dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }) => void;
   onRemoveCandidate?: (id: string) => Promise<void>;
+  onArchive?: (id: string) => Promise<void>;
 }
 
-export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes, onAddNote, onEditNote, onDeleteNote, onSetOfferDate, onSetStepDates, onRemoveCandidate }: PipelineListProps) {
+export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes, onAddNote, onEditNote, onDeleteNote, onSetOfferDate, onSetStepDates, onRemoveCandidate, onArchive }: PipelineListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
   const [newNoteText, setNewNoteText] = useState<Record<string, string>>({});
   const [addingNote, setAddingNote] = useState<string | null>(null);
   const [noteError, setNoteError] = useState<string | null>(null);
@@ -845,31 +848,57 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                     )}
                   </div>
 
-                  {/* Remove Candidate */}
-                  {onRemoveCandidate && (
-                    <div className="flex justify-end mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={removingId === applicant.id}
-                        onClick={async () => {
-                          if (!confirm(`Are you sure you want to remove ${applicant.firstName} ${applicant.lastName} from the pipeline?`)) return;
-                          setRemovingId(applicant.id);
-                          try {
-                            await onRemoveCandidate(applicant.id);
-                          } finally {
-                            setRemovingId(null);
-                          }
-                        }}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                      >
-                        {removingId === applicant.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4 mr-1.5" />
-                        )}
-                        Remove
-                      </Button>
+                  {/* Archive / Remove actions */}
+                  {(onRemoveCandidate || onArchive) && (
+                    <div className="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-100 dark:border-brand-700">
+                      {onArchive && isArchivable(applicant) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={archivingId === applicant.id}
+                          onClick={async () => {
+                            if (!confirm(`Archive ${applicant.firstName} ${applicant.lastName}? All data is retained and they can be restored later.`)) return;
+                            setArchivingId(applicant.id);
+                            try {
+                              await onArchive(applicant.id);
+                            } finally {
+                              setArchivingId(null);
+                            }
+                          }}
+                          className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                        >
+                          {archivingId === applicant.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Archive className="h-4 w-4 mr-1.5" />
+                          )}
+                          Archive
+                        </Button>
+                      )}
+                      {onRemoveCandidate && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={removingId === applicant.id}
+                          onClick={async () => {
+                            if (!confirm(`Are you sure you want to remove ${applicant.firstName} ${applicant.lastName} from the pipeline?`)) return;
+                            setRemovingId(applicant.id);
+                            try {
+                              await onRemoveCandidate(applicant.id);
+                            } finally {
+                              setRemovingId(null);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        >
+                          {removingId === applicant.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 mr-1.5" />
+                          )}
+                          Remove
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

@@ -197,6 +197,22 @@ export default function PipelinePage() {
     }
   };
 
+  const handleArchive = async (applicantId: string) => {
+    try {
+      const res = await apiFetch(`/api/pipeline/${applicantId}/archive`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        setApplicants((prev) => prev.filter((a) => a.id !== applicantId));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error ?? "Failed to archive applicant");
+      }
+    } catch (err) {
+      console.error("Failed to archive applicant:", err);
+    }
+  };
+
   const handleAddCandidate = async () => {
     if (!addForm.firstName.trim() || !addForm.lastName.trim()) {
       setAddError("First and last name are required");
@@ -422,7 +438,7 @@ export default function PipelinePage() {
       </div>
 
       {/* Applicant list */}
-      <PipelineList applicants={filtered} notesMap={notesMap} currentUserId={currentUserId} onFetchNotes={handleFetchNotes} onAddNote={handleAddNote} onEditNote={handleEditNote} onDeleteNote={handleDeleteNote} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} />
+      <PipelineList applicants={filtered} notesMap={notesMap} currentUserId={currentUserId} onFetchNotes={handleFetchNotes} onAddNote={handleAddNote} onEditNote={handleEditNote} onDeleteNote={handleDeleteNote} onSetOfferDate={handleSetOfferDate} onSetStepDates={handleSetStepDates} onRemoveCandidate={handleRemoveCandidate} onArchive={handleArchive} />
     </div>
   );
 }

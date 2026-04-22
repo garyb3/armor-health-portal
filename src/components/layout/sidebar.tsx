@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, AlertTriangle, ChevronDown } from "lucide-react";
+import { LayoutDashboard, Users, AlertTriangle, ChevronDown, Archive } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api-client";
 import { getTimeBucket } from "@/lib/time-buckets";
@@ -161,6 +161,17 @@ export function Sidebar({ role }: SidebarProps) {
               </Link>
             </div>
           </div>
+
+          <Link
+            href="/pipeline/archived"
+            className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800 transition-colors",
+              pathname === "/pipeline/archived" && "bg-gray-100 dark:bg-brand-800 text-gray-900 dark:text-gray-100"
+            )}
+          >
+            <Archive className="h-4 w-4" />
+            Archived Applicants
+          </Link>
 
           {/* Follow-up dropdown */}
           {summary.staleCount > 0 && (

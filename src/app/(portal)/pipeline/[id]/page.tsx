@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,9 +28,11 @@ import {
   ChevronDown,
   ChevronRight,
   MessageSquare,
+  Archive,
 } from "lucide-react";
 import type { FormProgress, CandidateNote, NoteComment } from "@/types";
 import { apiFetch } from "@/lib/api-client";
+import { isArchivable } from "@/lib/pipeline-helpers";
 
 interface ApplicantDetail {
   id: string;
@@ -58,7 +60,9 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function ApplicantDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [applicant, setApplicant] = useState<ApplicantDetail | null>(null);
+  const [archiving, setArchiving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [denyNote, setDenyNote] = useState<string>("");
@@ -167,6 +171,25 @@ export default function ApplicantDetailPage() {
       setApplicant(await res.json());
     } catch (err) {
       console.error("Failed to load applicant:", err);
+    }
+  };
+
+  const handleArchive = async () => {
+    if (!applicant) return;
+    if (!confirm(`Archive ${applicant.firstName} ${applicant.lastName}? All data is retained and they can be restored later.`)) return;
+    setArchiving(true);
+    try {
+      const res = await apiFetch(`/api/pipeline/${id}/archive`, { method: "POST" });
+      if (res.ok) {
+        router.push("/pipeline");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error ?? "Failed to archive applicant");
+      }
+    } catch (err) {
+      console.error("Failed to archive applicant:", err);
+    } finally {
+      setArchiving(false);
     }
   };
 
@@ -678,6 +701,22 @@ export default function ApplicantDetailPage() {
                 {applicant.completedCount} of {applicant.totalCount} steps
                 completed
               </p>
+              {isArchivable(applicant) && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={archiving}
+                  onClick={handleArchive}
+                  className="text-amber-700 hover:text-amber-800 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-950/30"
+                >
+                  {archiving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Archive className="h-4 w-4 mr-1.5" />
+                  )}
+                  Archive Applicant
+                </Button>
+              )}
             </div>
           </div>
         </CardContent>

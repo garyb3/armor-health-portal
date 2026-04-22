@@ -45,6 +45,8 @@ model Applicant {
   tokenVersion         Int              @default(0)
   phone             String?
   offerAcceptedAt   DateTime?
+  archivedAt        DateTime?
+  archivedBy        String?
   notes             String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -58,6 +60,7 @@ model Applicant {
   @@index([emailVerified])
   @@index([role, approved])
   @@index([role, denied])
+  @@index([archivedAt])
   @@map("applicants")
 }
 

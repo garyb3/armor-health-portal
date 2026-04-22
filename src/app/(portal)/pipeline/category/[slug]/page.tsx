@@ -192,6 +192,22 @@ export default function CategoryPage() {
     }
   };
 
+  const handleArchive = async (applicantId: string) => {
+    try {
+      const res = await apiFetch(`/api/pipeline/${applicantId}/archive`, {
+        method: "POST",
+      });
+      if (res.ok) {
+        setApplicants((prev) => prev.filter((a) => a.id !== applicantId));
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error ?? "Failed to archive applicant");
+      }
+    } catch (err) {
+      console.error("Failed to archive applicant:", err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -237,6 +253,7 @@ export default function CategoryPage() {
         onSetOfferDate={handleSetOfferDate}
         onSetStepDates={handleSetStepDates}
         onRemoveCandidate={handleRemoveCandidate}
+        onArchive={handleArchive}
       />
     </div>
   );

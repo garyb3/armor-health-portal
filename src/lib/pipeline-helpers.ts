@@ -72,3 +72,21 @@ export function getNextStep(
 export function countApproved(submissions: SubmissionLike[]): number {
   return submissions.filter((s) => isApprovedOrCompleted(s.status)).length;
 }
+
+/**
+ * Archive-eligibility: all pipeline steps have start + end dates recorded,
+ * and the applicant has an offer-accepted date. Used by both UI (to render
+ * the Archive button) and the server endpoint (to re-verify before flipping).
+ */
+export function isArchivable(applicant: {
+  offerAcceptedAt?: string | Date | null;
+  progress: { stepStartedAt?: string | null; stepCompletedAt?: string | null }[];
+  totalCount?: number;
+}): boolean {
+  if (!applicant.offerAcceptedAt) return false;
+  const done = applicant.progress.filter(
+    (p) => p.stepStartedAt && p.stepCompletedAt
+  ).length;
+  const total = applicant.totalCount ?? FORM_STEPS.length;
+  return total > 0 && done === total;
+}

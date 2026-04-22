@@ -5,6 +5,9 @@ import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { sendPasswordResetEmail } from "@/lib/email";
 
+const TOKEN_LIFETIME_MS = 60 * 60 * 1000; // 1 hour
+const RESEND_THROTTLE_MS = 60 * 1000; // 1 minute per-account
+
 export async function POST(request: NextRequest) {
   // Rate limit: 3 attempts per minute per IP
   const ip = getClientIp(request);
@@ -35,18 +38,16 @@ export async function POST(request: NextRequest) {
       return successResponse;
     }
 
-    // Per-account throttle: if a token was issued in the last 60s, skip re-issuing.
-    // Complements the per-IP rate limit above (blocks an attacker rotating IPs).
-    // Returns the same successResponse so timing doesn't leak "is there a pending reset".
+    // Per-account throttle: skip re-issue if a token was issued within RESEND_THROTTLE_MS. Complements per-IP rate limit.
     if (
       applicant.resetTokenExpiresAt &&
-      applicant.resetTokenExpiresAt.getTime() - Date.now() > 59 * 60 * 1000
+      Date.now() - (applicant.resetTokenExpiresAt.getTime() - TOKEN_LIFETIME_MS) < RESEND_THROTTLE_MS
     ) {
       return successResponse;
     }
 
     const rawResetToken = randomBytes(32).toString("hex");
-    const resetTokenExpiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    const resetTokenExpiresAt = new Date(Date.now() + TOKEN_LIFETIME_MS);
 
     // Overwriting resetToken + resetTokenExpiresAt in a single update atomically
     // invalidates any previously-issued token — the old hash is gone after this write.

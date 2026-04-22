@@ -90,6 +90,8 @@ export const ApplicantScalarFieldEnum = {
   tokenVersion: 'tokenVersion',
   phone: 'phone',
   offerAcceptedAt: 'offerAcceptedAt',
+  archivedAt: 'archivedAt',
+  archivedBy: 'archivedBy',
   notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
