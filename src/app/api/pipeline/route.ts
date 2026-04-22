@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     : {};
 
   const limit = Math.min(
-    parseInt(request.nextUrl.searchParams.get("limit") || "500"),
+    parseInt(request.nextUrl.searchParams.get("limit") || "500") || 500,
     500
   );
   const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0") || 0;

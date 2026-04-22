@@ -25,6 +25,7 @@ function VerifyEmailContent() {
           setPollError(false);
           const data = await res.json();
           if (data.emailVerified) {
+            clearInterval(interval);
             window.location.href = "/pipeline";
           }
         } else {

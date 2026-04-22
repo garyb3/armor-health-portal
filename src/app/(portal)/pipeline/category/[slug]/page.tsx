@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -19,6 +19,10 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true);
   const [notesMap, setNotesMap] = useState<Record<string, CandidateNote[]>>({});
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Abort in-flight offer-date PATCHes when a newer edit comes in so stale
+  // responses can't overwrite newer local state.
+  const offerDateAbortersRef = useRef<Map<string, AbortController>>(new Map());
 
   const valid = isValidBucket(slug);
 
@@ -54,11 +58,15 @@ export default function CategoryPage() {
   const filtered = filterByBucket(applicants, slug);
 
   const handleSetOfferDate = async (applicantId: string, date: string | null) => {
+    offerDateAbortersRef.current.get(applicantId)?.abort();
+    const controller = new AbortController();
+    offerDateAbortersRef.current.set(applicantId, controller);
     try {
       const res = await apiFetch(`/api/pipeline/${applicantId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ offerAcceptedAt: date }),
+        signal: controller.signal,
       });
       if (res.ok) {
         setApplicants((prev) =>
@@ -68,7 +76,12 @@ export default function CategoryPage() {
         );
       }
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       console.error("Failed to update offer date:", err);
+    } finally {
+      if (offerDateAbortersRef.current.get(applicantId) === controller) {
+        offerDateAbortersRef.current.delete(applicantId);
+      }
     }
   };
 

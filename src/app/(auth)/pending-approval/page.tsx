@@ -14,9 +14,11 @@ export default function PendingApprovalPage() {
     const interval = setInterval(async () => {
       try {
         const res = await apiFetch("/api/auth/check-approval");
-        const data = await res.json();
-        if (data.approved) {
-          router.push("/pipeline");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.approved) {
+            router.push("/pipeline");
+          }
         }
       } catch {
         // Silently retry on next interval
