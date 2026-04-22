@@ -45,6 +45,11 @@ function formatDate(iso: string | null) {
   return new Date(iso).toLocaleDateString();
 }
 
+function formatDateTime(iso: string | null) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleString();
+}
+
 export default function ArchivedApplicantsPage() {
   const [applicants, setApplicants] = useState<ArchivedApplicant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -180,7 +185,7 @@ export default function ArchivedApplicantsPage() {
                       {a.firstName} {a.lastName}
                     </span>
                     <span className="ml-2 text-xs text-gray-700 dark:text-gray-300">
-                      Archived {formatDate(a.archivedAt)}
+                      Archived {formatDateTime(a.archivedAt)}
                       {a.archivedByName ? ` by ${a.archivedByName}` : ""}
                     </span>
                   </div>

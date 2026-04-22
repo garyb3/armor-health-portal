@@ -162,17 +162,6 @@ export function Sidebar({ role }: SidebarProps) {
             </div>
           </div>
 
-          <Link
-            href="/pipeline/archived"
-            className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800 transition-colors",
-              pathname === "/pipeline/archived" && "bg-gray-100 dark:bg-brand-800 text-gray-900 dark:text-gray-100"
-            )}
-          >
-            <Archive className="h-4 w-4" />
-            Archived Applicants
-          </Link>
-
           {/* Follow-up dropdown */}
           {summary.staleCount > 0 && (
             <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 overflow-hidden">
@@ -205,6 +194,17 @@ export function Sidebar({ role }: SidebarProps) {
               )}
             </div>
           )}
+
+          <Link
+            href="/pipeline/archived"
+            className={cn(
+              "flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-brand-800 transition-colors",
+              pathname === "/pipeline/archived" && "bg-gray-100 dark:bg-brand-800 text-gray-900 dark:text-gray-100"
+            )}
+          >
+            <Archive className="h-4 w-4" />
+            Archived Applicants
+          </Link>
         </div>
       )}
     </aside>
