@@ -7,6 +7,7 @@ import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
 import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2, AlertTriangle, MessageSquare, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { apiFetch } from "@/lib/api-client";
 import { isArchivable } from "@/lib/pipeline-helpers";
 import type { PipelineApplicant, FormProgress, CandidateNote, NoteComment } from "@/types";
@@ -75,6 +76,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
   const [savingCommentId, setSavingCommentId] = useState<string | null>(null);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
   const [commentError, setCommentError] = useState<Record<string, string>>({});
+  const { confirm } = useConfirm();
 
   const loadCommentsForNote = async (applicantId: string, noteId: string) => {
     setLoadingCommentsFor((prev) => new Set(prev).add(noteId));
@@ -192,7 +194,13 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
     noteId: string,
     commentId: string
   ) => {
-    if (!confirm("Delete this comment?")) return;
+    const ok = await confirm({
+      title: "Delete comment?",
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "destructive",
+    });
+    if (!ok) return;
     setDeletingCommentId(commentId);
     try {
       const res = await apiFetch(
@@ -857,7 +865,13 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           variant="outline"
                           disabled={archivingId === applicant.id}
                           onClick={async () => {
-                            if (!confirm(`Archive ${applicant.firstName} ${applicant.lastName}? All data is retained and they can be restored later.`)) return;
+                            const ok = await confirm({
+                              title: "Archive applicant?",
+                              description: `${applicant.firstName} ${applicant.lastName} will move to the archive. All data is retained and they can be restored later.`,
+                              confirmLabel: "Archive",
+                              variant: "destructive",
+                            });
+                            if (!ok) return;
                             setArchivingId(applicant.id);
                             try {
                               await onArchive(applicant.id);
@@ -881,7 +895,13 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                           variant="outline"
                           disabled={removingId === applicant.id}
                           onClick={async () => {
-                            if (!confirm(`Are you sure you want to remove ${applicant.firstName} ${applicant.lastName} from the pipeline?`)) return;
+                            const ok = await confirm({
+                              title: "Remove from pipeline?",
+                              description: `${applicant.firstName} ${applicant.lastName} will be removed from the active pipeline.`,
+                              confirmLabel: "Remove",
+                              variant: "destructive",
+                            });
+                            if (!ok) return;
                             setRemovingId(applicant.id);
                             try {
                               await onRemoveCandidate(applicant.id);

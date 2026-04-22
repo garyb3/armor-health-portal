@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PipelineList } from "@/components/pipeline/pipeline-list";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { Loader2, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import type { PipelineApplicant, CandidateNote } from "@/types";
 import { apiFetch } from "@/lib/api-client";
@@ -36,6 +37,8 @@ export default function PipelinePage() {
   const [avgOpen, setAvgOpen] = useState(false);
   const [notesMap, setNotesMap] = useState<Record<string, CandidateNote[]>>({});
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  const { notify } = useConfirm();
 
   // Per-applicant AbortControllers for in-flight offer-date PATCHes.
   // Rapid edits abort the previous request so responses can't land out of order
@@ -206,7 +209,10 @@ export default function PipelinePage() {
         setApplicants((prev) => prev.filter((a) => a.id !== applicantId));
       } else {
         const data = await res.json().catch(() => ({}));
-        alert(data.error ?? "Failed to archive applicant");
+        await notify({
+          title: "Couldn't archive applicant",
+          description: data.error ?? "Please try again.",
+        });
       }
     } catch (err) {
       console.error("Failed to archive applicant:", err);

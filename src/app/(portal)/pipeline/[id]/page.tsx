@@ -33,6 +33,7 @@ import {
 import type { FormProgress, CandidateNote, NoteComment } from "@/types";
 import { apiFetch } from "@/lib/api-client";
 import { isArchivable } from "@/lib/pipeline-helpers";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 interface ApplicantDetail {
   id: string;
@@ -84,6 +85,7 @@ export default function ApplicantDetailPage() {
   const [editCommentDraft, setEditCommentDraft] = useState("");
   const [savingCommentId, setSavingCommentId] = useState<string | null>(null);
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null);
+  const { confirm, notify } = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: "",
@@ -176,7 +178,13 @@ export default function ApplicantDetailPage() {
 
   const handleArchive = async () => {
     if (!applicant) return;
-    if (!confirm(`Archive ${applicant.firstName} ${applicant.lastName}? All data is retained and they can be restored later.`)) return;
+    const ok = await confirm({
+      title: "Archive applicant?",
+      description: `${applicant.firstName} ${applicant.lastName} will move to the archive. All data is retained and they can be restored later.`,
+      confirmLabel: "Archive",
+      variant: "destructive",
+    });
+    if (!ok) return;
     setArchiving(true);
     try {
       const res = await apiFetch(`/api/pipeline/${id}/archive`, { method: "POST" });
@@ -184,7 +192,10 @@ export default function ApplicantDetailPage() {
         router.push("/pipeline");
       } else {
         const data = await res.json().catch(() => ({}));
-        alert(data.error ?? "Failed to archive applicant");
+        await notify({
+          title: "Couldn't archive applicant",
+          description: data.error ?? "Please try again.",
+        });
       }
     } catch (err) {
       console.error("Failed to archive applicant:", err);
@@ -258,7 +269,13 @@ export default function ApplicantDetailPage() {
   };
 
   const handleDeleteNote = async (noteId: string) => {
-    if (!confirm("Delete this note? This cannot be undone.")) return;
+    const ok = await confirm({
+      title: "Delete note?",
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "destructive",
+    });
+    if (!ok) return;
     setDeletingNoteId(noteId);
     try {
       const res = await apiFetch(`/api/pipeline/${id}/notes/${noteId}`, {
@@ -389,7 +406,13 @@ export default function ApplicantDetailPage() {
   };
 
   const handleDeleteComment = async (noteId: string, commentId: string) => {
-    if (!confirm("Delete this comment?")) return;
+    const ok = await confirm({
+      title: "Delete comment?",
+      description: "This cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "destructive",
+    });
+    if (!ok) return;
     setDeletingCommentId(commentId);
     try {
       const res = await apiFetch(

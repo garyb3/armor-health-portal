@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import type { FormProgress } from "@/types";
 
 interface ArchivedApplicant {
@@ -56,6 +57,7 @@ export default function ArchivedApplicantsPage() {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [restoringId, setRestoringId] = useState<string | null>(null);
+  const { confirm, notify } = useConfirm();
 
   const load = async () => {
     try {
@@ -74,7 +76,12 @@ export default function ArchivedApplicantsPage() {
   }, []);
 
   const handleRestore = async (id: string, name: string) => {
-    if (!confirm(`Restore ${name} to the active pipeline?`)) return;
+    const ok = await confirm({
+      title: "Restore to pipeline?",
+      description: `${name} will return to the active pipeline and reappear in the dashboard.`,
+      confirmLabel: "Restore",
+    });
+    if (!ok) return;
     setRestoringId(id);
     try {
       const res = await apiFetch(`/api/pipeline/${id}/archive`, {
@@ -84,7 +91,10 @@ export default function ArchivedApplicantsPage() {
         setApplicants((prev) => prev.filter((a) => a.id !== id));
       } else {
         const data = await res.json().catch(() => ({}));
-        alert(data.error ?? "Failed to restore applicant");
+        await notify({
+          title: "Couldn't restore applicant",
+          description: data.error ?? "Please try again.",
+        });
       }
     } catch (err) {
       console.error("Failed to restore applicant:", err);

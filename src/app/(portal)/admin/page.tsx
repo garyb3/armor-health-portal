@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, XCircle, Loader2, Users, Clock, Trash2, MailCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { XCircle, Loader2, Users, Clock, Trash2, MailCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api-client";
 
 interface StaffUser {
@@ -22,14 +24,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ kind: "ok" | "err"; msg: string } | null>(null);
-  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  function showFeedback(kind: "ok" | "err", msg: string) {
-    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
-    setFeedback({ kind, msg });
-    feedbackTimerRef.current = setTimeout(() => setFeedback(null), 4000);
-  }
+  const { confirm } = useConfirm();
+  const toast = useToast();
 
   async function loadUsers(f: string) {
     setLoading(true);
@@ -56,51 +52,63 @@ export default function AdminPage() {
       const res = await apiFetch(`/api/admin/users/${id}/approve`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        showFeedback("err", `Failed to approve: ${data.error || res.statusText}`);
+        toast.error(`Failed to approve: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
-      showFeedback("ok", "User approved");
+      toast.success("User approved");
     } catch (err) {
-      showFeedback("err", `Network error: ${err}`);
+      toast.error(`Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
   }
 
   async function deny(id: string) {
-    if (!confirm("Are you sure you want to deny and remove this user?")) return;
+    const ok = await confirm({
+      title: "Deny this user?",
+      description: "The user will be denied access and removed from the staff list.",
+      confirmLabel: "Deny",
+      variant: "destructive",
+    });
+    if (!ok) return;
     setActionLoading(id);
     try {
       const res = await apiFetch(`/api/admin/users/${id}/deny`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        showFeedback("err", `Failed to deny: ${data.error || res.statusText}`);
+        toast.error(`Failed to deny: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
-      showFeedback("ok", "User denied");
+      toast.success("User denied");
     } catch (err) {
-      showFeedback("err", `Network error: ${err}`);
+      toast.error(`Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
   }
 
   async function removeUser(id: string) {
-    if (!confirm("Are you sure you want to permanently remove this user?")) return;
+    const ok = await confirm({
+      title: "Permanently remove user?",
+      description: "This cannot be undone. The user's account will be deleted.",
+      confirmLabel: "Remove",
+      variant: "destructive",
+    });
+    if (!ok) return;
     setActionLoading(id);
     try {
       const res = await apiFetch(`/api/admin/users/${id}/delete`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        showFeedback("err", `Failed to remove: ${data.error || res.statusText}`);
+        toast.error(`Failed to remove: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
-      showFeedback("ok", "User removed");
+      toast.success("User removed");
     } catch (err) {
-      showFeedback("err", `Network error: ${err}`);
+      toast.error(`Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
@@ -112,13 +120,13 @@ export default function AdminPage() {
       const res = await apiFetch(`/api/admin/users/${id}/verify-email`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        showFeedback("err", `Failed to verify email: ${data.error || res.statusText}`);
+        toast.error(`Failed to verify email: ${data.error || res.statusText}`);
         return;
       }
       await loadUsers(filter);
-      showFeedback("ok", "Email marked verified");
+      toast.success("Email marked verified");
     } catch (err) {
-      showFeedback("err", `Network error: ${err}`);
+      toast.error(`Network error: ${err}`);
     } finally {
       setActionLoading(null);
     }
@@ -134,32 +142,6 @@ export default function AdminPage() {
           Manage user accounts and approval requests
         </p>
       </div>
-
-      {feedback && (
-        <div
-          role={feedback.kind === "err" ? "alert" : "status"}
-          className={
-            feedback.kind === "ok"
-              ? "flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
-              : "flex items-start gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-200"
-          }
-        >
-          {feedback.kind === "ok" ? (
-            <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
-          ) : (
-            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-          )}
-          <span className="flex-1">{feedback.msg}</span>
-          <button
-            type="button"
-            onClick={() => setFeedback(null)}
-            className="text-xs opacity-70 hover:opacity-100"
-            aria-label="Dismiss"
-          >
-            ×
-          </button>
-        </div>
-      )}
 
       <div className="flex gap-2">
         <Button

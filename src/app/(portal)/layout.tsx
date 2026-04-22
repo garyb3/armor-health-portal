@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
+import { ConfirmProvider } from "@/components/ui/confirm-dialog";
+import { ToastProvider } from "@/components/ui/toast";
 import { apiFetch } from "@/lib/api-client";
 
 interface UserInfo {
@@ -35,14 +37,18 @@ export default function PortalLayout({
   }, []);
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-      <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar role={user?.role} />
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-gray-200 dark:bg-brand-900">
-          {children}
-        </main>
-      </div>
-    </div>
+    <ToastProvider>
+      <ConfirmProvider>
+        <div className="flex flex-col h-screen overflow-hidden">
+          <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
+          <div className="flex flex-1 overflow-hidden">
+            <Sidebar role={user?.role} />
+            <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-gray-200 dark:bg-brand-900">
+              {children}
+            </main>
+          </div>
+        </div>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }

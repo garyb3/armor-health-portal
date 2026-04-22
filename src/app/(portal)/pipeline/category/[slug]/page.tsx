@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { PipelineList } from "@/components/pipeline/pipeline-list";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import { apiFetch } from "@/lib/api-client";
 import { FORM_STEPS } from "@/lib/constants";
 import { isValidBucket, filterByBucket, BUCKET_CONFIG } from "@/lib/time-buckets";
@@ -23,6 +24,7 @@ export default function CategoryPage() {
   // Abort in-flight offer-date PATCHes when a newer edit comes in so stale
   // responses can't overwrite newer local state.
   const offerDateAbortersRef = useRef<Map<string, AbortController>>(new Map());
+  const { notify } = useConfirm();
 
   const valid = isValidBucket(slug);
 
@@ -201,7 +203,10 @@ export default function CategoryPage() {
         setApplicants((prev) => prev.filter((a) => a.id !== applicantId));
       } else {
         const data = await res.json().catch(() => ({}));
-        alert(data.error ?? "Failed to archive applicant");
+        await notify({
+          title: "Couldn't archive applicant",
+          description: data.error ?? "Please try again.",
+        });
       }
     } catch (err) {
       console.error("Failed to archive applicant:", err);
