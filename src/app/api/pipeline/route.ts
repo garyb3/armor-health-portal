@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   const [applicants, total] = await Promise.all([
     prisma.applicant.findMany({
-      where: { role: { notIn: STAFF_ROLES }, denied: { not: true }, archivedAt: null, countyId: county.id, ...searchWhere },
+      where: { role: null, denied: { not: true }, archivedAt: null, countyId: county.id, ...searchWhere },
       include: {
         formSubmissions: {
           select: {
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
       skip,
     }),
     prisma.applicant.count({
-      where: { role: { notIn: STAFF_ROLES }, denied: { not: true }, archivedAt: null, countyId: county.id, ...searchWhere },
+      where: { role: null, denied: { not: true }, archivedAt: null, countyId: county.id, ...searchWhere },
     }),
   ]);
 
