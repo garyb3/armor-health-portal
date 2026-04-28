@@ -7,6 +7,7 @@ import type { Role } from "@/types";
 import { sendPendingApprovalEmail, sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, hashToken } from "@/lib/api-helpers";
+import { toCountySlug } from "@/lib/counties";
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +40,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Registration requires an invite" }, { status: 400 });
     }
 
-    const invite = await prisma.invite.findUnique({ where: { token: hashToken(inviteToken) } });
+    const invite = await prisma.invite.findUnique({
+      where: { token: hashToken(inviteToken) },
+      include: { county: { select: { slug: true } } },
+    });
     if (!invite) {
       return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
     }
@@ -96,6 +100,8 @@ export async function POST(request: NextRequest) {
       return created;
     });
 
+    const countySlug = toCountySlug(invite.county?.slug);
+
     // Await verification email — warn user if it fails
     let emailWarning: string | undefined;
     try {
@@ -103,6 +109,7 @@ export async function POST(request: NextRequest) {
         userName: `${firstName} ${lastName}`,
         userEmail: email,
         verificationToken: rawVerificationToken,
+        countySlug,
       });
     } catch (err) {
       console.error("[Register] Failed to send verification email:", err);
@@ -115,6 +122,7 @@ export async function POST(request: NextRequest) {
         userName: `${firstName} ${lastName}`,
         userEmail: email,
         userRole: role,
+        countySlug,
       }).catch(() => {
         // email.ts logs the failure internally; swallow here to avoid double-log
       });

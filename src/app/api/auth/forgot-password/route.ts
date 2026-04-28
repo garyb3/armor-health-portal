@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { toCountySlug } from "@/lib/counties";
 
 const TOKEN_LIFETIME_MS = 60 * 60 * 1000; // 1 hour
 const RESEND_THROTTLE_MS = 60 * 1000; // 1 minute per-account
@@ -33,7 +34,10 @@ export async function POST(request: NextRequest) {
       message: "If an account with that email exists, a password reset link has been sent.",
     });
 
-    const applicant = await prisma.applicant.findUnique({ where: { email } });
+    const applicant = await prisma.applicant.findUnique({
+      where: { email },
+      include: { county: { select: { slug: true } } },
+    });
     if (!applicant) {
       return successResponse;
     }
@@ -60,6 +64,7 @@ export async function POST(request: NextRequest) {
       userName: `${applicant.firstName} ${applicant.lastName}`,
       userEmail: applicant.email,
       resetToken: rawResetToken,
+      countySlug: toCountySlug(applicant.county?.slug),
     });
 
     return successResponse;

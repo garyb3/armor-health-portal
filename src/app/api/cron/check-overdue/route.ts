@@ -5,6 +5,7 @@ import { sendOverdueAlert, sendOverdueAlertToStaff } from "@/lib/email";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { FORM_STEPS } from "@/lib/constants";
 import { isStepUnlocked } from "@/lib/pipeline-helpers";
+import { toCountySlug } from "@/lib/counties";
 import type { FormType as AppFormType, FormStatus as AppFormStatus } from "@/types";
 
 const OVERDUE_DAYS = 7;
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
             lastName: true,
             email: true,
             phone: true,
+            county: { select: { slug: true } },
           },
         },
       },
@@ -109,6 +111,7 @@ export async function POST(request: NextRequest) {
         applicantPhone: sub.applicant.phone || undefined,
         formStep: stepTitle,
         elapsedTime: elapsed,
+        countySlug: toCountySlug(sub.applicant.county?.slug),
       };
 
       // Stamp lastAlertSentAt BEFORE sending so a process kill mid-loop does not

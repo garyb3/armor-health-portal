@@ -1,4 +1,5 @@
 import sgMail from "@sendgrid/mail";
+import { getEmailFooter, type CountySlug } from "@/lib/counties";
 
 /** Escape user-controlled strings before embedding in HTML email templates. */
 function escapeHtml(str: string): string {
@@ -24,12 +25,14 @@ interface VerificationEmailParams {
   userName: string;
   userEmail: string;
   verificationToken: string;
+  countySlug: CountySlug | null;
 }
 
 export async function sendVerificationEmail({
   userName,
   userEmail,
   verificationToken,
+  countySlug,
 }: VerificationEmailParams): Promise<boolean> {
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -66,7 +69,7 @@ export async function sendVerificationEmail({
           ${verifyUrl}
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
-          This is an automated email from the Franklin County Background Screening Portal.
+          This is an automated email from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>
@@ -92,6 +95,7 @@ interface OverdueAlertParams {
   applicantPhone?: string;
   formStep: string;
   elapsedTime: string;
+  countySlug: CountySlug | null;
 }
 
 export async function sendOverdueAlert({
@@ -99,6 +103,7 @@ export async function sendOverdueAlert({
   applicantEmail,
   formStep,
   elapsedTime,
+  countySlug,
 }: OverdueAlertParams): Promise<boolean> {
   const adminEmail = process.env.ADMIN_ALERT_EMAIL;
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
@@ -140,7 +145,7 @@ export async function sendOverdueAlert({
           </tr>
         </table>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
-          This is an automated alert from the Franklin County Background Screening Portal.
+          This is an automated alert from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>
@@ -164,12 +169,14 @@ interface PendingApprovalParams {
   userName: string;
   userEmail: string;
   userRole: string;
+  countySlug: CountySlug | null;
 }
 
 export async function sendPendingApprovalEmail({
   userName,
   userEmail,
   userRole,
+  countySlug,
 }: PendingApprovalParams): Promise<boolean> {
   const adminEmail = process.env.ADMIN_ALERT_EMAIL;
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
@@ -210,7 +217,7 @@ export async function sendPendingApprovalEmail({
           Please visit the <strong>Admin</strong> page to approve or deny this request.
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 12px 0 0;">
-          This is an automated notification from the Franklin County Background Screening Portal.
+          This is an automated notification from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>
@@ -239,6 +246,7 @@ export async function sendOverdueAlertToStaff({
   applicantEmail,
   applicantPhone,
   staffRecipients,
+  countySlug,
 }: OverdueStaffAlertParams): Promise<boolean> {
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
 
@@ -273,7 +281,7 @@ export async function sendOverdueAlertToStaff({
           Hey ${escapeHtml(staff.firstName)}, we have noticed candidate <strong>${escapeHtml(applicantName)}</strong> has not finished their application. You should contact ${escapeHtml(applicantName)} at <strong>${contactInfo}</strong>.
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
-          This is an automated reminder from the Franklin County Background Screening Portal.
+          This is an automated reminder from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>
@@ -298,6 +306,7 @@ interface StepApprovedParams {
   applicantEmail: string;
   approvedStep: string;
   nextStep?: string;
+  countySlug: CountySlug | null;
 }
 
 export async function sendStepApprovedEmail({
@@ -305,6 +314,7 @@ export async function sendStepApprovedEmail({
   applicantEmail,
   approvedStep,
   nextStep,
+  countySlug,
 }: StepApprovedParams): Promise<boolean> {
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
 
@@ -336,7 +346,7 @@ export async function sendStepApprovedEmail({
         </p>
         ${nextStepText}
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
-          This is an automated notification from the Franklin County Background Screening Portal.
+          This is an automated notification from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>
@@ -361,6 +371,7 @@ interface StepDeniedParams {
   applicantEmail: string;
   deniedStep: string;
   note?: string;
+  countySlug: CountySlug | null;
 }
 
 export async function sendStepDeniedEmail({
@@ -368,6 +379,7 @@ export async function sendStepDeniedEmail({
   applicantEmail,
   deniedStep,
   note,
+  countySlug,
 }: StepDeniedParams): Promise<boolean> {
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
 
@@ -400,7 +412,7 @@ export async function sendStepDeniedEmail({
           Please contact your recruiter for more details.
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 20px 0 0;">
-          This is an automated notification from the Franklin County Background Screening Portal.
+          This is an automated notification from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>
@@ -424,12 +436,14 @@ interface PasswordResetEmailParams {
   userName: string;
   userEmail: string;
   resetToken: string;
+  countySlug: CountySlug | null;
 }
 
 export async function sendPasswordResetEmail({
   userName,
   userEmail,
   resetToken,
+  countySlug,
 }: PasswordResetEmailParams): Promise<boolean> {
   const from = process.env.SMTP_FROM || "noreply@armorhealth.com";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -469,7 +483,7 @@ export async function sendPasswordResetEmail({
           This link expires in 1 hour. If you didn't request a password reset, you can safely ignore this email.
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 8px 0 0;">
-          This is an automated email from the Franklin County Background Screening Portal.
+          This is an automated email from the ${escapeHtml(getEmailFooter(countySlug))}.
         </p>
       </div>
     </div>

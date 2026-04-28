@@ -37,8 +37,8 @@ const satisfy = Satisfy({
 });
 
 export const metadata: Metadata = {
-  title: "Armor Health — Franklin County Background Screening Portal",
-  description: "Franklin County background screening portal for Armor Health of Ohio",
+  title: "Armor Health Background Screening Portal",
+  description: "Armor Health background screening portal",
 };
 
 export default function RootLayout({

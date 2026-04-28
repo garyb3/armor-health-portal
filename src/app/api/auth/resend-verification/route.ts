@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
 import { hashToken } from "@/lib/api-helpers";
+import { toCountySlug } from "@/lib/counties";
 
 export async function POST(request: NextRequest) {
   const userId = request.headers.get("x-user-id");
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     const applicant = await prisma.applicant.findUnique({
       where: { id: userId },
+      include: { county: { select: { slug: true } } },
     });
 
     if (!applicant) {
@@ -45,6 +47,7 @@ export async function POST(request: NextRequest) {
         userName: `${applicant.firstName} ${applicant.lastName}`,
         userEmail: applicant.email,
         verificationToken: rawVerificationToken,
+        countySlug: toCountySlug(applicant.county?.slug),
       });
     } catch {
       // email.ts logs the failure internally; just surface a 500 to the caller

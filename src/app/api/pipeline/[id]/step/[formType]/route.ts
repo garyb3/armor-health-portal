@@ -17,6 +17,7 @@ import {
   sendStepDeniedEmail,
 } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
+import { toCountySlug } from "@/lib/counties";
 import type { FormType } from "@/generated/prisma/client";
 import type { FormType as AppFormType } from "@/types";
 
@@ -280,12 +281,14 @@ export async function POST(
     }
 
     // Send emails after transaction commits (fire-and-forget)
+    const countySlug = toCountySlug(county.slug);
     if (action === "approve") {
       sendStepApprovedEmail({
         applicantName,
         applicantEmail: applicant.email,
         approvedStep: stepTitle,
         nextStep: nextStep?.title,
+        countySlug,
       }).catch(() => {
         // email.ts logs the failure internally; swallow here to avoid double-log
       });
@@ -295,6 +298,7 @@ export async function POST(
         applicantEmail: applicant.email,
         deniedStep: stepTitle,
         note,
+        countySlug,
       }).catch(() => {
         // email.ts logs the failure internally; swallow here to avoid double-log
       });

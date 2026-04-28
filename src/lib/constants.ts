@@ -3,8 +3,6 @@ export const FORM_STEPS = [
     key: "VOLUNTEER_APP" as const,
     slug: "volunteer-app",
     title: "Complete & Return the Clearance Form",
-    description:
-      "Download, complete, and send the Volunteer & Professional Services Application to Franklin County",
     route: "/forms/volunteer-app",
     icon: "FileText" as const,
     order: 1,
@@ -14,8 +12,6 @@ export const FORM_STEPS = [
     key: "PROFESSIONAL_LICENSE" as const,
     slug: "professional-license",
     title: "Send a Copy of Your License",
-    description:
-      "Email a copy of your nursing or social worker license to the Franklin County Sheriff's Office",
     route: "/forms/professional-license",
     icon: "FileCheck" as const,
     order: 2,
@@ -25,8 +21,6 @@ export const FORM_STEPS = [
     key: "BACKGROUND_CHECK" as const,
     slug: "background-check",
     title: "Schedule Fingerprinting (BCI)",
-    description:
-      "Download instructions and the Web Check form, then complete BCI fingerprinting at the Franklin County CCW Office",
     route: "/forms/background-check",
     icon: "Fingerprint" as const,
     order: 3,
@@ -36,8 +30,6 @@ export const FORM_STEPS = [
     key: "DRUG_SCREEN" as const,
     slug: "drug-screen",
     title: "Complete the UDS (Urine Drug Screen)",
-    description:
-      "Download the UDS form and take it to any LabCorp location to complete your drug screening",
     route: "/forms/drug-screen",
     icon: "FlaskConical" as const,
     order: 4,
@@ -92,12 +84,3 @@ export const FORM_TYPE_MAP: Record<string, string> = {
   "background-check": "BACKGROUND_CHECK",
 };
 
-export const COMPANY = {
-  name: "Armor Health of Ohio",
-  fullName: "Armor Health of Ohio — Correctional Healthcare Staffing",
-  location: "Franklin County Sheriff's Office, Columbus, OH",
-  contactName: "Heather Poarch",
-  contactPhone: "786-714-0256",
-  contactEmail: "ginny.bick@armorhealthcare.com",
-  brandColor: "#4a4a4a",
-};
