@@ -481,6 +481,7 @@ async function main() {
         approved: true,
         emailVerified: true,
         createdAt: new Date(Date.now() - applicant.daysInProcess * 86_400_000),
+        countyId: "cnty_franklin_seed",
       },
     });
 
@@ -502,6 +503,7 @@ async function main() {
       await prisma.formSubmission.create({
         data: {
           applicantId: created.id,
+          countyId: "cnty_franklin_seed",
           formType: sub.formType,
           status: sub.status,
           submittedAt: sub.status !== "NOT_STARTED" && sub.status !== "IN_PROGRESS" ? new Date() : null,

@@ -391,7 +391,9 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Note: 'Note',
   NoteComment: 'NoteComment',
-  ApiKey: 'ApiKey'
+  ApiKey: 'ApiKey',
+  County: 'County',
+  UserCounty: 'UserCounty'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -407,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "applicant" | "formSubmission" | "invite" | "sensitiveData" | "auditLog" | "note" | "noteComment" | "apiKey"
+    modelProps: "applicant" | "formSubmission" | "invite" | "sensitiveData" | "auditLog" | "note" | "noteComment" | "apiKey" | "county" | "userCounty"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1003,6 +1005,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    County: {
+      payload: Prisma.$CountyPayload<ExtArgs>
+      fields: Prisma.CountyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CountyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CountyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>
+        }
+        findFirst: {
+          args: Prisma.CountyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CountyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>
+        }
+        findMany: {
+          args: Prisma.CountyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>[]
+        }
+        create: {
+          args: Prisma.CountyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>
+        }
+        createMany: {
+          args: Prisma.CountyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CountyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>[]
+        }
+        delete: {
+          args: Prisma.CountyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>
+        }
+        update: {
+          args: Prisma.CountyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>
+        }
+        deleteMany: {
+          args: Prisma.CountyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CountyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CountyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>[]
+        }
+        upsert: {
+          args: Prisma.CountyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CountyPayload>
+        }
+        aggregate: {
+          args: Prisma.CountyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCounty>
+        }
+        groupBy: {
+          args: Prisma.CountyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CountyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CountyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CountyCountAggregateOutputType> | number
+        }
+      }
+    }
+    UserCounty: {
+      payload: Prisma.$UserCountyPayload<ExtArgs>
+      fields: Prisma.UserCountyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserCountyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserCountyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>
+        }
+        findFirst: {
+          args: Prisma.UserCountyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserCountyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>
+        }
+        findMany: {
+          args: Prisma.UserCountyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>[]
+        }
+        create: {
+          args: Prisma.UserCountyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>
+        }
+        createMany: {
+          args: Prisma.UserCountyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserCountyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>[]
+        }
+        delete: {
+          args: Prisma.UserCountyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>
+        }
+        update: {
+          args: Prisma.UserCountyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserCountyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserCountyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserCountyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserCountyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserCountyPayload>
+        }
+        aggregate: {
+          args: Prisma.UserCountyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserCounty>
+        }
+        groupBy: {
+          args: Prisma.UserCountyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserCountyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserCountyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserCountyCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1058,6 +1208,7 @@ export const ApplicantScalarFieldEnum = {
   archivedAt: 'archivedAt',
   archivedBy: 'archivedBy',
   notes: 'notes',
+  countyId: 'countyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1068,6 +1219,7 @@ export type ApplicantScalarFieldEnum = (typeof ApplicantScalarFieldEnum)[keyof t
 export const FormSubmissionScalarFieldEnum = {
   id: 'id',
   applicantId: 'applicantId',
+  countyId: 'countyId',
   formType: 'formType',
   status: 'status',
   formData: 'formData',
@@ -1095,6 +1247,7 @@ export const InviteScalarFieldEnum = {
   used: 'used',
   expiresAt: 'expiresAt',
   createdBy: 'createdBy',
+  countyId: 'countyId',
   createdAt: 'createdAt'
 } as const
 
@@ -1120,6 +1273,7 @@ export const AuditLogScalarFieldEnum = {
   targetId: 'targetId',
   metadata: 'metadata',
   ipAddress: 'ipAddress',
+  countyId: 'countyId',
   createdAt: 'createdAt'
 } as const
 
@@ -1132,6 +1286,7 @@ export const NoteScalarFieldEnum = {
   authorId: 'authorId',
   authorName: 'authorName',
   applicantId: 'applicantId',
+  countyId: 'countyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1163,10 +1318,32 @@ export const ApiKeyScalarFieldEnum = {
   expiresAt: 'expiresAt',
   lastUsedAt: 'lastUsedAt',
   createdBy: 'createdBy',
+  countyId: 'countyId',
   createdAt: 'createdAt'
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+export const CountyScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  displayName: 'displayName',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type CountyScalarFieldEnum = (typeof CountyScalarFieldEnum)[keyof typeof CountyScalarFieldEnum]
+
+
+export const UserCountyScalarFieldEnum = {
+  id: 'id',
+  applicantId: 'applicantId',
+  countyId: 'countyId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserCountyScalarFieldEnum = (typeof UserCountyScalarFieldEnum)[keyof typeof UserCountyScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1388,6 +1565,8 @@ export type GlobalOmitConfig = {
   note?: Prisma.NoteOmit
   noteComment?: Prisma.NoteCommentOmit
   apiKey?: Prisma.ApiKeyOmit
+  county?: Prisma.CountyOmit
+  userCounty?: Prisma.UserCountyOmit
 }
 
 /* Types for Logging */

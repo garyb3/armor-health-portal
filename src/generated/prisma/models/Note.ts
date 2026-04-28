@@ -30,6 +30,7 @@ export type NoteMinAggregateOutputType = {
   authorId: string | null
   authorName: string | null
   applicantId: string | null
+  countyId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +41,7 @@ export type NoteMaxAggregateOutputType = {
   authorId: string | null
   authorName: string | null
   applicantId: string | null
+  countyId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +52,7 @@ export type NoteCountAggregateOutputType = {
   authorId: number
   authorName: number
   applicantId: number
+  countyId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +65,7 @@ export type NoteMinAggregateInputType = {
   authorId?: true
   authorName?: true
   applicantId?: true
+  countyId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +76,7 @@ export type NoteMaxAggregateInputType = {
   authorId?: true
   authorName?: true
   applicantId?: true
+  countyId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +87,7 @@ export type NoteCountAggregateInputType = {
   authorId?: true
   authorName?: true
   applicantId?: true
+  countyId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +171,7 @@ export type NoteGroupByOutputType = {
   authorId: string
   authorName: string
   applicantId: string
+  countyId: string
   createdAt: Date
   updatedAt: Date
   _count: NoteCountAggregateOutputType | null
@@ -196,10 +203,12 @@ export type NoteWhereInput = {
   authorId?: Prisma.StringFilter<"Note"> | string
   authorName?: Prisma.StringFilter<"Note"> | string
   applicantId?: Prisma.StringFilter<"Note"> | string
+  countyId?: Prisma.StringFilter<"Note"> | string
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   applicant?: Prisma.XOR<Prisma.ApplicantScalarRelationFilter, Prisma.ApplicantWhereInput>
   comments?: Prisma.NoteCommentListRelationFilter
+  county?: Prisma.XOR<Prisma.CountyScalarRelationFilter, Prisma.CountyWhereInput>
 }
 
 export type NoteOrderByWithRelationInput = {
@@ -208,10 +217,12 @@ export type NoteOrderByWithRelationInput = {
   authorId?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   applicant?: Prisma.ApplicantOrderByWithRelationInput
   comments?: Prisma.NoteCommentOrderByRelationAggregateInput
+  county?: Prisma.CountyOrderByWithRelationInput
 }
 
 export type NoteWhereUniqueInput = Prisma.AtLeast<{
@@ -223,10 +234,12 @@ export type NoteWhereUniqueInput = Prisma.AtLeast<{
   authorId?: Prisma.StringFilter<"Note"> | string
   authorName?: Prisma.StringFilter<"Note"> | string
   applicantId?: Prisma.StringFilter<"Note"> | string
+  countyId?: Prisma.StringFilter<"Note"> | string
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   applicant?: Prisma.XOR<Prisma.ApplicantScalarRelationFilter, Prisma.ApplicantWhereInput>
   comments?: Prisma.NoteCommentListRelationFilter
+  county?: Prisma.XOR<Prisma.CountyScalarRelationFilter, Prisma.CountyWhereInput>
 }, "id">
 
 export type NoteOrderByWithAggregationInput = {
@@ -235,6 +248,7 @@ export type NoteOrderByWithAggregationInput = {
   authorId?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.NoteCountOrderByAggregateInput
@@ -251,6 +265,7 @@ export type NoteScalarWhereWithAggregatesInput = {
   authorId?: Prisma.StringWithAggregatesFilter<"Note"> | string
   authorName?: Prisma.StringWithAggregatesFilter<"Note"> | string
   applicantId?: Prisma.StringWithAggregatesFilter<"Note"> | string
+  countyId?: Prisma.StringWithAggregatesFilter<"Note"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Note"> | Date | string
 }
@@ -264,6 +279,7 @@ export type NoteCreateInput = {
   updatedAt?: Date | string
   applicant: Prisma.ApplicantCreateNestedOneWithoutCandidateNotesInput
   comments?: Prisma.NoteCommentCreateNestedManyWithoutNoteInput
+  county: Prisma.CountyCreateNestedOneWithoutNotesInput
 }
 
 export type NoteUncheckedCreateInput = {
@@ -272,6 +288,7 @@ export type NoteUncheckedCreateInput = {
   authorId: string
   authorName: string
   applicantId: string
+  countyId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.NoteCommentUncheckedCreateNestedManyWithoutNoteInput
@@ -286,6 +303,7 @@ export type NoteUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicant?: Prisma.ApplicantUpdateOneRequiredWithoutCandidateNotesNestedInput
   comments?: Prisma.NoteCommentUpdateManyWithoutNoteNestedInput
+  county?: Prisma.CountyUpdateOneRequiredWithoutNotesNestedInput
 }
 
 export type NoteUncheckedUpdateInput = {
@@ -294,6 +312,7 @@ export type NoteUncheckedUpdateInput = {
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.NoteCommentUncheckedUpdateManyWithoutNoteNestedInput
@@ -305,6 +324,7 @@ export type NoteCreateManyInput = {
   authorId: string
   authorName: string
   applicantId: string
+  countyId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -324,6 +344,7 @@ export type NoteUncheckedUpdateManyInput = {
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -344,6 +365,7 @@ export type NoteCountOrderByAggregateInput = {
   authorId?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -354,6 +376,7 @@ export type NoteMaxOrderByAggregateInput = {
   authorId?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -364,6 +387,7 @@ export type NoteMinOrderByAggregateInput = {
   authorId?: Prisma.SortOrder
   authorName?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -429,6 +453,48 @@ export type NoteUpdateOneRequiredWithoutCommentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.NoteUpdateToOneWithWhereWithoutCommentsInput, Prisma.NoteUpdateWithoutCommentsInput>, Prisma.NoteUncheckedUpdateWithoutCommentsInput>
 }
 
+export type NoteCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutCountyInput, Prisma.NoteUncheckedCreateWithoutCountyInput> | Prisma.NoteCreateWithoutCountyInput[] | Prisma.NoteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutCountyInput | Prisma.NoteCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.NoteCreateManyCountyInputEnvelope
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+}
+
+export type NoteUncheckedCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutCountyInput, Prisma.NoteUncheckedCreateWithoutCountyInput> | Prisma.NoteCreateWithoutCountyInput[] | Prisma.NoteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutCountyInput | Prisma.NoteCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.NoteCreateManyCountyInputEnvelope
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+}
+
+export type NoteUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutCountyInput, Prisma.NoteUncheckedCreateWithoutCountyInput> | Prisma.NoteCreateWithoutCountyInput[] | Prisma.NoteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutCountyInput | Prisma.NoteCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.NoteUpsertWithWhereUniqueWithoutCountyInput | Prisma.NoteUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.NoteCreateManyCountyInputEnvelope
+  set?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  disconnect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  delete?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  update?: Prisma.NoteUpdateWithWhereUniqueWithoutCountyInput | Prisma.NoteUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.NoteUpdateManyWithWhereWithoutCountyInput | Prisma.NoteUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
+}
+
+export type NoteUncheckedUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.NoteCreateWithoutCountyInput, Prisma.NoteUncheckedCreateWithoutCountyInput> | Prisma.NoteCreateWithoutCountyInput[] | Prisma.NoteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.NoteCreateOrConnectWithoutCountyInput | Prisma.NoteCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.NoteUpsertWithWhereUniqueWithoutCountyInput | Prisma.NoteUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.NoteCreateManyCountyInputEnvelope
+  set?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  disconnect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  delete?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  connect?: Prisma.NoteWhereUniqueInput | Prisma.NoteWhereUniqueInput[]
+  update?: Prisma.NoteUpdateWithWhereUniqueWithoutCountyInput | Prisma.NoteUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.NoteUpdateManyWithWhereWithoutCountyInput | Prisma.NoteUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.NoteScalarWhereInput | Prisma.NoteScalarWhereInput[]
+}
+
 export type NoteCreateWithoutApplicantInput = {
   id?: string
   content: string
@@ -437,6 +503,7 @@ export type NoteCreateWithoutApplicantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.NoteCommentCreateNestedManyWithoutNoteInput
+  county: Prisma.CountyCreateNestedOneWithoutNotesInput
 }
 
 export type NoteUncheckedCreateWithoutApplicantInput = {
@@ -444,6 +511,7 @@ export type NoteUncheckedCreateWithoutApplicantInput = {
   content: string
   authorId: string
   authorName: string
+  countyId: string
   createdAt?: Date | string
   updatedAt?: Date | string
   comments?: Prisma.NoteCommentUncheckedCreateNestedManyWithoutNoteInput
@@ -483,6 +551,7 @@ export type NoteScalarWhereInput = {
   authorId?: Prisma.StringFilter<"Note"> | string
   authorName?: Prisma.StringFilter<"Note"> | string
   applicantId?: Prisma.StringFilter<"Note"> | string
+  countyId?: Prisma.StringFilter<"Note"> | string
   createdAt?: Prisma.DateTimeFilter<"Note"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Note"> | Date | string
 }
@@ -495,6 +564,7 @@ export type NoteCreateWithoutCommentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   applicant: Prisma.ApplicantCreateNestedOneWithoutCandidateNotesInput
+  county: Prisma.CountyCreateNestedOneWithoutNotesInput
 }
 
 export type NoteUncheckedCreateWithoutCommentsInput = {
@@ -503,6 +573,7 @@ export type NoteUncheckedCreateWithoutCommentsInput = {
   authorId: string
   authorName: string
   applicantId: string
+  countyId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -531,6 +602,7 @@ export type NoteUpdateWithoutCommentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicant?: Prisma.ApplicantUpdateOneRequiredWithoutCandidateNotesNestedInput
+  county?: Prisma.CountyUpdateOneRequiredWithoutNotesNestedInput
 }
 
 export type NoteUncheckedUpdateWithoutCommentsInput = {
@@ -539,8 +611,56 @@ export type NoteUncheckedUpdateWithoutCommentsInput = {
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
   applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type NoteCreateWithoutCountyInput = {
+  id?: string
+  content: string
+  authorId: string
+  authorName: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  applicant: Prisma.ApplicantCreateNestedOneWithoutCandidateNotesInput
+  comments?: Prisma.NoteCommentCreateNestedManyWithoutNoteInput
+}
+
+export type NoteUncheckedCreateWithoutCountyInput = {
+  id?: string
+  content: string
+  authorId: string
+  authorName: string
+  applicantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  comments?: Prisma.NoteCommentUncheckedCreateNestedManyWithoutNoteInput
+}
+
+export type NoteCreateOrConnectWithoutCountyInput = {
+  where: Prisma.NoteWhereUniqueInput
+  create: Prisma.XOR<Prisma.NoteCreateWithoutCountyInput, Prisma.NoteUncheckedCreateWithoutCountyInput>
+}
+
+export type NoteCreateManyCountyInputEnvelope = {
+  data: Prisma.NoteCreateManyCountyInput | Prisma.NoteCreateManyCountyInput[]
+}
+
+export type NoteUpsertWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.NoteWhereUniqueInput
+  update: Prisma.XOR<Prisma.NoteUpdateWithoutCountyInput, Prisma.NoteUncheckedUpdateWithoutCountyInput>
+  create: Prisma.XOR<Prisma.NoteCreateWithoutCountyInput, Prisma.NoteUncheckedCreateWithoutCountyInput>
+}
+
+export type NoteUpdateWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.NoteWhereUniqueInput
+  data: Prisma.XOR<Prisma.NoteUpdateWithoutCountyInput, Prisma.NoteUncheckedUpdateWithoutCountyInput>
+}
+
+export type NoteUpdateManyWithWhereWithoutCountyInput = {
+  where: Prisma.NoteScalarWhereInput
+  data: Prisma.XOR<Prisma.NoteUpdateManyMutationInput, Prisma.NoteUncheckedUpdateManyWithoutCountyInput>
 }
 
 export type NoteCreateManyApplicantInput = {
@@ -548,6 +668,7 @@ export type NoteCreateManyApplicantInput = {
   content: string
   authorId: string
   authorName: string
+  countyId: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -560,6 +681,7 @@ export type NoteUpdateWithoutApplicantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.NoteCommentUpdateManyWithoutNoteNestedInput
+  county?: Prisma.CountyUpdateOneRequiredWithoutNotesNestedInput
 }
 
 export type NoteUncheckedUpdateWithoutApplicantInput = {
@@ -567,6 +689,7 @@ export type NoteUncheckedUpdateWithoutApplicantInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   comments?: Prisma.NoteCommentUncheckedUpdateManyWithoutNoteNestedInput
@@ -577,6 +700,49 @@ export type NoteUncheckedUpdateManyWithoutApplicantInput = {
   content?: Prisma.StringFieldUpdateOperationsInput | string
   authorId?: Prisma.StringFieldUpdateOperationsInput | string
   authorName?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type NoteCreateManyCountyInput = {
+  id?: string
+  content: string
+  authorId: string
+  authorName: string
+  applicantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type NoteUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorName?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applicant?: Prisma.ApplicantUpdateOneRequiredWithoutCandidateNotesNestedInput
+  comments?: Prisma.NoteCommentUpdateManyWithoutNoteNestedInput
+}
+
+export type NoteUncheckedUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorName?: Prisma.StringFieldUpdateOperationsInput | string
+  applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.NoteCommentUncheckedUpdateManyWithoutNoteNestedInput
+}
+
+export type NoteUncheckedUpdateManyWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  authorId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorName?: Prisma.StringFieldUpdateOperationsInput | string
+  applicantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -618,10 +784,12 @@ export type NoteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   authorId?: boolean
   authorName?: boolean
   applicantId?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
   comments?: boolean | Prisma.Note$commentsArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.NoteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["note"]>
 
@@ -631,9 +799,11 @@ export type NoteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   authorId?: boolean
   authorName?: boolean
   applicantId?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["note"]>
 
 export type NoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -642,9 +812,11 @@ export type NoteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   authorId?: boolean
   authorName?: boolean
   applicantId?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["note"]>
 
 export type NoteSelectScalar = {
@@ -653,21 +825,25 @@ export type NoteSelectScalar = {
   authorId?: boolean
   authorName?: boolean
   applicantId?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type NoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content" | "authorId" | "authorName" | "applicantId" | "createdAt" | "updatedAt", ExtArgs["result"]["note"]>
+export type NoteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "content" | "authorId" | "authorName" | "applicantId" | "countyId" | "createdAt" | "updatedAt", ExtArgs["result"]["note"]>
 export type NoteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
   comments?: boolean | Prisma.Note$commentsArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.NoteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type NoteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }
 export type NoteIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }
 
 export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -675,6 +851,7 @@ export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   objects: {
     applicant: Prisma.$ApplicantPayload<ExtArgs>
     comments: Prisma.$NoteCommentPayload<ExtArgs>[]
+    county: Prisma.$CountyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -682,6 +859,7 @@ export type $NotePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     authorId: string
     authorName: string
     applicantId: string
+    countyId: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["note"]>
@@ -1080,6 +1258,7 @@ export interface Prisma__NoteClient<T, Null = never, ExtArgs extends runtime.Typ
   readonly [Symbol.toStringTag]: "PrismaPromise"
   applicant<T extends Prisma.ApplicantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApplicantDefaultArgs<ExtArgs>>): Prisma.Prisma__ApplicantClient<runtime.Types.Result.GetResult<Prisma.$ApplicantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   comments<T extends Prisma.Note$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Note$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NoteCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  county<T extends Prisma.CountyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CountyDefaultArgs<ExtArgs>>): Prisma.Prisma__CountyClient<runtime.Types.Result.GetResult<Prisma.$CountyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1114,6 +1293,7 @@ export interface NoteFieldRefs {
   readonly authorId: Prisma.FieldRef<"Note", 'String'>
   readonly authorName: Prisma.FieldRef<"Note", 'String'>
   readonly applicantId: Prisma.FieldRef<"Note", 'String'>
+  readonly countyId: Prisma.FieldRef<"Note", 'String'>
   readonly createdAt: Prisma.FieldRef<"Note", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Note", 'DateTime'>
 }

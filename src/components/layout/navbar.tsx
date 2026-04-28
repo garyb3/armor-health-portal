@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { apiFetch } from "@/lib/api-client";
-
-const NAV_LINKS = [{ href: "/pipeline", label: "Dashboard" }];
+import { getCountyFromPath } from "@/lib/counties";
 
 const ROLE_LABELS: Record<string, string> = {
   HR: "HR",
@@ -24,6 +23,9 @@ interface NavbarProps {
 export function Navbar({ firstName, lastName, role }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const countySlug = getCountyFromPath(pathname);
+  const dashboardHref = countySlug ? `/${countySlug}/pipeline` : "/pipeline";
+  const navLinks = [{ href: dashboardHref, label: "Dashboard" }];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -40,7 +42,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
       <div className="flex items-center justify-between h-16 px-4 md:px-6">
         <button
           type="button"
-          onClick={() => router.push("/pipeline")}
+          onClick={() => router.push(dashboardHref)}
           aria-label="Go to dashboard"
           className="flex items-center hover:opacity-80 transition-opacity"
         >
@@ -58,7 +60,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <button
               key={link.href}
               type="button"
@@ -117,7 +119,7 @@ export function Navbar({ firstName, lastName, role }: NavbarProps) {
       {/* Mobile menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-brand-700 px-4 py-3 space-y-1 bg-brand-800">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <button
               key={link.href}
               type="button"

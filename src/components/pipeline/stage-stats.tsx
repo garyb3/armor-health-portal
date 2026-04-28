@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { PIPELINE_STAGES } from "@/lib/constants";
+import { getCountyFromPath } from "@/lib/counties";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
 import {
@@ -24,6 +26,9 @@ interface StageStatsProps {
 }
 
 export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, staleApplicants = [] }: StageStatsProps) {
+  const pathname = usePathname();
+  const countySlug = getCountyFromPath(pathname);
+  const countyPrefix = countySlug ? `/${countySlug}` : "";
   const [showStale, setShowStale] = useState(false);
 
   const hasStale = staleCount != null && staleCount > 0;
@@ -74,7 +79,7 @@ export function StageStats({ avgTimePerStage, bottleneckStage, staleCount, stale
               return (
                 <Link
                   key={a.id}
-                  href={`/pipeline/${a.id}`}
+                  href={`${countyPrefix}/pipeline/${a.id}`}
                   className="flex items-center justify-between gap-2 rounded-md bg-white dark:bg-brand-800 border border-red-100 dark:border-red-900 px-3 py-2 hover:bg-red-50 dark:hover:bg-red-950 transition-colors group"
                 >
                   <div className="min-w-0">

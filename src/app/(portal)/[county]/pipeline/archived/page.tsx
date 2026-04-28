@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api-client";
@@ -52,6 +53,8 @@ function formatDateTime(iso: string | null) {
 }
 
 export default function ArchivedApplicantsPage() {
+  const { county } = useParams<{ county: string }>();
+  const countyPrefix = `/${county}`;
   const [applicants, setApplicants] = useState<ArchivedApplicant[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -133,7 +136,7 @@ export default function ArchivedApplicantsPage() {
     <div className="space-y-6">
       <div>
         <Link
-          href="/pipeline"
+          href={`${countyPrefix}/pipeline`}
           className="inline-flex items-center gap-1.5 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-3"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -201,7 +204,7 @@ export default function ArchivedApplicantsPage() {
                   </div>
 
                   <Link
-                    href={`/pipeline/${a.id}`}
+                    href={`${countyPrefix}/pipeline/${a.id}`}
                     onClick={(e) => e.stopPropagation()}
                     className="text-xs text-blue-600 dark:text-blue-400 hover:underline shrink-0"
                   >

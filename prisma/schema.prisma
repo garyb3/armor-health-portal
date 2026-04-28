@@ -11,6 +11,7 @@ enum Role {
   APPLICANT
   HR
   ADMIN
+  COUNTY_REP
 }
 
 enum FormType {
@@ -48,11 +49,14 @@ model Applicant {
   archivedAt        DateTime?
   archivedBy        String?
   notes             String?
+  countyId          String?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   formSubmissions FormSubmission[]
   sensitiveData   SensitiveData?
   candidateNotes  Note[]
+  county          County?          @relation(fields: [countyId], references: [id])
+  userCounties    UserCounty[]
 
   @@index([denied])
   @@index([role])
@@ -61,12 +65,14 @@ model Applicant {
   @@index([role, approved])
   @@index([role, denied])
   @@index([archivedAt])
+  @@index([countyId])
   @@map("applicants")
 }
 
 model FormSubmission {
   id          String     @id @default(cuid())
   applicantId String
+  countyId    String
   formType    FormType
   status      FormStatus @default(NOT_STARTED)
   formData    Json?
@@ -83,6 +89,7 @@ model FormSubmission {
   updatedAt        DateTime   @updatedAt
 
   applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  county    County    @relation(fields: [countyId], references: [id])
 
   @@unique([applicantId, formType])
   @@index([applicantId])
@@ -90,6 +97,7 @@ model FormSubmission {
   @@index([applicantId, status])
   @@index([status, statusChangedAt])
   @@index([applicantId, createdAt])
+  @@index([countyId, status])
   @@map("form_submissions")
 }
 
@@ -101,9 +109,13 @@ model Invite {
   used      Boolean  @default(false)
   expiresAt DateTime
   createdBy String
+  countyId  String
   createdAt DateTime @default(now())
 
+  county County @relation(fields: [countyId], references: [id])
+
   @@index([email, used, expiresAt])
+  @@index([countyId])
   @@map("invites")
 }
 
@@ -127,12 +139,16 @@ model AuditLog {
   targetId  String
   metadata  Json?
   ipAddress String?
+  countyId  String?
   createdAt DateTime @default(now())
+
+  county County? @relation(fields: [countyId], references: [id])
 
   @@index([userId])
   @@index([targetId])
   @@index([action])
   @@index([userId, action, createdAt])
+  @@index([countyId, createdAt])
   @@map("audit_logs")
 }
 
@@ -142,14 +158,17 @@ model Note {
   authorId    String
   authorName  String
   applicantId String
+  countyId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
   comments  NoteComment[]
+  county    County @relation(fields: [countyId], references: [id])
 
   @@index([applicantId, createdAt])
   @@index([authorId])
+  @@index([countyId])
   @@map("notes")
 }
 
@@ -180,7 +199,40 @@ model ApiKey {
   expiresAt  DateTime?
   lastUsedAt DateTime?
   createdBy  String
+  countyId   String?
   createdAt  DateTime  @default(now())
 
   @@map("api_keys")
+}
+
+model County {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  displayName String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  applicants      Applicant[]
+  formSubmissions FormSubmission[]
+  invites         Invite[]
+  notes           Note[]
+  auditLogs       AuditLog[]
+  userCounties    UserCounty[]
+
+  @@map("counties")
+}
+
+model UserCounty {
+  id          String   @id @default(cuid())
+  applicantId String
+  countyId    String
+  createdAt   DateTime @default(now())
+
+  applicant Applicant @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  county    County    @relation(fields: [countyId], references: [id], onDelete: Cascade)
+
+  @@unique([applicantId, countyId])
+  @@index([applicantId])
+  @@index([countyId])
+  @@map("user_counties")
 }

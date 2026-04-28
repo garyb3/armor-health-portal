@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, requireCountyAccess } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
@@ -29,6 +29,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const countyResult = await requireCountyAccess(request, user);
+    if (countyResult instanceof NextResponse) return countyResult;
+    const { county } = countyResult;
+
     const search = request.nextUrl.searchParams.get("search") || "";
     const searchWhere = search
       ? {
@@ -48,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     const [applicants, total] = await Promise.all([
       prisma.applicant.findMany({
-        where: { archivedAt: { not: null }, ...searchWhere },
+        where: { archivedAt: { not: null }, countyId: county.id, ...searchWhere },
         include: {
           formSubmissions: {
             select: {
@@ -72,7 +76,7 @@ export async function GET(request: NextRequest) {
         skip,
       }),
       prisma.applicant.count({
-        where: { archivedAt: { not: null }, ...searchWhere },
+        where: { archivedAt: { not: null }, countyId: county.id, ...searchWhere },
       }),
     ]);
 

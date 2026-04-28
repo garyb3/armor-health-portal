@@ -33,7 +33,11 @@ function timingSafeEqualStr(a: string, b: string): boolean {
 const USER_HEADERS = [
   "x-user-id", "x-user-email", "x-user-first-name",
   "x-user-last-name", "x-user-role", "x-user-approved",
+  "x-county-slug",
 ];
+
+/** Valid county slugs. Kept as a static set since middleware runs in Edge (no Prisma). */
+const COUNTY_SLUGS = new Set(["franklin", "cobb"]);
 
 /**
  * CSRF protection: state-changing requests (POST/PUT/PATCH/DELETE) to API routes
@@ -148,7 +152,11 @@ export async function middleware(request: NextRequest) {
   const corsResponse = handleCors(request);
   if (corsResponse) return withCsp(corsResponse);
 
-  // Strip x-user-* headers from ALL incoming requests to prevent header injection
+  // Capture the inbound x-county-slug BEFORE stripping it. apiFetch on the client
+  // sets this so /api/* requests inherit the active county from the page URL.
+  const inboundCountySlug = (request.headers.get("x-county-slug") || "").toLowerCase();
+
+  // Strip x-user-* and x-county-slug headers from ALL incoming requests to prevent header injection
   const cleanHeaders = new Headers(request.headers);
   for (const header of USER_HEADERS) {
     cleanHeaders.delete(header);
@@ -266,17 +274,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Only ADMIN can access /admin routes
-  if (pathname.startsWith("/admin") && role !== "ADMIN") {
+  // Only ADMIN can access /admin routes (legacy /admin/* and new /[county]/admin/*)
+  const isAdminPath =
+    pathname.startsWith("/admin") ||
+    /^\/[^/]+\/admin(\/|$)/.test(pathname);
+  if (isAdminPath && role !== "ADMIN") {
     if (pathname.startsWith("/api/admin")) {
       return withCsp(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
     }
-    return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
-  }
-
-  // Redirect old /dashboard bookmarks to /pipeline
-  if (pathname === "/dashboard") {
-    return withCsp(NextResponse.redirect(new URL("/pipeline", request.url)));
+    return withCsp(NextResponse.redirect(new URL("/franklin/pipeline", request.url)));
   }
 
   // Set user headers on the (already cleaned) headers
@@ -287,6 +293,23 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-last-name", payload.lastName);
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-user-approved", String(approved));
+
+  // Determine the active county slug for this request:
+  //   - For /[county]/* page paths: extract from URL
+  //   - For /api/* calls: trust the inbound x-county-slug header (set by apiFetch
+  //     based on the page URL). The API helper also validates user access.
+  // PR 4 will enforce COUNTY_REP membership here; for now HR/ADMIN are global.
+  const pageCountyMatch = pathname.match(/^\/([^/?#]+)(?:\/|$)/);
+  const pageCandidateSlug = pageCountyMatch?.[1]?.toLowerCase();
+  let activeCountySlug: string | null = null;
+  if (pageCandidateSlug && COUNTY_SLUGS.has(pageCandidateSlug)) {
+    activeCountySlug = pageCandidateSlug;
+  } else if (pathname.startsWith("/api/") && COUNTY_SLUGS.has(inboundCountySlug)) {
+    activeCountySlug = inboundCountySlug;
+  }
+  if (activeCountySlug) {
+    requestHeaders.set("x-county-slug", activeCountySlug);
+  }
 
   return withCsp(addCorsHeaders(request, NextResponse.next({ request: { headers: requestHeaders } })));
 }

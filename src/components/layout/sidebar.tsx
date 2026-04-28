@@ -7,6 +7,7 @@ import { LayoutDashboard, Users, AlertTriangle, ChevronDown, Archive } from "luc
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api-client";
 import { getTimeBucket } from "@/lib/time-buckets";
+import { getCountyFromPath } from "@/lib/counties";
 
 interface StaleCandidate {
   id: string;
@@ -29,6 +30,8 @@ interface SidebarProps {
 
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
+  const countySlug = getCountyFromPath(pathname);
+  const countyPrefix = countySlug ? `/${countySlug}` : "";
   const [summary, setSummary] = useState<SidebarSummary | null>(null);
   const [followUpOpen, setFollowUpOpen] = useState(false);
 
@@ -75,10 +78,10 @@ export function Sidebar({ role }: SidebarProps) {
     <aside className="no-print w-60 bg-gray-200 dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
       <div className="p-3 pt-4">
         <Link
-          href="/pipeline"
+          href={`${countyPrefix}/pipeline`}
           className={cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
-            pathname === "/pipeline"
+            pathname === `${countyPrefix}/pipeline`
               ? "bg-brand-900 text-white shadow-sm"
               : "text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
           )}
@@ -88,10 +91,10 @@ export function Sidebar({ role }: SidebarProps) {
         </Link>
         {role === "ADMIN" && (
           <Link
-            href="/admin"
+            href={`${countyPrefix}/admin`}
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 mt-0.5",
-              pathname === "/admin"
+              pathname === `${countyPrefix}/admin`
                 ? "bg-brand-900 text-white shadow-sm"
                 : "text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
             )}
@@ -121,10 +124,10 @@ export function Sidebar({ role }: SidebarProps) {
             </p>
             <div className="space-y-2">
               <Link
-                href="/pipeline/category/new"
+                href={`${countyPrefix}/pipeline/category/new`}
                 className={cn(
                   "flex items-center justify-between px-3 py-2.5 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200/60 dark:border-green-800/40 transition-all hover:ring-2 hover:ring-green-400/50",
-                  pathname === "/pipeline/category/new" && "ring-2 ring-green-500 shadow-sm"
+                  pathname === `${countyPrefix}/pipeline/category/new` && "ring-2 ring-green-500 shadow-sm"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -134,10 +137,10 @@ export function Sidebar({ role }: SidebarProps) {
                 <span className="text-lg font-bold text-green-700 dark:text-green-400">{summary.newCount}</span>
               </Link>
               <Link
-                href="/pipeline/category/attention"
+                href={`${countyPrefix}/pipeline/category/attention`}
                 className={cn(
                   "flex items-center justify-between px-3 py-2.5 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200/60 dark:border-yellow-800/40 transition-all hover:ring-2 hover:ring-yellow-400/50",
-                  pathname === "/pipeline/category/attention" && "ring-2 ring-yellow-500 shadow-sm"
+                  pathname === `${countyPrefix}/pipeline/category/attention` && "ring-2 ring-yellow-500 shadow-sm"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -147,10 +150,10 @@ export function Sidebar({ role }: SidebarProps) {
                 <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">{summary.attentionCount}</span>
               </Link>
               <Link
-                href="/pipeline/category/overdue"
+                href={`${countyPrefix}/pipeline/category/overdue`}
                 className={cn(
                   "flex items-center justify-between px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200/60 dark:border-red-800/40 transition-all hover:ring-2 hover:ring-red-400/50",
-                  pathname === "/pipeline/category/overdue" && "ring-2 ring-red-500 shadow-sm"
+                  pathname === `${countyPrefix}/pipeline/category/overdue` && "ring-2 ring-red-500 shadow-sm"
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -183,7 +186,7 @@ export function Sidebar({ role }: SidebarProps) {
                   {summary.staleCandidates.map((c) => (
                     <Link
                       key={c.id}
-                      href={`/pipeline/${c.id}`}
+                      href={`${countyPrefix}/pipeline/${c.id}`}
                       className="flex items-center justify-between py-2 px-2.5 rounded-lg text-sm hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
                     >
                       <span className="text-amber-900 dark:text-amber-200 truncate font-medium">{c.name}</span>
@@ -196,10 +199,10 @@ export function Sidebar({ role }: SidebarProps) {
           )}
 
           <Link
-            href="/pipeline/archived"
+            href={`${countyPrefix}/pipeline/archived`}
             className={cn(
               "flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-blue-800 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40 transition-all hover:ring-2 hover:ring-blue-400/50",
-              pathname === "/pipeline/archived" && "ring-2 ring-blue-500 shadow-sm"
+              pathname === `${countyPrefix}/pipeline/archived` && "ring-2 ring-blue-500 shadow-sm"
             )}
           >
             <Archive className="h-4 w-4" />

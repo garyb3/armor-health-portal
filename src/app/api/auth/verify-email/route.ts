@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     // Determine redirect based on role
     const role = updated.role;
     const approved = updated.approved;
-    let redirectPath = "/pipeline";
+    let redirectPath = "/franklin/pipeline";
 
     if (role === "HR" && !approved) {
       redirectPath = "/pending-approval";

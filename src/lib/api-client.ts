@@ -1,8 +1,12 @@
 /**
  * API client wrapper that automatically:
  * 1. Adds X-Requested-With header for CSRF protection
- * 2. Retries once on 401 by hitting /api/auth/refresh
+ * 2. Adds x-county-slug header derived from the current URL so /api/* routes
+ *    inherit the active county from the page the user is on
+ * 3. Retries once on 401 by hitting /api/auth/refresh
  */
+
+import { getCountyFromPath } from "./counties";
 
 let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
@@ -26,6 +30,12 @@ export async function apiFetch(
   const headers = new Headers(init?.headers);
   if (!headers.has("X-Requested-With")) {
     headers.set("X-Requested-With", "XMLHttpRequest");
+  }
+  // Auto-inject the active county slug from window.location so /api/* routes
+  // know which tenant to scope to. Middleware re-validates and re-emits.
+  if (typeof window !== "undefined" && !headers.has("x-county-slug")) {
+    const slug = getCountyFromPath(window.location.pathname);
+    if (slug) headers.set("x-county-slug", slug);
   }
 
   const response = await fetch(input, { ...init, headers });

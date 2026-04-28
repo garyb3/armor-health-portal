@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
+import { prisma } from "./prisma";
+import { isValidCountySlug } from "./counties";
 
 /**
  * Hash a token with SHA-256 for safe database storage.
@@ -20,6 +22,56 @@ export function getUserFromRequest(request: NextRequest) {
   const userFirstName = request.headers.get("x-user-first-name") || "";
   const userLastName = request.headers.get("x-user-last-name") || "";
   return { userId, userEmail, userRole, userFirstName, userLastName };
+}
+
+/**
+ * Resolve the active county for a request and verify the caller can access it.
+ *
+ * The slug comes from the `x-county-slug` header (set by middleware after extracting
+ * it from /[county]/* page URLs or from the inbound apiFetch header for /api/* calls)
+ * unless an `explicitSlug` is provided (e.g. for cron / API-key callers that pass it
+ * via body or query).
+ *
+ * Currently HR and ADMIN are global tenants — they pass without further checks.
+ * COUNTY_REP enforcement lands in PR 4 once `countySlugs` is part of the JWT.
+ */
+export async function requireCountyAccess(
+  request: NextRequest,
+  user: { userRole: string },
+  explicitSlug?: string
+) {
+  const slug = (explicitSlug ?? request.headers.get("x-county-slug") ?? "").toLowerCase();
+  if (!slug || !isValidCountySlug(slug)) {
+    return NextResponse.json({ error: "County required" }, { status: 400 });
+  }
+  const county = await prisma.county.findUnique({
+    where: { slug },
+    select: { id: true, slug: true, displayName: true, active: true },
+  });
+  if (!county || !county.active) {
+    return NextResponse.json({ error: "County not found" }, { status: 404 });
+  }
+  // PR 4 will check user.countySlugs membership for COUNTY_REP here. HR/ADMIN remain global.
+  if (user.userRole !== "HR" && user.userRole !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+  return { county };
+}
+
+/**
+ * Confirm an applicant (candidate) row belongs to the given county. Returns null
+ * when the check passes, or a 404 NextResponse otherwise — same status as a missing
+ * row so we don't leak existence across tenants.
+ */
+export async function assertApplicantInCounty(applicantId: string, countyId: string) {
+  const a = await prisma.applicant.findUnique({
+    where: { id: applicantId },
+    select: { countyId: true },
+  });
+  if (!a || a.countyId !== countyId) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  return null;
 }
 
 export function unauthorizedResponse() {

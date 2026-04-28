@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatElapsed, isOverdue } from "@/lib/format-elapsed";
 import { AlertTriangle, Bell, Clock, Hourglass, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCountyFromPath } from "@/lib/counties";
 import type { PipelineApplicant } from "@/types";
 
 interface PipelineCardProps {
@@ -13,6 +15,9 @@ interface PipelineCardProps {
 }
 
 export function PipelineCard({ applicant }: PipelineCardProps) {
+  const pathname = usePathname();
+  const countySlug = getCountyFromPath(pathname);
+  const countyPrefix = countySlug ? `/${countySlug}` : "";
   const percent = Math.round(
     (applicant.completedCount / applicant.totalCount) * 100
   );
@@ -42,7 +47,7 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
   }[urgency];
 
   return (
-    <Link href={`/pipeline/${applicant.id}`}>
+    <Link href={`${countyPrefix}/pipeline/${applicant.id}`}>
       <Card className={cn(
         "hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5",
         urgencyBorder,

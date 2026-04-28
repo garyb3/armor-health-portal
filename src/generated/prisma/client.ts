@@ -81,3 +81,13 @@ export type NoteComment = Prisma.NoteCommentModel
  * 
  */
 export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model County
+ * 
+ */
+export type County = Prisma.CountyModel
+/**
+ * Model UserCounty
+ * 
+ */
+export type UserCounty = Prisma.UserCountyModel

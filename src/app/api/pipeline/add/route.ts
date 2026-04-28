@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, parseOptionalDate } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, parseOptionalDate, requireCountyAccess } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 import bcrypt from "bcryptjs";
@@ -15,6 +15,10 @@ export async function POST(request: NextRequest) {
     if (!STAFF_ROLES.includes(user.userRole)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const countyResult = await requireCountyAccess(request, user);
+    if (countyResult instanceof NextResponse) return countyResult;
+    const { county } = countyResult;
 
     const body = await request.json();
     const firstName = String(body.firstName ?? "").trim();
@@ -78,11 +82,13 @@ export async function POST(request: NextRequest) {
         approved: true,
         emailVerified: true,
         offerAcceptedAt,
+        countyId: county.id,
         formSubmissions: {
           create: FORM_STEPS.map((step) => ({
             formType: step.key,
             status: "NOT_STARTED",
             statusChangedAt: new Date(),
+            countyId: county.id,
           })),
         },
       },

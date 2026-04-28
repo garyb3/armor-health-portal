@@ -17,7 +17,7 @@ export default function PendingApprovalPage() {
         if (res.ok) {
           const data = await res.json();
           if (data.approved) {
-            router.push("/pipeline");
+            router.push("/franklin/pipeline");
           }
         }
       } catch {

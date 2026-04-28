@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { getUserFromRequest, hashToken, unauthorizedResponse } from "@/lib/api-helpers";
+import { getUserFromRequest, hashToken, unauthorizedResponse, requireCountyAccess } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { createInviteSchema } from "@/schemas/auth";
 
@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
     if (!INVITE_ROLES.includes(user.userRole)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const countyResult = await requireCountyAccess(request, user);
+    if (countyResult instanceof NextResponse) return countyResult;
+    const { county } = countyResult;
 
     const body = await request.json();
     const parsed = createInviteSchema.safeParse(body);
@@ -53,6 +57,7 @@ export async function POST(request: NextRequest) {
         role,
         expiresAt,
         createdBy: user.userId,
+        countyId: county.id,
       },
     });
 

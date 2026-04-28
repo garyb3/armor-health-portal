@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FORM_STEPS, PIPELINE_STAGES } from "@/lib/constants";
+import { getCountyFromPath } from "@/lib/counties";
 import { formatElapsed } from "@/lib/format-elapsed";
 import { cn } from "@/lib/utils";
 import { Check, X, ChevronDown, ChevronRight, Trash2, Pencil, Loader2, AlertTriangle, MessageSquare, Archive } from "lucide-react";
@@ -54,6 +56,9 @@ interface PipelineListProps {
 }
 
 export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes, onAddNote, onEditNote, onDeleteNote, onSetOfferDate, onSetStepDates, onRemoveCandidate, onArchive }: PipelineListProps) {
+  const pathname = usePathname();
+  const countySlug = getCountyFromPath(pathname);
+  const countyPrefix = countySlug ? `/${countySlug}` : "";
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [archivingId, setArchivingId] = useState<string | null>(null);
@@ -307,7 +312,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
               </div>
 
               <Link
-                href={`/pipeline/${applicant.id}`}
+                href={`${countyPrefix}/pipeline/${applicant.id}`}
                 onClick={(e) => e.stopPropagation()}
                 className="text-xs text-blue-600 dark:text-blue-400 hover:underline shrink-0"
               >

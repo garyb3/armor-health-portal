@@ -7,6 +7,8 @@ import {
   getClientIp,
   parseOptionalDate,
   enforceMaxBodySize,
+  requireCountyAccess,
+  assertApplicantInCounty,
 } from "@/lib/api-helpers";
 import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
 import { getNextStep } from "@/lib/pipeline-helpers";
@@ -32,6 +34,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const countyResult = await requireCountyAccess(request, user);
+    if (countyResult instanceof NextResponse) return countyResult;
+    const { county } = countyResult;
+
     const oversized = enforceMaxBodySize(request, 32 * 1024);
     if (oversized) return oversized;
 
@@ -49,6 +55,9 @@ export async function PATCH(
     if (!formType) {
       return badRequestResponse("Invalid form type");
     }
+
+    const ownership = await assertApplicantInCounty(applicantId, county.id);
+    if (ownership) return ownership;
 
     const body = await request.json();
     const { stepStartedAt, stepCompletedAt } = body as {
@@ -121,6 +130,10 @@ export async function POST(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const countyResult = await requireCountyAccess(request, user);
+    if (countyResult instanceof NextResponse) return countyResult;
+    const { county } = countyResult;
+
     const oversized = enforceMaxBodySize(request, 256 * 1024);
     if (oversized) return oversized;
 
@@ -138,6 +151,9 @@ export async function POST(
     if (!formType) {
       return badRequestResponse("Invalid form type");
     }
+
+    const ownership = await assertApplicantInCounty(applicantId, county.id);
+    if (ownership) return ownership;
 
     const body = await request.json();
     const { action, note } = body as {

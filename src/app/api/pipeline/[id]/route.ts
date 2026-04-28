@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields, parseOptionalDate } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields, parseOptionalDate, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 import { getCurrentStep } from "@/lib/pipeline-helpers";
@@ -19,7 +19,14 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id } = await params;
+
+  const ownership = await assertApplicantInCounty(id, county.id);
+  if (ownership) return ownership;
 
   const applicant = await prisma.applicant.findUnique({
     where: { id },
@@ -112,7 +119,14 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id } = await params;
+
+  const ownership = await assertApplicantInCounty(id, county.id);
+  if (ownership) return ownership;
 
   try {
     const body = await request.json();

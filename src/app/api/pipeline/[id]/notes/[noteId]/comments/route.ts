@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -14,11 +14,18 @@ export async function GET(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id, noteId } = await params;
+
+  const ownership = await assertApplicantInCounty(id, county.id);
+  if (ownership) return ownership;
 
   try {
     const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id) {
+    if (!note || note.applicantId !== id || note.countyId !== county.id) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 
@@ -51,6 +58,10 @@ export async function POST(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const oversized = enforceMaxBodySize(request, 256 * 1024);
   if (oversized) return oversized;
 
@@ -65,9 +76,12 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { id, noteId } = await params;
 
+  const ownership = await assertApplicantInCounty(id, county.id);
+  if (ownership) return ownership;
+
   try {
     const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id) {
+    if (!note || note.applicantId !== id || note.countyId !== county.id) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
     }
 

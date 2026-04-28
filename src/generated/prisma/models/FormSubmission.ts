@@ -27,6 +27,7 @@ export type AggregateFormSubmission = {
 export type FormSubmissionMinAggregateOutputType = {
   id: string | null
   applicantId: string | null
+  countyId: string | null
   formType: $Enums.FormType | null
   status: $Enums.FormStatus | null
   receiptFile: string | null
@@ -45,6 +46,7 @@ export type FormSubmissionMinAggregateOutputType = {
 export type FormSubmissionMaxAggregateOutputType = {
   id: string | null
   applicantId: string | null
+  countyId: string | null
   formType: $Enums.FormType | null
   status: $Enums.FormStatus | null
   receiptFile: string | null
@@ -63,6 +65,7 @@ export type FormSubmissionMaxAggregateOutputType = {
 export type FormSubmissionCountAggregateOutputType = {
   id: number
   applicantId: number
+  countyId: number
   formType: number
   status: number
   formData: number
@@ -84,6 +87,7 @@ export type FormSubmissionCountAggregateOutputType = {
 export type FormSubmissionMinAggregateInputType = {
   id?: true
   applicantId?: true
+  countyId?: true
   formType?: true
   status?: true
   receiptFile?: true
@@ -102,6 +106,7 @@ export type FormSubmissionMinAggregateInputType = {
 export type FormSubmissionMaxAggregateInputType = {
   id?: true
   applicantId?: true
+  countyId?: true
   formType?: true
   status?: true
   receiptFile?: true
@@ -120,6 +125,7 @@ export type FormSubmissionMaxAggregateInputType = {
 export type FormSubmissionCountAggregateInputType = {
   id?: true
   applicantId?: true
+  countyId?: true
   formType?: true
   status?: true
   formData?: true
@@ -212,6 +218,7 @@ export type FormSubmissionGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type FormSubmissionGroupByOutputType = {
   id: string
   applicantId: string
+  countyId: string
   formType: $Enums.FormType
   status: $Enums.FormStatus
   formData: runtime.JsonValue | null
@@ -252,6 +259,7 @@ export type FormSubmissionWhereInput = {
   NOT?: Prisma.FormSubmissionWhereInput | Prisma.FormSubmissionWhereInput[]
   id?: Prisma.StringFilter<"FormSubmission"> | string
   applicantId?: Prisma.StringFilter<"FormSubmission"> | string
+  countyId?: Prisma.StringFilter<"FormSubmission"> | string
   formType?: Prisma.EnumFormTypeFilter<"FormSubmission"> | $Enums.FormType
   status?: Prisma.EnumFormStatusFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableFilter<"FormSubmission">
@@ -267,11 +275,13 @@ export type FormSubmissionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   applicant?: Prisma.XOR<Prisma.ApplicantScalarRelationFilter, Prisma.ApplicantWhereInput>
+  county?: Prisma.XOR<Prisma.CountyScalarRelationFilter, Prisma.CountyWhereInput>
 }
 
 export type FormSubmissionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   formData?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -287,6 +297,7 @@ export type FormSubmissionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   applicant?: Prisma.ApplicantOrderByWithRelationInput
+  county?: Prisma.CountyOrderByWithRelationInput
 }
 
 export type FormSubmissionWhereUniqueInput = Prisma.AtLeast<{
@@ -296,6 +307,7 @@ export type FormSubmissionWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FormSubmissionWhereInput[]
   NOT?: Prisma.FormSubmissionWhereInput | Prisma.FormSubmissionWhereInput[]
   applicantId?: Prisma.StringFilter<"FormSubmission"> | string
+  countyId?: Prisma.StringFilter<"FormSubmission"> | string
   formType?: Prisma.EnumFormTypeFilter<"FormSubmission"> | $Enums.FormType
   status?: Prisma.EnumFormStatusFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableFilter<"FormSubmission">
@@ -311,11 +323,13 @@ export type FormSubmissionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
   applicant?: Prisma.XOR<Prisma.ApplicantScalarRelationFilter, Prisma.ApplicantWhereInput>
+  county?: Prisma.XOR<Prisma.CountyScalarRelationFilter, Prisma.CountyWhereInput>
 }, "id" | "applicantId_formType">
 
 export type FormSubmissionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   formData?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -341,6 +355,7 @@ export type FormSubmissionScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FormSubmissionScalarWhereWithAggregatesInput | Prisma.FormSubmissionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"FormSubmission"> | string
   applicantId?: Prisma.StringWithAggregatesFilter<"FormSubmission"> | string
+  countyId?: Prisma.StringWithAggregatesFilter<"FormSubmission"> | string
   formType?: Prisma.EnumFormTypeWithAggregatesFilter<"FormSubmission"> | $Enums.FormType
   status?: Prisma.EnumFormStatusWithAggregatesFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableWithAggregatesFilter<"FormSubmission">
@@ -374,11 +389,13 @@ export type FormSubmissionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   applicant: Prisma.ApplicantCreateNestedOneWithoutFormSubmissionsInput
+  county: Prisma.CountyCreateNestedOneWithoutFormSubmissionsInput
 }
 
 export type FormSubmissionUncheckedCreateInput = {
   id?: string
   applicantId: string
+  countyId: string
   formType: $Enums.FormType
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -412,11 +429,13 @@ export type FormSubmissionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   applicant?: Prisma.ApplicantUpdateOneRequiredWithoutFormSubmissionsNestedInput
+  county?: Prisma.CountyUpdateOneRequiredWithoutFormSubmissionsNestedInput
 }
 
 export type FormSubmissionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -436,6 +455,7 @@ export type FormSubmissionUncheckedUpdateInput = {
 export type FormSubmissionCreateManyInput = {
   id?: string
   applicantId: string
+  countyId: string
   formType: $Enums.FormType
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -473,6 +493,7 @@ export type FormSubmissionUpdateManyMutationInput = {
 export type FormSubmissionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -507,6 +528,7 @@ export type FormSubmissionApplicantIdFormTypeCompoundUniqueInput = {
 export type FormSubmissionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   formData?: Prisma.SortOrder
@@ -526,6 +548,7 @@ export type FormSubmissionCountOrderByAggregateInput = {
 export type FormSubmissionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
@@ -544,6 +567,7 @@ export type FormSubmissionMaxOrderByAggregateInput = {
 export type FormSubmissionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   applicantId?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   formType?: Prisma.SortOrder
   status?: Prisma.SortOrder
   receiptFile?: Prisma.SortOrder
@@ -609,6 +633,48 @@ export type EnumFormStatusFieldUpdateOperationsInput = {
   set?: $Enums.FormStatus
 }
 
+export type FormSubmissionCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.FormSubmissionCreateWithoutCountyInput, Prisma.FormSubmissionUncheckedCreateWithoutCountyInput> | Prisma.FormSubmissionCreateWithoutCountyInput[] | Prisma.FormSubmissionUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.FormSubmissionCreateOrConnectWithoutCountyInput | Prisma.FormSubmissionCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.FormSubmissionCreateManyCountyInputEnvelope
+  connect?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+}
+
+export type FormSubmissionUncheckedCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.FormSubmissionCreateWithoutCountyInput, Prisma.FormSubmissionUncheckedCreateWithoutCountyInput> | Prisma.FormSubmissionCreateWithoutCountyInput[] | Prisma.FormSubmissionUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.FormSubmissionCreateOrConnectWithoutCountyInput | Prisma.FormSubmissionCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.FormSubmissionCreateManyCountyInputEnvelope
+  connect?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+}
+
+export type FormSubmissionUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.FormSubmissionCreateWithoutCountyInput, Prisma.FormSubmissionUncheckedCreateWithoutCountyInput> | Prisma.FormSubmissionCreateWithoutCountyInput[] | Prisma.FormSubmissionUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.FormSubmissionCreateOrConnectWithoutCountyInput | Prisma.FormSubmissionCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.FormSubmissionUpsertWithWhereUniqueWithoutCountyInput | Prisma.FormSubmissionUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.FormSubmissionCreateManyCountyInputEnvelope
+  set?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  disconnect?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  delete?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  connect?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  update?: Prisma.FormSubmissionUpdateWithWhereUniqueWithoutCountyInput | Prisma.FormSubmissionUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.FormSubmissionUpdateManyWithWhereWithoutCountyInput | Prisma.FormSubmissionUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.FormSubmissionScalarWhereInput | Prisma.FormSubmissionScalarWhereInput[]
+}
+
+export type FormSubmissionUncheckedUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.FormSubmissionCreateWithoutCountyInput, Prisma.FormSubmissionUncheckedCreateWithoutCountyInput> | Prisma.FormSubmissionCreateWithoutCountyInput[] | Prisma.FormSubmissionUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.FormSubmissionCreateOrConnectWithoutCountyInput | Prisma.FormSubmissionCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.FormSubmissionUpsertWithWhereUniqueWithoutCountyInput | Prisma.FormSubmissionUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.FormSubmissionCreateManyCountyInputEnvelope
+  set?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  disconnect?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  delete?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  connect?: Prisma.FormSubmissionWhereUniqueInput | Prisma.FormSubmissionWhereUniqueInput[]
+  update?: Prisma.FormSubmissionUpdateWithWhereUniqueWithoutCountyInput | Prisma.FormSubmissionUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.FormSubmissionUpdateManyWithWhereWithoutCountyInput | Prisma.FormSubmissionUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.FormSubmissionScalarWhereInput | Prisma.FormSubmissionScalarWhereInput[]
+}
+
 export type FormSubmissionCreateWithoutApplicantInput = {
   id?: string
   formType: $Enums.FormType
@@ -625,10 +691,12 @@ export type FormSubmissionCreateWithoutApplicantInput = {
   stepCompletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  county: Prisma.CountyCreateNestedOneWithoutFormSubmissionsInput
 }
 
 export type FormSubmissionUncheckedCreateWithoutApplicantInput = {
   id?: string
+  countyId: string
   formType: $Enums.FormType
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -676,6 +744,7 @@ export type FormSubmissionScalarWhereInput = {
   NOT?: Prisma.FormSubmissionScalarWhereInput | Prisma.FormSubmissionScalarWhereInput[]
   id?: Prisma.StringFilter<"FormSubmission"> | string
   applicantId?: Prisma.StringFilter<"FormSubmission"> | string
+  countyId?: Prisma.StringFilter<"FormSubmission"> | string
   formType?: Prisma.EnumFormTypeFilter<"FormSubmission"> | $Enums.FormType
   status?: Prisma.EnumFormStatusFilter<"FormSubmission"> | $Enums.FormStatus
   formData?: Prisma.JsonNullableFilter<"FormSubmission">
@@ -692,8 +761,72 @@ export type FormSubmissionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FormSubmission"> | Date | string
 }
 
+export type FormSubmissionCreateWithoutCountyInput = {
+  id?: string
+  formType: $Enums.FormType
+  status?: $Enums.FormStatus
+  formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
+  submittedAt?: Date | string | null
+  statusChangedAt?: Date | string
+  lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  applicant: Prisma.ApplicantCreateNestedOneWithoutFormSubmissionsInput
+}
+
+export type FormSubmissionUncheckedCreateWithoutCountyInput = {
+  id?: string
+  applicantId: string
+  formType: $Enums.FormType
+  status?: $Enums.FormStatus
+  formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
+  submittedAt?: Date | string | null
+  statusChangedAt?: Date | string
+  lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FormSubmissionCreateOrConnectWithoutCountyInput = {
+  where: Prisma.FormSubmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FormSubmissionCreateWithoutCountyInput, Prisma.FormSubmissionUncheckedCreateWithoutCountyInput>
+}
+
+export type FormSubmissionCreateManyCountyInputEnvelope = {
+  data: Prisma.FormSubmissionCreateManyCountyInput | Prisma.FormSubmissionCreateManyCountyInput[]
+}
+
+export type FormSubmissionUpsertWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.FormSubmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.FormSubmissionUpdateWithoutCountyInput, Prisma.FormSubmissionUncheckedUpdateWithoutCountyInput>
+  create: Prisma.XOR<Prisma.FormSubmissionCreateWithoutCountyInput, Prisma.FormSubmissionUncheckedCreateWithoutCountyInput>
+}
+
+export type FormSubmissionUpdateWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.FormSubmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.FormSubmissionUpdateWithoutCountyInput, Prisma.FormSubmissionUncheckedUpdateWithoutCountyInput>
+}
+
+export type FormSubmissionUpdateManyWithWhereWithoutCountyInput = {
+  where: Prisma.FormSubmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.FormSubmissionUpdateManyMutationInput, Prisma.FormSubmissionUncheckedUpdateManyWithoutCountyInput>
+}
+
 export type FormSubmissionCreateManyApplicantInput = {
   id?: string
+  countyId: string
   formType: $Enums.FormType
   status?: $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -726,10 +859,12 @@ export type FormSubmissionUpdateWithoutApplicantInput = {
   stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  county?: Prisma.CountyUpdateOneRequiredWithoutFormSubmissionsNestedInput
 }
 
 export type FormSubmissionUncheckedUpdateWithoutApplicantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -748,6 +883,83 @@ export type FormSubmissionUncheckedUpdateWithoutApplicantInput = {
 
 export type FormSubmissionUncheckedUpdateManyWithoutApplicantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
+  status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
+  formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FormSubmissionCreateManyCountyInput = {
+  id?: string
+  applicantId: string
+  formType: $Enums.FormType
+  status?: $Enums.FormStatus
+  formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  receiptFile?: string | null
+  reviewedBy?: string | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
+  submittedAt?: Date | string | null
+  statusChangedAt?: Date | string
+  lastAlertSentAt?: Date | string | null
+  stepStartedAt?: Date | string | null
+  stepCompletedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FormSubmissionUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
+  status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
+  formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  applicant?: Prisma.ApplicantUpdateOneRequiredWithoutFormSubmissionsNestedInput
+}
+
+export type FormSubmissionUncheckedUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  applicantId?: Prisma.StringFieldUpdateOperationsInput | string
+  formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
+  status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
+  formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  receiptFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  statusChangedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastAlertSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  stepCompletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FormSubmissionUncheckedUpdateManyWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  applicantId?: Prisma.StringFieldUpdateOperationsInput | string
   formType?: Prisma.EnumFormTypeFieldUpdateOperationsInput | $Enums.FormType
   status?: Prisma.EnumFormStatusFieldUpdateOperationsInput | $Enums.FormStatus
   formData?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
@@ -769,6 +981,7 @@ export type FormSubmissionUncheckedUpdateManyWithoutApplicantInput = {
 export type FormSubmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   applicantId?: boolean
+  countyId?: boolean
   formType?: boolean
   status?: boolean
   formData?: boolean
@@ -784,11 +997,13 @@ export type FormSubmissionSelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["formSubmission"]>
 
 export type FormSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   applicantId?: boolean
+  countyId?: boolean
   formType?: boolean
   status?: boolean
   formData?: boolean
@@ -804,11 +1019,13 @@ export type FormSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["formSubmission"]>
 
 export type FormSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   applicantId?: boolean
+  countyId?: boolean
   formType?: boolean
   status?: boolean
   formData?: boolean
@@ -824,11 +1041,13 @@ export type FormSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   createdAt?: boolean
   updatedAt?: boolean
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["formSubmission"]>
 
 export type FormSubmissionSelectScalar = {
   id?: boolean
   applicantId?: boolean
+  countyId?: boolean
   formType?: boolean
   status?: boolean
   formData?: boolean
@@ -845,25 +1064,30 @@ export type FormSubmissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FormSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicantId" | "formType" | "status" | "formData" | "receiptFile" | "reviewedBy" | "reviewedAt" | "reviewNote" | "submittedAt" | "statusChangedAt" | "lastAlertSentAt" | "stepStartedAt" | "stepCompletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["formSubmission"]>
+export type FormSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "applicantId" | "countyId" | "formType" | "status" | "formData" | "receiptFile" | "reviewedBy" | "reviewedAt" | "reviewNote" | "submittedAt" | "statusChangedAt" | "lastAlertSentAt" | "stepStartedAt" | "stepCompletedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["formSubmission"]>
 export type FormSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }
 export type FormSubmissionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }
 export type FormSubmissionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   applicant?: boolean | Prisma.ApplicantDefaultArgs<ExtArgs>
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }
 
 export type $FormSubmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FormSubmission"
   objects: {
     applicant: Prisma.$ApplicantPayload<ExtArgs>
+    county: Prisma.$CountyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     applicantId: string
+    countyId: string
     formType: $Enums.FormType
     status: $Enums.FormStatus
     formData: runtime.JsonValue | null
@@ -1273,6 +1497,7 @@ readonly fields: FormSubmissionFieldRefs;
 export interface Prisma__FormSubmissionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   applicant<T extends Prisma.ApplicantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ApplicantDefaultArgs<ExtArgs>>): Prisma.Prisma__ApplicantClient<runtime.Types.Result.GetResult<Prisma.$ApplicantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  county<T extends Prisma.CountyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CountyDefaultArgs<ExtArgs>>): Prisma.Prisma__CountyClient<runtime.Types.Result.GetResult<Prisma.$CountyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1304,6 +1529,7 @@ export interface Prisma__FormSubmissionClient<T, Null = never, ExtArgs extends r
 export interface FormSubmissionFieldRefs {
   readonly id: Prisma.FieldRef<"FormSubmission", 'String'>
   readonly applicantId: Prisma.FieldRef<"FormSubmission", 'String'>
+  readonly countyId: Prisma.FieldRef<"FormSubmission", 'String'>
   readonly formType: Prisma.FieldRef<"FormSubmission", 'FormType'>
   readonly status: Prisma.FieldRef<"FormSubmission", 'FormStatus'>
   readonly formData: Prisma.FieldRef<"FormSubmission", 'Json'>

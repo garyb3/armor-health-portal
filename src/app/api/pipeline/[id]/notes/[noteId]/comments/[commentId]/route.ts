@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 
 const STAFF_ROLES: string[] = ["HR", "ADMIN"];
@@ -13,6 +13,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id, noteId, commentId } = await params;
 
   try {
@@ -21,7 +25,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
     const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id) {
+    if (!note || note.applicantId !== id || note.countyId !== county.id) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
     if (comment.authorId !== user.userId) {
@@ -75,6 +79,10 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id, noteId, commentId } = await params;
 
   try {
@@ -83,7 +91,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
     const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id) {
+    if (!note || note.applicantId !== id || note.countyId !== county.id) {
       return NextResponse.json({ error: "Comment not found" }, { status: 404 });
     }
     if (comment.authorId !== user.userId) {

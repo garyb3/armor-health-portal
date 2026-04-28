@@ -15,6 +15,8 @@ export default function CategoryPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
+  const county = params.county as string;
+  const countyPrefix = `/${county}`;
 
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function CategoryPage() {
 
   useEffect(() => {
     if (!valid) {
-      router.replace("/pipeline");
+      router.replace(`${countyPrefix}/pipeline`);
       return;
     }
     async function load() {
@@ -226,7 +228,7 @@ export default function CategoryPage() {
       {/* Header */}
       <div>
         <Link
-          href="/pipeline"
+          href={`${countyPrefix}/pipeline`}
           className="inline-flex items-center gap-1.5 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-3"
         >
           <ArrowLeft className="h-4 w-4" />

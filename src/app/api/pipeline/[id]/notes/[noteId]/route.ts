@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 
 const STAFF_ROLES: string[] = ["HR", "ADMIN"];
@@ -13,6 +13,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id, noteId } = await params;
 
   try {
@@ -22,10 +26,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
 
-    // Fold ownership + applicant-scoping into a single atomic updateMany.
-    // count=0 means "not found OR not yours" — return 404 either way (don't leak existence).
+    // Fold ownership + applicant-scoping + tenant-scoping into a single atomic updateMany.
+    // count=0 means "not found OR not yours OR wrong county" — return 404 either way (don't leak existence).
     const { count } = await prisma.note.updateMany({
-      where: { id: noteId, applicantId: id, authorId: user.userId },
+      where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },
       data: { content, updatedAt: new Date() },
     });
     if (count === 0) {
@@ -70,12 +74,16 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id, noteId } = await params;
 
   try {
-    // Fold ownership + applicant-scoping into a single atomic deleteMany (no check-then-act race).
+    // Fold ownership + applicant-scoping + tenant-scoping into a single atomic deleteMany.
     const { count } = await prisma.note.deleteMany({
-      where: { id: noteId, applicantId: id, authorId: user.userId },
+      where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },
     });
     if (count === 0) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });

@@ -28,10 +28,10 @@ export function useAuth() {
         }
         setUser(data.user);
         const dest = data.user.role === "ADMIN"
-          ? "/admin"
+          ? "/franklin/admin"
           : data.user.role === "HR" && !data.user.approved
           ? "/pending-approval"
-          : "/pipeline";
+          : "/franklin/pipeline";
         router.push(dest);
         return true;
       } catch {
@@ -70,10 +70,10 @@ export function useAuth() {
         }
         setUser(data.user);
         const dest = data.user.role === "ADMIN"
-          ? "/admin"
+          ? "/franklin/admin"
           : data.user.role === "HR" && !data.user.approved
           ? "/pending-approval"
-          : "/pipeline";
+          : "/franklin/pipeline";
         router.push(dest);
         return true;
       } catch {

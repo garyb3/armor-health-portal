@@ -58,7 +58,9 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   Note: 'Note',
   NoteComment: 'NoteComment',
-  ApiKey: 'ApiKey'
+  ApiKey: 'ApiKey',
+  County: 'County',
+  UserCounty: 'UserCounty'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -93,6 +95,7 @@ export const ApplicantScalarFieldEnum = {
   archivedAt: 'archivedAt',
   archivedBy: 'archivedBy',
   notes: 'notes',
+  countyId: 'countyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -103,6 +106,7 @@ export type ApplicantScalarFieldEnum = (typeof ApplicantScalarFieldEnum)[keyof t
 export const FormSubmissionScalarFieldEnum = {
   id: 'id',
   applicantId: 'applicantId',
+  countyId: 'countyId',
   formType: 'formType',
   status: 'status',
   formData: 'formData',
@@ -130,6 +134,7 @@ export const InviteScalarFieldEnum = {
   used: 'used',
   expiresAt: 'expiresAt',
   createdBy: 'createdBy',
+  countyId: 'countyId',
   createdAt: 'createdAt'
 } as const
 
@@ -155,6 +160,7 @@ export const AuditLogScalarFieldEnum = {
   targetId: 'targetId',
   metadata: 'metadata',
   ipAddress: 'ipAddress',
+  countyId: 'countyId',
   createdAt: 'createdAt'
 } as const
 
@@ -167,6 +173,7 @@ export const NoteScalarFieldEnum = {
   authorId: 'authorId',
   authorName: 'authorName',
   applicantId: 'applicantId',
+  countyId: 'countyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -198,10 +205,32 @@ export const ApiKeyScalarFieldEnum = {
   expiresAt: 'expiresAt',
   lastUsedAt: 'lastUsedAt',
   createdBy: 'createdBy',
+  countyId: 'countyId',
   createdAt: 'createdAt'
 } as const
 
 export type ApiKeyScalarFieldEnum = (typeof ApiKeyScalarFieldEnum)[keyof typeof ApiKeyScalarFieldEnum]
+
+
+export const CountyScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  displayName: 'displayName',
+  active: 'active',
+  createdAt: 'createdAt'
+} as const
+
+export type CountyScalarFieldEnum = (typeof CountyScalarFieldEnum)[keyof typeof CountyScalarFieldEnum]
+
+
+export const UserCountyScalarFieldEnum = {
+  id: 'id',
+  applicantId: 'applicantId',
+  countyId: 'countyId',
+  createdAt: 'createdAt'
+} as const
+
+export type UserCountyScalarFieldEnum = (typeof UserCountyScalarFieldEnum)[keyof typeof UserCountyScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -53,6 +53,7 @@ export type ApplicantMinAggregateOutputType = {
   archivedAt: Date | null
   archivedBy: string | null
   notes: string | null
+  countyId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -76,6 +77,7 @@ export type ApplicantMaxAggregateOutputType = {
   archivedAt: Date | null
   archivedBy: string | null
   notes: string | null
+  countyId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -99,6 +101,7 @@ export type ApplicantCountAggregateOutputType = {
   archivedAt: number
   archivedBy: number
   notes: number
+  countyId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -132,6 +135,7 @@ export type ApplicantMinAggregateInputType = {
   archivedAt?: true
   archivedBy?: true
   notes?: true
+  countyId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -155,6 +159,7 @@ export type ApplicantMaxAggregateInputType = {
   archivedAt?: true
   archivedBy?: true
   notes?: true
+  countyId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -178,6 +183,7 @@ export type ApplicantCountAggregateInputType = {
   archivedAt?: true
   archivedBy?: true
   notes?: true
+  countyId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -288,6 +294,7 @@ export type ApplicantGroupByOutputType = {
   archivedAt: Date | null
   archivedBy: string | null
   notes: string | null
+  countyId: string | null
   createdAt: Date
   updatedAt: Date
   _count: ApplicantCountAggregateOutputType | null
@@ -334,11 +341,14 @@ export type ApplicantWhereInput = {
   archivedAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
   archivedBy?: Prisma.StringNullableFilter<"Applicant"> | string | null
   notes?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  countyId?: Prisma.StringNullableFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
   sensitiveData?: Prisma.XOR<Prisma.SensitiveDataNullableScalarRelationFilter, Prisma.SensitiveDataWhereInput> | null
   candidateNotes?: Prisma.NoteListRelationFilter
+  county?: Prisma.XOR<Prisma.CountyNullableScalarRelationFilter, Prisma.CountyWhereInput> | null
+  userCounties?: Prisma.UserCountyListRelationFilter
 }
 
 export type ApplicantOrderByWithRelationInput = {
@@ -360,11 +370,14 @@ export type ApplicantOrderByWithRelationInput = {
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  countyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   formSubmissions?: Prisma.FormSubmissionOrderByRelationAggregateInput
   sensitiveData?: Prisma.SensitiveDataOrderByWithRelationInput
   candidateNotes?: Prisma.NoteOrderByRelationAggregateInput
+  county?: Prisma.CountyOrderByWithRelationInput
+  userCounties?: Prisma.UserCountyOrderByRelationAggregateInput
 }
 
 export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
@@ -389,11 +402,14 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   archivedAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
   archivedBy?: Prisma.StringNullableFilter<"Applicant"> | string | null
   notes?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  countyId?: Prisma.StringNullableFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
   formSubmissions?: Prisma.FormSubmissionListRelationFilter
   sensitiveData?: Prisma.XOR<Prisma.SensitiveDataNullableScalarRelationFilter, Prisma.SensitiveDataWhereInput> | null
   candidateNotes?: Prisma.NoteListRelationFilter
+  county?: Prisma.XOR<Prisma.CountyNullableScalarRelationFilter, Prisma.CountyWhereInput> | null
+  userCounties?: Prisma.UserCountyListRelationFilter
 }, "id" | "email" | "verificationToken" | "resetToken">
 
 export type ApplicantOrderByWithAggregationInput = {
@@ -415,6 +431,7 @@ export type ApplicantOrderByWithAggregationInput = {
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
+  countyId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ApplicantCountOrderByAggregateInput
@@ -446,6 +463,7 @@ export type ApplicantScalarWhereWithAggregatesInput = {
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Applicant"> | Date | string | null
   archivedBy?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
+  countyId?: Prisma.StringNullableWithAggregatesFilter<"Applicant"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Applicant"> | Date | string
 }
@@ -474,6 +492,8 @@ export type ApplicantCreateInput = {
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
   sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
   candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
+  county?: Prisma.CountyCreateNestedOneWithoutApplicantsInput
+  userCounties?: Prisma.UserCountyCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateInput = {
@@ -495,11 +515,13 @@ export type ApplicantUncheckedCreateInput = {
   archivedAt?: Date | string | null
   archivedBy?: string | null
   notes?: string | null
+  countyId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
   sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
   candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
+  userCounties?: Prisma.UserCountyUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUpdateInput = {
@@ -526,6 +548,8 @@ export type ApplicantUpdateInput = {
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
   sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
   candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
+  county?: Prisma.CountyUpdateOneWithoutApplicantsNestedInput
+  userCounties?: Prisma.UserCountyUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateInput = {
@@ -547,11 +571,13 @@ export type ApplicantUncheckedUpdateInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
   sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
   candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
+  userCounties?: Prisma.UserCountyUncheckedUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantCreateManyInput = {
@@ -573,6 +599,7 @@ export type ApplicantCreateManyInput = {
   archivedAt?: Date | string | null
   archivedBy?: string | null
   notes?: string | null
+  countyId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -619,6 +646,7 @@ export type ApplicantUncheckedUpdateManyInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -642,6 +670,7 @@ export type ApplicantCountOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   archivedBy?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -669,6 +698,7 @@ export type ApplicantMaxOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   archivedBy?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -692,6 +722,7 @@ export type ApplicantMinOrderByAggregateInput = {
   archivedAt?: Prisma.SortOrder
   archivedBy?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -703,6 +734,16 @@ export type ApplicantSumOrderByAggregateInput = {
 export type ApplicantScalarRelationFilter = {
   is?: Prisma.ApplicantWhereInput
   isNot?: Prisma.ApplicantWhereInput
+}
+
+export type ApplicantListRelationFilter = {
+  every?: Prisma.ApplicantWhereInput
+  some?: Prisma.ApplicantWhereInput
+  none?: Prisma.ApplicantWhereInput
+}
+
+export type ApplicantOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -779,6 +820,62 @@ export type ApplicantUpdateOneRequiredWithoutCandidateNotesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicantUpdateToOneWithWhereWithoutCandidateNotesInput, Prisma.ApplicantUpdateWithoutCandidateNotesInput>, Prisma.ApplicantUncheckedUpdateWithoutCandidateNotesInput>
 }
 
+export type ApplicantCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutCountyInput, Prisma.ApplicantUncheckedCreateWithoutCountyInput> | Prisma.ApplicantCreateWithoutCountyInput[] | Prisma.ApplicantUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutCountyInput | Prisma.ApplicantCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.ApplicantCreateManyCountyInputEnvelope
+  connect?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+}
+
+export type ApplicantUncheckedCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutCountyInput, Prisma.ApplicantUncheckedCreateWithoutCountyInput> | Prisma.ApplicantCreateWithoutCountyInput[] | Prisma.ApplicantUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutCountyInput | Prisma.ApplicantCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.ApplicantCreateManyCountyInputEnvelope
+  connect?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+}
+
+export type ApplicantUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutCountyInput, Prisma.ApplicantUncheckedCreateWithoutCountyInput> | Prisma.ApplicantCreateWithoutCountyInput[] | Prisma.ApplicantUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutCountyInput | Prisma.ApplicantCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.ApplicantUpsertWithWhereUniqueWithoutCountyInput | Prisma.ApplicantUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.ApplicantCreateManyCountyInputEnvelope
+  set?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  disconnect?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  delete?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  connect?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  update?: Prisma.ApplicantUpdateWithWhereUniqueWithoutCountyInput | Prisma.ApplicantUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.ApplicantUpdateManyWithWhereWithoutCountyInput | Prisma.ApplicantUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.ApplicantScalarWhereInput | Prisma.ApplicantScalarWhereInput[]
+}
+
+export type ApplicantUncheckedUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutCountyInput, Prisma.ApplicantUncheckedCreateWithoutCountyInput> | Prisma.ApplicantCreateWithoutCountyInput[] | Prisma.ApplicantUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutCountyInput | Prisma.ApplicantCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.ApplicantUpsertWithWhereUniqueWithoutCountyInput | Prisma.ApplicantUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.ApplicantCreateManyCountyInputEnvelope
+  set?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  disconnect?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  delete?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  connect?: Prisma.ApplicantWhereUniqueInput | Prisma.ApplicantWhereUniqueInput[]
+  update?: Prisma.ApplicantUpdateWithWhereUniqueWithoutCountyInput | Prisma.ApplicantUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.ApplicantUpdateManyWithWhereWithoutCountyInput | Prisma.ApplicantUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.ApplicantScalarWhereInput | Prisma.ApplicantScalarWhereInput[]
+}
+
+export type ApplicantCreateNestedOneWithoutUserCountiesInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutUserCountiesInput, Prisma.ApplicantUncheckedCreateWithoutUserCountiesInput>
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutUserCountiesInput
+  connect?: Prisma.ApplicantWhereUniqueInput
+}
+
+export type ApplicantUpdateOneRequiredWithoutUserCountiesNestedInput = {
+  create?: Prisma.XOR<Prisma.ApplicantCreateWithoutUserCountiesInput, Prisma.ApplicantUncheckedCreateWithoutUserCountiesInput>
+  connectOrCreate?: Prisma.ApplicantCreateOrConnectWithoutUserCountiesInput
+  upsert?: Prisma.ApplicantUpsertWithoutUserCountiesInput
+  connect?: Prisma.ApplicantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ApplicantUpdateToOneWithWhereWithoutUserCountiesInput, Prisma.ApplicantUpdateWithoutUserCountiesInput>, Prisma.ApplicantUncheckedUpdateWithoutUserCountiesInput>
+}
+
 export type ApplicantCreateWithoutFormSubmissionsInput = {
   id?: string
   email: string
@@ -802,6 +899,8 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   updatedAt?: Date | string
   sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
   candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
+  county?: Prisma.CountyCreateNestedOneWithoutApplicantsInput
+  userCounties?: Prisma.UserCountyCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
@@ -823,10 +922,12 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   archivedAt?: Date | string | null
   archivedBy?: string | null
   notes?: string | null
+  countyId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
   candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
+  userCounties?: Prisma.UserCountyUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantCreateOrConnectWithoutFormSubmissionsInput = {
@@ -868,6 +969,8 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
   candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
+  county?: Prisma.CountyUpdateOneWithoutApplicantsNestedInput
+  userCounties?: Prisma.UserCountyUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
@@ -889,10 +992,12 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
   candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
+  userCounties?: Prisma.UserCountyUncheckedUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantCreateWithoutSensitiveDataInput = {
@@ -918,6 +1023,8 @@ export type ApplicantCreateWithoutSensitiveDataInput = {
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
   candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
+  county?: Prisma.CountyCreateNestedOneWithoutApplicantsInput
+  userCounties?: Prisma.UserCountyCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
@@ -939,10 +1046,12 @@ export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
   archivedAt?: Date | string | null
   archivedBy?: string | null
   notes?: string | null
+  countyId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
   candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
+  userCounties?: Prisma.UserCountyUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantCreateOrConnectWithoutSensitiveDataInput = {
@@ -984,6 +1093,8 @@ export type ApplicantUpdateWithoutSensitiveDataInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
   candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
+  county?: Prisma.CountyUpdateOneWithoutApplicantsNestedInput
+  userCounties?: Prisma.UserCountyUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
@@ -1005,10 +1116,12 @@ export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
   candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
+  userCounties?: Prisma.UserCountyUncheckedUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantCreateWithoutCandidateNotesInput = {
@@ -1034,6 +1147,8 @@ export type ApplicantCreateWithoutCandidateNotesInput = {
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
   sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
+  county?: Prisma.CountyCreateNestedOneWithoutApplicantsInput
+  userCounties?: Prisma.UserCountyCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantUncheckedCreateWithoutCandidateNotesInput = {
@@ -1055,10 +1170,12 @@ export type ApplicantUncheckedCreateWithoutCandidateNotesInput = {
   archivedAt?: Date | string | null
   archivedBy?: string | null
   notes?: string | null
+  countyId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
   sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
+  userCounties?: Prisma.UserCountyUncheckedCreateNestedManyWithoutApplicantInput
 }
 
 export type ApplicantCreateOrConnectWithoutCandidateNotesInput = {
@@ -1100,9 +1217,318 @@ export type ApplicantUpdateWithoutCandidateNotesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
   sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
+  county?: Prisma.CountyUpdateOneWithoutApplicantsNestedInput
+  userCounties?: Prisma.UserCountyUpdateManyWithoutApplicantNestedInput
 }
 
 export type ApplicantUncheckedUpdateWithoutCandidateNotesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
+  userCounties?: Prisma.UserCountyUncheckedUpdateManyWithoutApplicantNestedInput
+}
+
+export type ApplicantCreateWithoutCountyInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  archivedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
+  userCounties?: Prisma.UserCountyCreateNestedManyWithoutApplicantInput
+}
+
+export type ApplicantUncheckedCreateWithoutCountyInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  archivedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
+  userCounties?: Prisma.UserCountyUncheckedCreateNestedManyWithoutApplicantInput
+}
+
+export type ApplicantCreateOrConnectWithoutCountyInput = {
+  where: Prisma.ApplicantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutCountyInput, Prisma.ApplicantUncheckedCreateWithoutCountyInput>
+}
+
+export type ApplicantCreateManyCountyInputEnvelope = {
+  data: Prisma.ApplicantCreateManyCountyInput | Prisma.ApplicantCreateManyCountyInput[]
+}
+
+export type ApplicantUpsertWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.ApplicantWhereUniqueInput
+  update: Prisma.XOR<Prisma.ApplicantUpdateWithoutCountyInput, Prisma.ApplicantUncheckedUpdateWithoutCountyInput>
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutCountyInput, Prisma.ApplicantUncheckedCreateWithoutCountyInput>
+}
+
+export type ApplicantUpdateWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.ApplicantWhereUniqueInput
+  data: Prisma.XOR<Prisma.ApplicantUpdateWithoutCountyInput, Prisma.ApplicantUncheckedUpdateWithoutCountyInput>
+}
+
+export type ApplicantUpdateManyWithWhereWithoutCountyInput = {
+  where: Prisma.ApplicantScalarWhereInput
+  data: Prisma.XOR<Prisma.ApplicantUpdateManyMutationInput, Prisma.ApplicantUncheckedUpdateManyWithoutCountyInput>
+}
+
+export type ApplicantScalarWhereInput = {
+  AND?: Prisma.ApplicantScalarWhereInput | Prisma.ApplicantScalarWhereInput[]
+  OR?: Prisma.ApplicantScalarWhereInput[]
+  NOT?: Prisma.ApplicantScalarWhereInput | Prisma.ApplicantScalarWhereInput[]
+  id?: Prisma.StringFilter<"Applicant"> | string
+  email?: Prisma.StringFilter<"Applicant"> | string
+  password?: Prisma.StringFilter<"Applicant"> | string
+  firstName?: Prisma.StringFilter<"Applicant"> | string
+  lastName?: Prisma.StringFilter<"Applicant"> | string
+  role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
+  approved?: Prisma.BoolFilter<"Applicant"> | boolean
+  denied?: Prisma.BoolFilter<"Applicant"> | boolean
+  emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
+  verificationToken?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  resetToken?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  resetTokenExpiresAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
+  tokenVersion?: Prisma.IntFilter<"Applicant"> | number
+  phone?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  offerAcceptedAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
+  archivedAt?: Prisma.DateTimeNullableFilter<"Applicant"> | Date | string | null
+  archivedBy?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  notes?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  countyId?: Prisma.StringNullableFilter<"Applicant"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Applicant"> | Date | string
+}
+
+export type ApplicantCreateWithoutUserCountiesInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  archivedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteCreateNestedManyWithoutApplicantInput
+  county?: Prisma.CountyCreateNestedOneWithoutApplicantsInput
+}
+
+export type ApplicantUncheckedCreateWithoutUserCountiesInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  archivedBy?: string | null
+  notes?: string | null
+  countyId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedCreateNestedManyWithoutApplicantInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedCreateNestedOneWithoutApplicantInput
+  candidateNotes?: Prisma.NoteUncheckedCreateNestedManyWithoutApplicantInput
+}
+
+export type ApplicantCreateOrConnectWithoutUserCountiesInput = {
+  where: Prisma.ApplicantWhereUniqueInput
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutUserCountiesInput, Prisma.ApplicantUncheckedCreateWithoutUserCountiesInput>
+}
+
+export type ApplicantUpsertWithoutUserCountiesInput = {
+  update: Prisma.XOR<Prisma.ApplicantUpdateWithoutUserCountiesInput, Prisma.ApplicantUncheckedUpdateWithoutUserCountiesInput>
+  create: Prisma.XOR<Prisma.ApplicantCreateWithoutUserCountiesInput, Prisma.ApplicantUncheckedCreateWithoutUserCountiesInput>
+  where?: Prisma.ApplicantWhereInput
+}
+
+export type ApplicantUpdateToOneWithWhereWithoutUserCountiesInput = {
+  where?: Prisma.ApplicantWhereInput
+  data: Prisma.XOR<Prisma.ApplicantUpdateWithoutUserCountiesInput, Prisma.ApplicantUncheckedUpdateWithoutUserCountiesInput>
+}
+
+export type ApplicantUpdateWithoutUserCountiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
+  county?: Prisma.CountyUpdateOneWithoutApplicantsNestedInput
+}
+
+export type ApplicantUncheckedUpdateWithoutUserCountiesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  countyId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
+}
+
+export type ApplicantCreateManyCountyInput = {
+  id?: string
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  role: $Enums.Role
+  approved?: boolean
+  denied?: boolean
+  emailVerified?: boolean
+  verificationToken?: string | null
+  resetToken?: string | null
+  resetTokenExpiresAt?: Date | string | null
+  tokenVersion?: number
+  phone?: string | null
+  offerAcceptedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  archivedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ApplicantUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  formSubmissions?: Prisma.FormSubmissionUpdateManyWithoutApplicantNestedInput
+  sensitiveData?: Prisma.SensitiveDataUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUpdateManyWithoutApplicantNestedInput
+  userCounties?: Prisma.UserCountyUpdateManyWithoutApplicantNestedInput
+}
+
+export type ApplicantUncheckedUpdateWithoutCountyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   password?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1125,6 +1551,31 @@ export type ApplicantUncheckedUpdateWithoutCandidateNotesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   formSubmissions?: Prisma.FormSubmissionUncheckedUpdateManyWithoutApplicantNestedInput
   sensitiveData?: Prisma.SensitiveDataUncheckedUpdateOneWithoutApplicantNestedInput
+  candidateNotes?: Prisma.NoteUncheckedUpdateManyWithoutApplicantNestedInput
+  userCounties?: Prisma.UserCountyUncheckedUpdateManyWithoutApplicantNestedInput
+}
+
+export type ApplicantUncheckedUpdateManyWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offerAcceptedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1135,11 +1586,13 @@ export type ApplicantUncheckedUpdateWithoutCandidateNotesInput = {
 export type ApplicantCountOutputType = {
   formSubmissions: number
   candidateNotes: number
+  userCounties: number
 }
 
 export type ApplicantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | ApplicantCountOutputTypeCountFormSubmissionsArgs
   candidateNotes?: boolean | ApplicantCountOutputTypeCountCandidateNotesArgs
+  userCounties?: boolean | ApplicantCountOutputTypeCountUserCountiesArgs
 }
 
 /**
@@ -1166,6 +1619,13 @@ export type ApplicantCountOutputTypeCountCandidateNotesArgs<ExtArgs extends runt
   where?: Prisma.NoteWhereInput
 }
 
+/**
+ * ApplicantCountOutputType without action
+ */
+export type ApplicantCountOutputTypeCountUserCountiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserCountyWhereInput
+}
+
 
 export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1186,11 +1646,14 @@ export type ApplicantSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   archivedAt?: boolean
   archivedBy?: boolean
   notes?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
   candidateNotes?: boolean | Prisma.Applicant$candidateNotesArgs<ExtArgs>
+  county?: boolean | Prisma.Applicant$countyArgs<ExtArgs>
+  userCounties?: boolean | Prisma.Applicant$userCountiesArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["applicant"]>
 
@@ -1213,8 +1676,10 @@ export type ApplicantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   archivedAt?: boolean
   archivedBy?: boolean
   notes?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  county?: boolean | Prisma.Applicant$countyArgs<ExtArgs>
 }, ExtArgs["result"]["applicant"]>
 
 export type ApplicantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1236,8 +1701,10 @@ export type ApplicantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   archivedAt?: boolean
   archivedBy?: boolean
   notes?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  county?: boolean | Prisma.Applicant$countyArgs<ExtArgs>
 }, ExtArgs["result"]["applicant"]>
 
 export type ApplicantSelectScalar = {
@@ -1259,19 +1726,26 @@ export type ApplicantSelectScalar = {
   archivedAt?: boolean
   archivedBy?: boolean
   notes?: boolean
+  countyId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "denied" | "emailVerified" | "verificationToken" | "resetToken" | "resetTokenExpiresAt" | "tokenVersion" | "phone" | "offerAcceptedAt" | "archivedAt" | "archivedBy" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
+export type ApplicantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "firstName" | "lastName" | "role" | "approved" | "denied" | "emailVerified" | "verificationToken" | "resetToken" | "resetTokenExpiresAt" | "tokenVersion" | "phone" | "offerAcceptedAt" | "archivedAt" | "archivedBy" | "notes" | "countyId" | "createdAt" | "updatedAt", ExtArgs["result"]["applicant"]>
 export type ApplicantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   formSubmissions?: boolean | Prisma.Applicant$formSubmissionsArgs<ExtArgs>
   sensitiveData?: boolean | Prisma.Applicant$sensitiveDataArgs<ExtArgs>
   candidateNotes?: boolean | Prisma.Applicant$candidateNotesArgs<ExtArgs>
+  county?: boolean | Prisma.Applicant$countyArgs<ExtArgs>
+  userCounties?: boolean | Prisma.Applicant$userCountiesArgs<ExtArgs>
   _count?: boolean | Prisma.ApplicantCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type ApplicantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type ApplicantIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ApplicantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  county?: boolean | Prisma.Applicant$countyArgs<ExtArgs>
+}
+export type ApplicantIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  county?: boolean | Prisma.Applicant$countyArgs<ExtArgs>
+}
 
 export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Applicant"
@@ -1279,6 +1753,8 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     formSubmissions: Prisma.$FormSubmissionPayload<ExtArgs>[]
     sensitiveData: Prisma.$SensitiveDataPayload<ExtArgs> | null
     candidateNotes: Prisma.$NotePayload<ExtArgs>[]
+    county: Prisma.$CountyPayload<ExtArgs> | null
+    userCounties: Prisma.$UserCountyPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1299,6 +1775,7 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     archivedAt: Date | null
     archivedBy: string | null
     notes: string | null
+    countyId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["applicant"]>
@@ -1698,6 +2175,8 @@ export interface Prisma__ApplicantClient<T, Null = never, ExtArgs extends runtim
   formSubmissions<T extends Prisma.Applicant$formSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$formSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FormSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sensitiveData<T extends Prisma.Applicant$sensitiveDataArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$sensitiveDataArgs<ExtArgs>>): Prisma.Prisma__SensitiveDataClient<runtime.Types.Result.GetResult<Prisma.$SensitiveDataPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   candidateNotes<T extends Prisma.Applicant$candidateNotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$candidateNotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  county<T extends Prisma.Applicant$countyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$countyArgs<ExtArgs>>): Prisma.Prisma__CountyClient<runtime.Types.Result.GetResult<Prisma.$CountyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  userCounties<T extends Prisma.Applicant$userCountiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Applicant$userCountiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserCountyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1745,6 +2224,7 @@ export interface ApplicantFieldRefs {
   readonly archivedAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly archivedBy: Prisma.FieldRef<"Applicant", 'String'>
   readonly notes: Prisma.FieldRef<"Applicant", 'String'>
+  readonly countyId: Prisma.FieldRef<"Applicant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Applicant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Applicant", 'DateTime'>
 }
@@ -1994,6 +2474,10 @@ export type ApplicantCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many Applicants.
    */
   data: Prisma.ApplicantCreateManyInput | Prisma.ApplicantCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApplicantIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2064,6 +2548,10 @@ export type ApplicantUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many Applicants to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ApplicantIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2197,6 +2685,49 @@ export type Applicant$candidateNotesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.NoteScalarFieldEnum | Prisma.NoteScalarFieldEnum[]
+}
+
+/**
+ * Applicant.county
+ */
+export type Applicant$countyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the County
+   */
+  select?: Prisma.CountySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the County
+   */
+  omit?: Prisma.CountyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CountyInclude<ExtArgs> | null
+  where?: Prisma.CountyWhereInput
+}
+
+/**
+ * Applicant.userCounties
+ */
+export type Applicant$userCountiesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserCounty
+   */
+  select?: Prisma.UserCountySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserCounty
+   */
+  omit?: Prisma.UserCountyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserCountyInclude<ExtArgs> | null
+  where?: Prisma.UserCountyWhereInput
+  orderBy?: Prisma.UserCountyOrderByWithRelationInput | Prisma.UserCountyOrderByWithRelationInput[]
+  cursor?: Prisma.UserCountyWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserCountyScalarFieldEnum | Prisma.UserCountyScalarFieldEnum[]
 }
 
 /**

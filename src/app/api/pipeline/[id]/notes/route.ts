@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -15,7 +15,14 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const { id } = await params;
+
+  const ownership = await assertApplicantInCounty(id, county.id);
+  if (ownership) return ownership;
 
   try {
     const notes = await prisma.note.findMany({
@@ -52,6 +59,10 @@ export async function POST(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const countyResult = await requireCountyAccess(request, user);
+  if (countyResult instanceof NextResponse) return countyResult;
+  const { county } = countyResult;
+
   const oversized = enforceMaxBodySize(request, 256 * 1024);
   if (oversized) return oversized;
 
@@ -65,6 +76,9 @@ export async function POST(
   }
 
   const { id } = await params;
+
+  const ownership = await assertApplicantInCounty(id, county.id);
+  if (ownership) return ownership;
 
   try {
     const body = await request.json();
@@ -82,6 +96,7 @@ export async function POST(
         authorName,
         applicantId: id,
         updatedAt: new Date(),
+        countyId: county.id,
       },
     });
 

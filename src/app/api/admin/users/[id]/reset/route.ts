@@ -29,6 +29,9 @@ export async function POST(
   if (!applicant) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
+  if (!applicant.countyId) {
+    return NextResponse.json({ error: "Only candidates can have their pipeline reset" }, { status: 400 });
+  }
 
   // Use transaction to prevent data loss if server crashes mid-operation
   const formTypes = FORM_STEPS.map((s) => s.key);
@@ -39,7 +42,12 @@ export async function POST(
       });
       for (const formType of formTypes) {
         await tx.formSubmission.create({
-          data: { applicantId: id, formType, status: "NOT_STARTED" },
+          data: {
+            applicantId: id,
+            formType,
+            status: "NOT_STARTED",
+            countyId: applicant.countyId!,
+          },
         });
       }
       await tx.auditLog.create({

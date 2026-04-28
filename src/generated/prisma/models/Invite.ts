@@ -32,6 +32,7 @@ export type InviteMinAggregateOutputType = {
   used: boolean | null
   expiresAt: Date | null
   createdBy: string | null
+  countyId: string | null
   createdAt: Date | null
 }
 
@@ -43,6 +44,7 @@ export type InviteMaxAggregateOutputType = {
   used: boolean | null
   expiresAt: Date | null
   createdBy: string | null
+  countyId: string | null
   createdAt: Date | null
 }
 
@@ -54,6 +56,7 @@ export type InviteCountAggregateOutputType = {
   used: number
   expiresAt: number
   createdBy: number
+  countyId: number
   createdAt: number
   _all: number
 }
@@ -67,6 +70,7 @@ export type InviteMinAggregateInputType = {
   used?: true
   expiresAt?: true
   createdBy?: true
+  countyId?: true
   createdAt?: true
 }
 
@@ -78,6 +82,7 @@ export type InviteMaxAggregateInputType = {
   used?: true
   expiresAt?: true
   createdBy?: true
+  countyId?: true
   createdAt?: true
 }
 
@@ -89,6 +94,7 @@ export type InviteCountAggregateInputType = {
   used?: true
   expiresAt?: true
   createdBy?: true
+  countyId?: true
   createdAt?: true
   _all?: true
 }
@@ -173,6 +179,7 @@ export type InviteGroupByOutputType = {
   used: boolean
   expiresAt: Date
   createdBy: string
+  countyId: string
   createdAt: Date
   _count: InviteCountAggregateOutputType | null
   _min: InviteMinAggregateOutputType | null
@@ -205,7 +212,9 @@ export type InviteWhereInput = {
   used?: Prisma.BoolFilter<"Invite"> | boolean
   expiresAt?: Prisma.DateTimeFilter<"Invite"> | Date | string
   createdBy?: Prisma.StringFilter<"Invite"> | string
+  countyId?: Prisma.StringFilter<"Invite"> | string
   createdAt?: Prisma.DateTimeFilter<"Invite"> | Date | string
+  county?: Prisma.XOR<Prisma.CountyScalarRelationFilter, Prisma.CountyWhereInput>
 }
 
 export type InviteOrderByWithRelationInput = {
@@ -216,7 +225,9 @@ export type InviteOrderByWithRelationInput = {
   used?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  county?: Prisma.CountyOrderByWithRelationInput
 }
 
 export type InviteWhereUniqueInput = Prisma.AtLeast<{
@@ -230,7 +241,9 @@ export type InviteWhereUniqueInput = Prisma.AtLeast<{
   used?: Prisma.BoolFilter<"Invite"> | boolean
   expiresAt?: Prisma.DateTimeFilter<"Invite"> | Date | string
   createdBy?: Prisma.StringFilter<"Invite"> | string
+  countyId?: Prisma.StringFilter<"Invite"> | string
   createdAt?: Prisma.DateTimeFilter<"Invite"> | Date | string
+  county?: Prisma.XOR<Prisma.CountyScalarRelationFilter, Prisma.CountyWhereInput>
 }, "id" | "token">
 
 export type InviteOrderByWithAggregationInput = {
@@ -241,6 +254,7 @@ export type InviteOrderByWithAggregationInput = {
   used?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.InviteCountOrderByAggregateInput
   _max?: Prisma.InviteMaxOrderByAggregateInput
@@ -258,6 +272,7 @@ export type InviteScalarWhereWithAggregatesInput = {
   used?: Prisma.BoolWithAggregatesFilter<"Invite"> | boolean
   expiresAt?: Prisma.DateTimeWithAggregatesFilter<"Invite"> | Date | string
   createdBy?: Prisma.StringWithAggregatesFilter<"Invite"> | string
+  countyId?: Prisma.StringWithAggregatesFilter<"Invite"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Invite"> | Date | string
 }
 
@@ -270,6 +285,7 @@ export type InviteCreateInput = {
   expiresAt: Date | string
   createdBy: string
   createdAt?: Date | string
+  county: Prisma.CountyCreateNestedOneWithoutInvitesInput
 }
 
 export type InviteUncheckedCreateInput = {
@@ -280,6 +296,7 @@ export type InviteUncheckedCreateInput = {
   used?: boolean
   expiresAt: Date | string
   createdBy: string
+  countyId: string
   createdAt?: Date | string
 }
 
@@ -292,6 +309,7 @@ export type InviteUpdateInput = {
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  county?: Prisma.CountyUpdateOneRequiredWithoutInvitesNestedInput
 }
 
 export type InviteUncheckedUpdateInput = {
@@ -302,6 +320,7 @@ export type InviteUncheckedUpdateInput = {
   used?: Prisma.BoolFieldUpdateOperationsInput | boolean
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -313,6 +332,7 @@ export type InviteCreateManyInput = {
   used?: boolean
   expiresAt: Date | string
   createdBy: string
+  countyId: string
   createdAt?: Date | string
 }
 
@@ -335,6 +355,7 @@ export type InviteUncheckedUpdateManyInput = {
   used?: Prisma.BoolFieldUpdateOperationsInput | boolean
   expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdBy?: Prisma.StringFieldUpdateOperationsInput | string
+  countyId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -346,6 +367,7 @@ export type InviteCountOrderByAggregateInput = {
   used?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -357,6 +379,7 @@ export type InviteMaxOrderByAggregateInput = {
   used?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -368,7 +391,166 @@ export type InviteMinOrderByAggregateInput = {
   used?: Prisma.SortOrder
   expiresAt?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
+  countyId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type InviteListRelationFilter = {
+  every?: Prisma.InviteWhereInput
+  some?: Prisma.InviteWhereInput
+  none?: Prisma.InviteWhereInput
+}
+
+export type InviteOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type InviteCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput> | Prisma.InviteCreateWithoutCountyInput[] | Prisma.InviteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.InviteCreateOrConnectWithoutCountyInput | Prisma.InviteCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.InviteCreateManyCountyInputEnvelope
+  connect?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+}
+
+export type InviteUncheckedCreateNestedManyWithoutCountyInput = {
+  create?: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput> | Prisma.InviteCreateWithoutCountyInput[] | Prisma.InviteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.InviteCreateOrConnectWithoutCountyInput | Prisma.InviteCreateOrConnectWithoutCountyInput[]
+  createMany?: Prisma.InviteCreateManyCountyInputEnvelope
+  connect?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+}
+
+export type InviteUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput> | Prisma.InviteCreateWithoutCountyInput[] | Prisma.InviteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.InviteCreateOrConnectWithoutCountyInput | Prisma.InviteCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.InviteUpsertWithWhereUniqueWithoutCountyInput | Prisma.InviteUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.InviteCreateManyCountyInputEnvelope
+  set?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  disconnect?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  delete?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  connect?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  update?: Prisma.InviteUpdateWithWhereUniqueWithoutCountyInput | Prisma.InviteUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.InviteUpdateManyWithWhereWithoutCountyInput | Prisma.InviteUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.InviteScalarWhereInput | Prisma.InviteScalarWhereInput[]
+}
+
+export type InviteUncheckedUpdateManyWithoutCountyNestedInput = {
+  create?: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput> | Prisma.InviteCreateWithoutCountyInput[] | Prisma.InviteUncheckedCreateWithoutCountyInput[]
+  connectOrCreate?: Prisma.InviteCreateOrConnectWithoutCountyInput | Prisma.InviteCreateOrConnectWithoutCountyInput[]
+  upsert?: Prisma.InviteUpsertWithWhereUniqueWithoutCountyInput | Prisma.InviteUpsertWithWhereUniqueWithoutCountyInput[]
+  createMany?: Prisma.InviteCreateManyCountyInputEnvelope
+  set?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  disconnect?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  delete?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  connect?: Prisma.InviteWhereUniqueInput | Prisma.InviteWhereUniqueInput[]
+  update?: Prisma.InviteUpdateWithWhereUniqueWithoutCountyInput | Prisma.InviteUpdateWithWhereUniqueWithoutCountyInput[]
+  updateMany?: Prisma.InviteUpdateManyWithWhereWithoutCountyInput | Prisma.InviteUpdateManyWithWhereWithoutCountyInput[]
+  deleteMany?: Prisma.InviteScalarWhereInput | Prisma.InviteScalarWhereInput[]
+}
+
+export type InviteCreateWithoutCountyInput = {
+  id?: string
+  token: string
+  email: string
+  role: $Enums.Role
+  used?: boolean
+  expiresAt: Date | string
+  createdBy: string
+  createdAt?: Date | string
+}
+
+export type InviteUncheckedCreateWithoutCountyInput = {
+  id?: string
+  token: string
+  email: string
+  role: $Enums.Role
+  used?: boolean
+  expiresAt: Date | string
+  createdBy: string
+  createdAt?: Date | string
+}
+
+export type InviteCreateOrConnectWithoutCountyInput = {
+  where: Prisma.InviteWhereUniqueInput
+  create: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput>
+}
+
+export type InviteCreateManyCountyInputEnvelope = {
+  data: Prisma.InviteCreateManyCountyInput | Prisma.InviteCreateManyCountyInput[]
+}
+
+export type InviteUpsertWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.InviteWhereUniqueInput
+  update: Prisma.XOR<Prisma.InviteUpdateWithoutCountyInput, Prisma.InviteUncheckedUpdateWithoutCountyInput>
+  create: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput>
+}
+
+export type InviteUpdateWithWhereUniqueWithoutCountyInput = {
+  where: Prisma.InviteWhereUniqueInput
+  data: Prisma.XOR<Prisma.InviteUpdateWithoutCountyInput, Prisma.InviteUncheckedUpdateWithoutCountyInput>
+}
+
+export type InviteUpdateManyWithWhereWithoutCountyInput = {
+  where: Prisma.InviteScalarWhereInput
+  data: Prisma.XOR<Prisma.InviteUpdateManyMutationInput, Prisma.InviteUncheckedUpdateManyWithoutCountyInput>
+}
+
+export type InviteScalarWhereInput = {
+  AND?: Prisma.InviteScalarWhereInput | Prisma.InviteScalarWhereInput[]
+  OR?: Prisma.InviteScalarWhereInput[]
+  NOT?: Prisma.InviteScalarWhereInput | Prisma.InviteScalarWhereInput[]
+  id?: Prisma.StringFilter<"Invite"> | string
+  token?: Prisma.StringFilter<"Invite"> | string
+  email?: Prisma.StringFilter<"Invite"> | string
+  role?: Prisma.EnumRoleFilter<"Invite"> | $Enums.Role
+  used?: Prisma.BoolFilter<"Invite"> | boolean
+  expiresAt?: Prisma.DateTimeFilter<"Invite"> | Date | string
+  createdBy?: Prisma.StringFilter<"Invite"> | string
+  countyId?: Prisma.StringFilter<"Invite"> | string
+  createdAt?: Prisma.DateTimeFilter<"Invite"> | Date | string
+}
+
+export type InviteCreateManyCountyInput = {
+  id?: string
+  token: string
+  email: string
+  role: $Enums.Role
+  used?: boolean
+  expiresAt: Date | string
+  createdBy: string
+  createdAt?: Date | string
+}
+
+export type InviteUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  used?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InviteUncheckedUpdateWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  used?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type InviteUncheckedUpdateManyWithoutCountyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  token?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  used?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  expiresAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdBy?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -381,7 +563,9 @@ export type InviteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   used?: boolean
   expiresAt?: boolean
   createdBy?: boolean
+  countyId?: boolean
   createdAt?: boolean
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["invite"]>
 
 export type InviteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -392,7 +576,9 @@ export type InviteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   used?: boolean
   expiresAt?: boolean
   createdBy?: boolean
+  countyId?: boolean
   createdAt?: boolean
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["invite"]>
 
 export type InviteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -403,7 +589,9 @@ export type InviteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   used?: boolean
   expiresAt?: boolean
   createdBy?: boolean
+  countyId?: boolean
   createdAt?: boolean
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["invite"]>
 
 export type InviteSelectScalar = {
@@ -414,14 +602,26 @@ export type InviteSelectScalar = {
   used?: boolean
   expiresAt?: boolean
   createdBy?: boolean
+  countyId?: boolean
   createdAt?: boolean
 }
 
-export type InviteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "token" | "email" | "role" | "used" | "expiresAt" | "createdBy" | "createdAt", ExtArgs["result"]["invite"]>
+export type InviteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "token" | "email" | "role" | "used" | "expiresAt" | "createdBy" | "countyId" | "createdAt", ExtArgs["result"]["invite"]>
+export type InviteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
+}
+export type InviteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
+}
+export type InviteIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  county?: boolean | Prisma.CountyDefaultArgs<ExtArgs>
+}
 
 export type $InvitePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Invite"
-  objects: {}
+  objects: {
+    county: Prisma.$CountyPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     token: string
@@ -430,6 +630,7 @@ export type $InvitePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     used: boolean
     expiresAt: Date
     createdBy: string
+    countyId: string
     createdAt: Date
   }, ExtArgs["result"]["invite"]>
   composites: {}
@@ -825,6 +1026,7 @@ readonly fields: InviteFieldRefs;
  */
 export interface Prisma__InviteClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  county<T extends Prisma.CountyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CountyDefaultArgs<ExtArgs>>): Prisma.Prisma__CountyClient<runtime.Types.Result.GetResult<Prisma.$CountyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -861,6 +1063,7 @@ export interface InviteFieldRefs {
   readonly used: Prisma.FieldRef<"Invite", 'Boolean'>
   readonly expiresAt: Prisma.FieldRef<"Invite", 'DateTime'>
   readonly createdBy: Prisma.FieldRef<"Invite", 'String'>
+  readonly countyId: Prisma.FieldRef<"Invite", 'String'>
   readonly createdAt: Prisma.FieldRef<"Invite", 'DateTime'>
 }
     
@@ -878,6 +1081,10 @@ export type InviteFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Invite
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
   /**
    * Filter, which Invite to fetch.
    */
@@ -897,6 +1104,10 @@ export type InviteFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
+  /**
    * Filter, which Invite to fetch.
    */
   where: Prisma.InviteWhereUniqueInput
@@ -914,6 +1125,10 @@ export type InviteFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Invite
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
   /**
    * Filter, which Invite to fetch.
    */
@@ -963,6 +1178,10 @@ export type InviteFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
+  /**
    * Filter, which Invite to fetch.
    */
   where?: Prisma.InviteWhereInput
@@ -1011,6 +1230,10 @@ export type InviteFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
+  /**
    * Filter, which Invites to fetch.
    */
   where?: Prisma.InviteWhereInput
@@ -1054,6 +1277,10 @@ export type InviteCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
+  /**
    * The data needed to create a Invite.
    */
   data: Prisma.XOR<Prisma.InviteCreateInput, Prisma.InviteUncheckedCreateInput>
@@ -1085,6 +1312,10 @@ export type InviteCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many Invites.
    */
   data: Prisma.InviteCreateManyInput | Prisma.InviteCreateManyInput[]
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1099,6 +1330,10 @@ export type InviteUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Invite
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
   /**
    * The data needed to update a Invite.
    */
@@ -1151,6 +1386,10 @@ export type InviteUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many Invites to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1165,6 +1404,10 @@ export type InviteUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Invite
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
   /**
    * The filter to search for the Invite to update in case it exists.
    */
@@ -1191,6 +1434,10 @@ export type InviteDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the Invite
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
   /**
    * Filter which Invite to delete.
    */
@@ -1223,4 +1470,8 @@ export type InviteDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the Invite
    */
   omit?: Prisma.InviteOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InviteInclude<ExtArgs> | null
 }

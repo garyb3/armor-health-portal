@@ -60,8 +60,9 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function ApplicantDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { id, county } = useParams<{ id: string; county: string }>();
   const router = useRouter();
+  const countyPrefix = `/${county}`;
   const [applicant, setApplicant] = useState<ApplicantDetail | null>(null);
   const [archiving, setArchiving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -201,7 +202,7 @@ export default function ApplicantDetailPage() {
     try {
       const res = await apiFetch(`/api/pipeline/${id}/archive`, { method: "POST" });
       if (res.ok) {
-        router.push("/pipeline");
+        router.push(`${countyPrefix}/pipeline`);
       } else {
         const data = await res.json().catch(() => ({}));
         await notify({
@@ -563,7 +564,7 @@ export default function ApplicantDetailPage() {
       <div className="max-w-4xl mx-auto text-center py-16">
         <p className="text-gray-900">Applicant not found.</p>
         <Link
-          href="/pipeline"
+          href={`${countyPrefix}/pipeline`}
           className="text-accent-500 text-sm mt-2 inline-block hover:underline"
         >
           Back to Pipeline
@@ -580,7 +581,7 @@ export default function ApplicantDetailPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Back link */}
       <Link
-        href="/pipeline"
+        href={`${countyPrefix}/pipeline`}
         className="inline-flex items-center gap-1 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
