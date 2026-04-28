@@ -12,6 +12,7 @@ interface UserInfo {
   firstName: string;
   lastName: string;
   role: string;
+  countySlugs: string[];
 }
 
 export default function PortalLayout({
@@ -40,7 +41,12 @@ export default function PortalLayout({
     <ToastProvider>
       <ConfirmProvider>
         <div className="flex flex-col h-screen overflow-hidden">
-          <Navbar firstName={user?.firstName} lastName={user?.lastName} role={user?.role} />
+          <Navbar
+            firstName={user?.firstName}
+            lastName={user?.lastName}
+            role={user?.role}
+            countySlugs={user?.countySlugs}
+          />
           <div className="flex flex-1 overflow-hidden">
             <Sidebar role={user?.role} />
             <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-gray-200 dark:bg-brand-900">
