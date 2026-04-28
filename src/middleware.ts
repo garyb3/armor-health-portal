@@ -17,6 +17,18 @@ function isStaticFile(pathname: string): boolean {
   return STATIC_EXTENSIONS.has(ext);
 }
 
+// Constant-time string compare. Edge runtime has no node:crypto.timingSafeEqual,
+// so we XOR char codes over equal-length inputs. Length mismatch returns early —
+// secret length is already fixed and not a useful oracle.
+function timingSafeEqualStr(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i++) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 /** Headers that must be stripped from incoming requests to prevent injection */
 const USER_HEADERS = [
   "x-user-id", "x-user-email", "x-user-first-name",
@@ -161,7 +173,7 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/api/cron/")) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
-    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || !authHeader || !timingSafeEqualStr(authHeader, `Bearer ${cronSecret}`)) {
       return withCsp(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
     }
     return withCsp(NextResponse.next({ request: { headers: cleanHeaders } }));

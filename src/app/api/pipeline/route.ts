@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const search = request.nextUrl.searchParams.get("search") || "";
+  const search = (request.nextUrl.searchParams.get("search") || "").slice(0, 100);
 
   const searchWhere = search
     ? {
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
           orderBy: { createdAt: "asc" },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       take: limit,
       skip,
     }),

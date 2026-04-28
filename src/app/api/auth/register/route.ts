@@ -31,7 +31,8 @@ export async function POST(request: NextRequest) {
 
     // Destructure only safe fields — `role` from the request body is intentionally ignored.
     // Role is determined exclusively by invite token (if present) or defaults to APPLICANT.
-    const { email, password, firstName, lastName, phone, inviteToken } = parsed.data;
+    const { email: rawEmail, password, firstName, lastName, phone, inviteToken } = parsed.data;
+    const email = rawEmail.toLowerCase();
 
     // Registration requires an invite token — self-registration is disabled
     if (!inviteToken) {
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     if (invite.expiresAt < new Date()) {
       return NextResponse.json({ error: "Invite expired" }, { status: 400 });
     }
-    if (invite.email.toLowerCase() !== email.toLowerCase()) {
+    if (invite.email.toLowerCase() !== email) {
       return NextResponse.json(
         { error: "Email does not match invite" },
         { status: 400 }

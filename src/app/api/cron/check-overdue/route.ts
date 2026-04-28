@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendOverdueAlert, sendOverdueAlertToStaff } from "@/lib/email";
 import { formatElapsed } from "@/lib/format-elapsed";
@@ -7,6 +8,13 @@ import { isStepUnlocked } from "@/lib/pipeline-helpers";
 import type { FormType as AppFormType, FormStatus as AppFormStatus } from "@/types";
 
 const OVERDUE_DAYS = 7;
+
+function safeBearerEqual(authHeader: string | null, secret: string): boolean {
+  if (!authHeader) return false;
+  const expected = `Bearer ${secret}`;
+  if (authHeader.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
+}
 
 const STEP_TITLE_MAP: Record<string, string> = Object.fromEntries(
   FORM_STEPS.map((s) => [s.key, s.title])
@@ -17,7 +25,7 @@ export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || !safeBearerEqual(authHeader, cronSecret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -103,6 +111,14 @@ export async function POST(request: NextRequest) {
         elapsedTime: elapsed,
       };
 
+      // Stamp lastAlertSentAt BEFORE sending so a process kill mid-loop does not
+      // cause the next run to resend. Email failure already keeps the row gated
+      // for the next OVERDUE_DAYS window — preferable to duplicate emails.
+      await prisma.formSubmission.update({
+        where: { id: sub.id },
+        data: { lastAlertSentAt: new Date() },
+      });
+
       const [adminSent, staffSent] = await Promise.all([
         sendOverdueAlert(alertParams),
         sendOverdueAlertToStaff({
@@ -110,12 +126,6 @@ export async function POST(request: NextRequest) {
           staffRecipients: staffUsers.map((u) => ({ email: u.email, firstName: u.firstName })),
         }),
       ]);
-
-      // Update lastAlertSentAt regardless of email success (to prevent retrying every second)
-      await prisma.formSubmission.update({
-        where: { id: sub.id },
-        data: { lastAlertSentAt: new Date() },
-      });
 
       results.push({
         applicant: applicantName,

@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     );
     const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0") || 0;
 
-    const [applicants, total, archivers] = await Promise.all([
+    const [applicants, total] = await Promise.all([
       prisma.applicant.findMany({
         where: { archivedAt: { not: null }, ...searchWhere },
         include: {
@@ -67,30 +67,36 @@ export async function GET(request: NextRequest) {
             orderBy: { createdAt: "asc" },
           },
         },
-        orderBy: { archivedAt: "desc" },
+        orderBy: [{ archivedAt: "desc" }, { id: "asc" }],
         take: limit,
         skip,
       }),
       prisma.applicant.count({
         where: { archivedAt: { not: null }, ...searchWhere },
       }),
-      // Resolve archivedBy -> name in one round-trip
-      prisma.applicant
-        .findMany({
-          where: { archivedAt: { not: null }, ...searchWhere },
-          select: { archivedBy: true },
-          distinct: ["archivedBy"],
-        })
-        .then(async (rows) => {
-          const ids = rows.map((r) => r.archivedBy).filter((v): v is string => !!v);
-          if (ids.length === 0) return new Map<string, string>();
-          const users = await prisma.applicant.findMany({
-            where: { id: { in: ids } },
-            select: { id: true, firstName: true, lastName: true },
-          });
-          return new Map(users.map((u) => [u.id, `${u.firstName} ${u.lastName}`]));
-        }),
     ]);
+
+    // Resolve archivedBy -> name only for the archivers referenced on this page.
+    // Filter out denied users so revoked staff names don't surface.
+    const archiverIds = [
+      ...new Set(
+        applicants
+          .map((a) => a.archivedBy)
+          .filter((v): v is string => !!v)
+      ),
+    ];
+    const archivers =
+      archiverIds.length === 0
+        ? new Map<string, string>()
+        : await prisma.applicant
+            .findMany({
+              where: { id: { in: archiverIds }, denied: { not: true } },
+              select: { id: true, firstName: true, lastName: true },
+            })
+            .then(
+              (users) =>
+                new Map(users.map((u) => [u.id, `${u.firstName} ${u.lastName}`]))
+            );
 
     const mapped = applicants.map((a) => {
       const currentStage = getCurrentStage(a.formSubmissions);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -166,13 +166,25 @@ export default function ApplicantDetailPage() {
     }
   };
 
+  const loadApplicantAbortRef = useRef<AbortController | null>(null);
   const loadApplicant = async () => {
+    loadApplicantAbortRef.current?.abort();
+    const controller = new AbortController();
+    loadApplicantAbortRef.current = controller;
     try {
-      const res = await apiFetch(`/api/pipeline/${id}`);
+      const res = await apiFetch(`/api/pipeline/${id}`, { signal: controller.signal });
       if (!res.ok) return;
-      setApplicant(await res.json());
+      const data = await res.json();
+      if (loadApplicantAbortRef.current === controller) {
+        setApplicant(data);
+      }
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       console.error("Failed to load applicant:", err);
+    } finally {
+      if (loadApplicantAbortRef.current === controller) {
+        loadApplicantAbortRef.current = null;
+      }
     }
   };
 
@@ -470,6 +482,7 @@ export default function ApplicantDetailPage() {
   ) => {
     const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
     if (!slug) return;
+    const priorProgress = applicant?.progress;
     setApplicant((prev) =>
       prev
         ? {
@@ -480,6 +493,15 @@ export default function ApplicantDetailPage() {
           }
         : prev
     );
+    const rollback = (errorMessage: string) => {
+      setApplicant((prev) =>
+        prev && priorProgress ? { ...prev, progress: priorProgress } : prev
+      );
+      void notify({
+        title: "Couldn't save step dates",
+        description: errorMessage,
+      });
+    };
     try {
       const res = await apiFetch(`/api/pipeline/${id}/step/${slug}`, {
         method: "PATCH",
@@ -488,9 +510,13 @@ export default function ApplicantDetailPage() {
       });
       if (res.ok) {
         await loadApplicant();
+        return;
       }
+      const body = await res.json().catch(() => ({}));
+      rollback(body?.error || "Please try again.");
     } catch (err) {
       console.error("Failed to update step dates:", err);
+      rollback("Network error. Please try again.");
     }
   };
 

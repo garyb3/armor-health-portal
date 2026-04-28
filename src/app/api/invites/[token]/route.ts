@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { hashToken } from "@/lib/api-helpers";
+import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { rateLimit } from "@/lib/rate-limit";
 
 export async function GET(
@@ -8,9 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ token: string }> }
 ) {
   // Rate limit by IP: max 10 invite lookups per minute
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || request.headers.get("x-real-ip")
-    || "unknown";
+  const ip = getClientIp(request);
   const { limited, retryAfterMs } = await rateLimit(`invite:${ip}`, 10, 60_000);
   if (limited) {
     return NextResponse.json(

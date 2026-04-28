@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
+import { FORM_STEPS } from "@/lib/constants";
 
 export async function POST(
   request: NextRequest,
@@ -30,7 +31,7 @@ export async function POST(
   }
 
   // Use transaction to prevent data loss if server crashes mid-operation
-  const formTypes = ["VOLUNTEER_APP", "PROFESSIONAL_LICENSE", "DRUG_SCREEN", "BACKGROUND_CHECK"] as const;
+  const formTypes = FORM_STEPS.map((s) => s.key);
   try {
     await prisma.$transaction(async (tx) => {
       await tx.formSubmission.deleteMany({
