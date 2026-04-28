@@ -76,7 +76,7 @@ function checkCsrf(request: NextRequest): NextResponse | null {
 
 /**
  * CORS for /api/v1/ — allows external consumers from approved origins.
- * Internal routes (/api/auth/, /api/forms/, etc.) remain same-origin only.
+ * Internal routes (/api/auth/, /api/pipeline/, etc.) remain same-origin only.
  */
 function handleCors(request: NextRequest): NextResponse | null {
   const { pathname } = request.nextUrl;

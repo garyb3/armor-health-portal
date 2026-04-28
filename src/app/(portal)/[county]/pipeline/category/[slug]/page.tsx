@@ -97,7 +97,7 @@ export default function CategoryPage() {
     const step = FORM_STEPS.find((s) => s.key === formType);
     if (!step) return;
     try {
-      const res = await apiFetch(`/api/pipeline/${applicantId}/step/${step.slug}`, {
+      const res = await apiFetch(`/api/pipeline/${applicantId}/step/${step.key}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dates),

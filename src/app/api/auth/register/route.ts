@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Destructure only safe fields — `role` from the request body is intentionally ignored.
-    // Role is determined exclusively by invite token (if present) or defaults to APPLICANT.
+    // Role is determined exclusively by the invite token (registration is invite-only).
     const { email: rawEmail, password, firstName, lastName, phone, inviteToken } = parsed.data;
     const email = rawEmail.toLowerCase();
 
@@ -141,6 +141,11 @@ export async function POST(request: NextRequest) {
       }).catch(() => {
         // email.ts logs the failure internally; swallow here to avoid double-log
       });
+    }
+
+    if (applicant.role == null) {
+      // Invite registration always assigns a role; this is an invariant violation.
+      return NextResponse.json({ error: "Account is not eligible for portal access" }, { status: 500 });
     }
 
     const countySlugs = applicant.role === "COUNTY_REP" && invite.county?.slug

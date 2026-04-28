@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         password: hashedPassword,
-        role: "APPLICANT",
+        role: null,
         approved: true,
         emailVerified: true,
         offerAcceptedAt,

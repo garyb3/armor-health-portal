@@ -8,7 +8,6 @@ datasource db {
 }
 
 enum Role {
-  APPLICANT
   HR
   ADMIN
   COUNTY_REP
@@ -36,7 +35,7 @@ model Applicant {
   password        String
   firstName       String
   lastName        String
-  role            Role
+  role            Role?
   approved          Boolean          @default(false)
   denied            Boolean          @default(false)
   emailVerified     Boolean          @default(false)

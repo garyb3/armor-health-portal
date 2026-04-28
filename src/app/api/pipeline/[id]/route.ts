@@ -170,7 +170,7 @@ export async function PATCH(
       if (current.email.toLowerCase() !== v) {
         // Staff email changes must be done by the account owner — otherwise HR
         // could swap a colleague's email and take over via forgot-password.
-        if (STAFF_ROLES.includes(current.role)) {
+        if (current.role && STAFF_ROLES.includes(current.role)) {
           return NextResponse.json(
             { error: "Staff email changes must be done by the account owner" },
             { status: 403 }

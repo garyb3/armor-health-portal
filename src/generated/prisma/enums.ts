@@ -10,7 +10,6 @@
 */
 
 export const Role = {
-  APPLICANT: 'APPLICANT',
   HR: 'HR',
   ADMIN: 'ADMIN',
   COUNTY_REP: 'COUNTY_REP'

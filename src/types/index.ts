@@ -1,13 +1,13 @@
 export type FormType = "VOLUNTEER_APP" | "PROFESSIONAL_LICENSE" | "DRUG_SCREEN" | "BACKGROUND_CHECK";
 export type FormStatus = "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED" | "PENDING_REVIEW" | "APPROVED" | "DENIED";
-export type Role = "APPLICANT" | "HR" | "ADMIN" | "COUNTY_REP";
+export type Role = "HR" | "ADMIN" | "COUNTY_REP";
 
 export interface ApplicantProfile {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  role: Role;
+  role: Role | null;
   phone: string | null;
   approved?: boolean;
   denied?: boolean;

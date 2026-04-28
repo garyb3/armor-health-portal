@@ -43,7 +43,7 @@ export interface TokenPayload {
   tokenVersion: number;
   /**
    * Counties the user has access to. COUNTY_REP: assigned county slugs (may be []).
-   * HR/ADMIN/APPLICANT: always []. Authorization is role-first via canAccessCounty;
+   * HR/ADMIN/null-role: always []. Authorization is role-first via canAccessCounty;
    * an empty array on a COUNTY_REP must NOT be treated as "all counties".
    */
   countySlugs: string[];

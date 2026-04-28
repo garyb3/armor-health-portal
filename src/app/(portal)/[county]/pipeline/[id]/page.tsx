@@ -481,8 +481,8 @@ export default function ApplicantDetailPage() {
     formType: string,
     dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }
   ) => {
-    const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
-    if (!slug) return;
+    const stepKey = FORM_STEPS.find((s) => s.key === formType)?.key;
+    if (!stepKey) return;
     const priorProgress = applicant?.progress;
     setApplicant((prev) =>
       prev
@@ -504,7 +504,7 @@ export default function ApplicantDetailPage() {
       });
     };
     try {
-      const res = await apiFetch(`/api/pipeline/${id}/step/${slug}`, {
+      const res = await apiFetch(`/api/pipeline/${id}/step/${stepKey}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dates),
@@ -526,13 +526,13 @@ export default function ApplicantDetailPage() {
     action: "approve" | "deny",
     note?: string
   ) => {
-    const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
-    if (!slug) return;
+    const stepKey = FORM_STEPS.find((s) => s.key === formType)?.key;
+    if (!stepKey) return;
 
     setActionLoading(`${formType}-${action}`);
     try {
       const res = await apiFetch(
-        `/api/pipeline/${id}/step/${slug}`,
+        `/api/pipeline/${id}/step/${stepKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

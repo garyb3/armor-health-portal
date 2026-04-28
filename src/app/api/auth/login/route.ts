@@ -48,7 +48,9 @@ export async function POST(request: NextRequest) {
 
     // Always run bcrypt to prevent timing-based email enumeration
     const isValid = await verifyPassword(password, applicant?.password ?? DUMMY_HASH);
-    if (!applicant || !isValid) {
+    if (!applicant || !isValid || applicant.role == null) {
+      // null-role rows are candidate data records (no portal access) — same generic
+      // error so we don't leak that the row exists.
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }

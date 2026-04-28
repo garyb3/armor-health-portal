@@ -63,6 +63,11 @@ export async function POST(request: NextRequest) {
     select: { tokenVersion: true },
   });
 
+  if (user.role == null) {
+    // null-role rows are candidate data records, not portal users.
+    return NextResponse.json({ error: "Session expired" }, { status: 401 });
+  }
+
   const countySlugs = user.role === "COUNTY_REP"
     ? user.userCounties.map((uc) => uc.county.slug)
     : [];

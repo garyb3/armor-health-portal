@@ -281,7 +281,7 @@ export type ApplicantGroupByOutputType = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role: $Enums.Role | null
   approved: boolean
   denied: boolean
   emailVerified: boolean
@@ -328,7 +328,7 @@ export type ApplicantWhereInput = {
   password?: Prisma.StringFilter<"Applicant"> | string
   firstName?: Prisma.StringFilter<"Applicant"> | string
   lastName?: Prisma.StringFilter<"Applicant"> | string
-  role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
+  role?: Prisma.EnumRoleNullableFilter<"Applicant"> | $Enums.Role | null
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
   denied?: Prisma.BoolFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
@@ -357,7 +357,7 @@ export type ApplicantOrderByWithRelationInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  role?: Prisma.SortOrderInput | Prisma.SortOrder
   approved?: Prisma.SortOrder
   denied?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
@@ -391,7 +391,7 @@ export type ApplicantWhereUniqueInput = Prisma.AtLeast<{
   password?: Prisma.StringFilter<"Applicant"> | string
   firstName?: Prisma.StringFilter<"Applicant"> | string
   lastName?: Prisma.StringFilter<"Applicant"> | string
-  role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
+  role?: Prisma.EnumRoleNullableFilter<"Applicant"> | $Enums.Role | null
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
   denied?: Prisma.BoolFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
@@ -418,7 +418,7 @@ export type ApplicantOrderByWithAggregationInput = {
   password?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
-  role?: Prisma.SortOrder
+  role?: Prisma.SortOrderInput | Prisma.SortOrder
   approved?: Prisma.SortOrder
   denied?: Prisma.SortOrder
   emailVerified?: Prisma.SortOrder
@@ -450,7 +450,7 @@ export type ApplicantScalarWhereWithAggregatesInput = {
   password?: Prisma.StringWithAggregatesFilter<"Applicant"> | string
   firstName?: Prisma.StringWithAggregatesFilter<"Applicant"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"Applicant"> | string
-  role?: Prisma.EnumRoleWithAggregatesFilter<"Applicant"> | $Enums.Role
+  role?: Prisma.EnumRoleNullableWithAggregatesFilter<"Applicant"> | $Enums.Role | null
   approved?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
   denied?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolWithAggregatesFilter<"Applicant"> | boolean
@@ -474,7 +474,7 @@ export type ApplicantCreateInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -502,7 +502,7 @@ export type ApplicantUncheckedCreateInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -530,7 +530,7 @@ export type ApplicantUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -558,7 +558,7 @@ export type ApplicantUncheckedUpdateInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -586,7 +586,7 @@ export type ApplicantCreateManyInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -610,7 +610,7 @@ export type ApplicantUpdateManyMutationInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -633,7 +633,7 @@ export type ApplicantUncheckedUpdateManyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -750,8 +750,8 @@ export type StringFieldUpdateOperationsInput = {
   set?: string
 }
 
-export type EnumRoleFieldUpdateOperationsInput = {
-  set?: $Enums.Role
+export type NullableEnumRoleFieldUpdateOperationsInput = {
+  set?: $Enums.Role | null
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -882,7 +882,7 @@ export type ApplicantCreateWithoutFormSubmissionsInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -909,7 +909,7 @@ export type ApplicantUncheckedCreateWithoutFormSubmissionsInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -952,7 +952,7 @@ export type ApplicantUpdateWithoutFormSubmissionsInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -979,7 +979,7 @@ export type ApplicantUncheckedUpdateWithoutFormSubmissionsInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1006,7 +1006,7 @@ export type ApplicantCreateWithoutSensitiveDataInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1033,7 +1033,7 @@ export type ApplicantUncheckedCreateWithoutSensitiveDataInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1076,7 +1076,7 @@ export type ApplicantUpdateWithoutSensitiveDataInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1103,7 +1103,7 @@ export type ApplicantUncheckedUpdateWithoutSensitiveDataInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1130,7 +1130,7 @@ export type ApplicantCreateWithoutCandidateNotesInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1157,7 +1157,7 @@ export type ApplicantUncheckedCreateWithoutCandidateNotesInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1200,7 +1200,7 @@ export type ApplicantUpdateWithoutCandidateNotesInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1227,7 +1227,7 @@ export type ApplicantUncheckedUpdateWithoutCandidateNotesInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1254,7 +1254,7 @@ export type ApplicantCreateWithoutCountyInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1281,7 +1281,7 @@ export type ApplicantUncheckedCreateWithoutCountyInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1336,7 +1336,7 @@ export type ApplicantScalarWhereInput = {
   password?: Prisma.StringFilter<"Applicant"> | string
   firstName?: Prisma.StringFilter<"Applicant"> | string
   lastName?: Prisma.StringFilter<"Applicant"> | string
-  role?: Prisma.EnumRoleFilter<"Applicant"> | $Enums.Role
+  role?: Prisma.EnumRoleNullableFilter<"Applicant"> | $Enums.Role | null
   approved?: Prisma.BoolFilter<"Applicant"> | boolean
   denied?: Prisma.BoolFilter<"Applicant"> | boolean
   emailVerified?: Prisma.BoolFilter<"Applicant"> | boolean
@@ -1360,7 +1360,7 @@ export type ApplicantCreateWithoutUserCountiesInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1387,7 +1387,7 @@ export type ApplicantUncheckedCreateWithoutUserCountiesInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1430,7 +1430,7 @@ export type ApplicantUpdateWithoutUserCountiesInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1457,7 +1457,7 @@ export type ApplicantUncheckedUpdateWithoutUserCountiesInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1484,7 +1484,7 @@ export type ApplicantCreateManyCountyInput = {
   password: string
   firstName: string
   lastName: string
-  role: $Enums.Role
+  role?: $Enums.Role | null
   approved?: boolean
   denied?: boolean
   emailVerified?: boolean
@@ -1507,7 +1507,7 @@ export type ApplicantUpdateWithoutCountyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1534,7 +1534,7 @@ export type ApplicantUncheckedUpdateWithoutCountyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1561,7 +1561,7 @@ export type ApplicantUncheckedUpdateManyWithoutCountyInput = {
   password?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
-  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  role?: Prisma.NullableEnumRoleFieldUpdateOperationsInput | $Enums.Role | null
   approved?: Prisma.BoolFieldUpdateOperationsInput | boolean
   denied?: Prisma.BoolFieldUpdateOperationsInput | boolean
   emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1762,7 +1762,7 @@ export type $ApplicantPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     password: string
     firstName: string
     lastName: string
-    role: $Enums.Role
+    role: $Enums.Role | null
     approved: boolean
     denied: boolean
     emailVerified: boolean

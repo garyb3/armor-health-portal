@@ -514,7 +514,7 @@ async function main() {
         password: dummyPassword,
         firstName: applicant.firstName,
         lastName: applicant.lastName,
-        role: "APPLICANT",
+        role: null,
         approved: true,
         emailVerified: true,
         createdAt: new Date(Date.now() - applicant.daysInProcess * 86_400_000),

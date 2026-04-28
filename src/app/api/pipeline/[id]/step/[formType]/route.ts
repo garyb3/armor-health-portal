@@ -10,7 +10,7 @@ import {
   requireCountyAccess,
   assertApplicantInCounty,
 } from "@/lib/api-helpers";
-import { FORM_TYPE_MAP, FORM_STEPS } from "@/lib/constants";
+import { FORM_STEPS } from "@/lib/constants";
 import { getNextStep } from "@/lib/pipeline-helpers";
 import {
   sendStepApprovedEmail,
@@ -51,11 +51,11 @@ export async function PATCH(
       );
     }
 
-    const { id: applicantId, formType: slug } = await params;
-    const formType = FORM_TYPE_MAP[slug] as FormType | undefined;
-    if (!formType) {
+    const { id: applicantId, formType: rawFormType } = await params;
+    if (!FORM_STEPS.some((s) => s.key === rawFormType)) {
       return badRequestResponse("Invalid form type");
     }
+    const formType = rawFormType as FormType;
 
     const ownership = await assertApplicantInCounty(applicantId, county.id);
     if (ownership) return ownership;
@@ -147,11 +147,11 @@ export async function POST(
       );
     }
 
-    const { id: applicantId, formType: slug } = await params;
-    const formType = FORM_TYPE_MAP[slug] as FormType | undefined;
-    if (!formType) {
+    const { id: applicantId, formType: rawFormType } = await params;
+    if (!FORM_STEPS.some((s) => s.key === rawFormType)) {
       return badRequestResponse("Invalid form type");
     }
+    const formType = rawFormType as FormType;
 
     const ownership = await assertApplicantInCounty(applicantId, county.id);
     if (ownership) return ownership;

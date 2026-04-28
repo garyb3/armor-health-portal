@@ -405,6 +405,10 @@ export type InviteOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type EnumRoleFieldUpdateOperationsInput = {
+  set?: $Enums.Role
+}
+
 export type InviteCreateNestedManyWithoutCountyInput = {
   create?: Prisma.XOR<Prisma.InviteCreateWithoutCountyInput, Prisma.InviteUncheckedCreateWithoutCountyInput> | Prisma.InviteCreateWithoutCountyInput[] | Prisma.InviteUncheckedCreateWithoutCountyInput[]
   connectOrCreate?: Prisma.InviteCreateOrConnectWithoutCountyInput | Prisma.InviteCreateOrConnectWithoutCountyInput[]

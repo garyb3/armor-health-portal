@@ -98,10 +98,10 @@ export default function PipelinePage() {
     formType: string,
     dates: { stepStartedAt?: string | null; stepCompletedAt?: string | null }
   ) => {
-    const slug = FORM_STEPS.find((s) => s.key === formType)?.slug;
-    if (!slug) return;
+    const stepKey = FORM_STEPS.find((s) => s.key === formType)?.key;
+    if (!stepKey) return;
     try {
-      const res = await apiFetch(`/api/pipeline/${applicantId}/step/${slug}`, {
+      const res = await apiFetch(`/api/pipeline/${applicantId}/step/${stepKey}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dates),

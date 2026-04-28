@@ -40,6 +40,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    if (updated.role == null) {
+      return NextResponse.json({ error: "Account is not eligible for portal access" }, { status: 500 });
+    }
+
     const countySlugs = updated.role === "COUNTY_REP"
       ? updated.userCounties.map((uc) => uc.county.slug)
       : [];

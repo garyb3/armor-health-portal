@@ -1,36 +1,28 @@
 export const FORM_STEPS = [
   {
     key: "VOLUNTEER_APP" as const,
-    slug: "volunteer-app",
     title: "Complete & Return the Clearance Form",
-    route: "/forms/volunteer-app",
     icon: "FileText" as const,
     order: 1,
     urgent: false,
   },
   {
     key: "PROFESSIONAL_LICENSE" as const,
-    slug: "professional-license",
     title: "Send a Copy of Your License",
-    route: "/forms/professional-license",
     icon: "FileCheck" as const,
     order: 2,
     urgent: false,
   },
   {
     key: "BACKGROUND_CHECK" as const,
-    slug: "background-check",
-    title: "Schedule Fingerprinting (BCI)",
-    route: "/forms/background-check",
+    title: "Schedule Fingerprinting",
     icon: "Fingerprint" as const,
     order: 3,
     urgent: true,
   },
   {
     key: "DRUG_SCREEN" as const,
-    slug: "drug-screen",
     title: "Complete the UDS (Urine Drug Screen)",
-    route: "/forms/drug-screen",
     icon: "FlaskConical" as const,
     order: 4,
     urgent: false,
@@ -77,10 +69,4 @@ export const PIPELINE_STAGES = [
   },
 ];
 
-export const FORM_TYPE_MAP: Record<string, string> = {
-  "volunteer-app": "VOLUNTEER_APP",
-  "professional-license": "PROFESSIONAL_LICENSE",
-  "drug-screen": "DRUG_SCREEN",
-  "background-check": "BACKGROUND_CHECK",
-};
 
