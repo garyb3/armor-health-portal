@@ -38,7 +38,12 @@ export async function POST(request: NextRequest) {
       SELECT id FROM applicants WHERE LOWER(email) = LOWER(${email}) LIMIT 1
     `;
     const applicant = rows[0]
-      ? await prisma.applicant.findUnique({ where: { id: rows[0].id } })
+      ? await prisma.applicant.findUnique({
+          where: { id: rows[0].id },
+          include: {
+            userCounties: { include: { county: { select: { slug: true } } } },
+          },
+        })
       : null;
 
     // Always run bcrypt to prevent timing-based email enumeration
@@ -50,6 +55,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const countySlugs = applicant.role === "COUNTY_REP"
+      ? applicant.userCounties.map((uc) => uc.county.slug)
+      : [];
+
     const tokenPayload = {
       sub: applicant.id,
       email: applicant.email,
@@ -59,6 +68,7 @@ export async function POST(request: NextRequest) {
       approved: applicant.approved,
       emailVerified: applicant.emailVerified,
       tokenVersion: applicant.tokenVersion,
+      countySlugs,
     };
 
     const [token, refreshToken] = await Promise.all([
@@ -76,6 +86,7 @@ export async function POST(request: NextRequest) {
         phone: applicant.phone,
         approved: applicant.approved,
         emailVerified: applicant.emailVerified,
+        countySlugs,
       },
     });
 

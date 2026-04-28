@@ -5,6 +5,11 @@ export async function GET(request: NextRequest) {
   const user = getUserFromRequest(request);
   if (!user) return unauthorizedResponse();
 
+  const countySlugs = (request.headers.get("x-user-county-slugs") || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   return NextResponse.json({
     user: {
       id: user.userId,
@@ -13,6 +18,7 @@ export async function GET(request: NextRequest) {
       lastName: request.headers.get("x-user-last-name") || "",
       role: request.headers.get("x-user-role") || "",
       approved: request.headers.get("x-user-approved") === "true",
+      countySlugs,
     },
   });
 }

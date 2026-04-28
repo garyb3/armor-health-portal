@@ -33,7 +33,7 @@ function timingSafeEqualStr(a: string, b: string): boolean {
 const USER_HEADERS = [
   "x-user-id", "x-user-email", "x-user-first-name",
   "x-user-last-name", "x-user-role", "x-user-approved",
-  "x-county-slug",
+  "x-user-county-slugs", "x-county-slug",
 ];
 
 /** Valid county slugs. Kept as a static set since middleware runs in Edge (no Prisma). */
@@ -293,12 +293,16 @@ export async function middleware(request: NextRequest) {
   requestHeaders.set("x-user-last-name", payload.lastName);
   requestHeaders.set("x-user-role", role);
   requestHeaders.set("x-user-approved", String(approved));
+  // Pass countySlugs claim to handlers so requireCountyAccess can defense-in-depth
+  // check it without re-decoding the JWT. This header is in USER_HEADERS so it's
+  // always stripped from inbound requests — only the JWT-derived value is trusted.
+  const countySlugs = Array.isArray(payload.countySlugs) ? payload.countySlugs : [];
+  requestHeaders.set("x-user-county-slugs", countySlugs.join(","));
 
   // Determine the active county slug for this request:
   //   - For /[county]/* page paths: extract from URL
   //   - For /api/* calls: trust the inbound x-county-slug header (set by apiFetch
   //     based on the page URL). The API helper also validates user access.
-  // PR 4 will enforce COUNTY_REP membership here; for now HR/ADMIN are global.
   const pageCountyMatch = pathname.match(/^\/([^/?#]+)(?:\/|$)/);
   const pageCandidateSlug = pageCountyMatch?.[1]?.toLowerCase();
   let activeCountySlug: string | null = null;
@@ -307,6 +311,17 @@ export async function middleware(request: NextRequest) {
   } else if (pathname.startsWith("/api/") && COUNTY_SLUGS.has(inboundCountySlug)) {
     activeCountySlug = inboundCountySlug;
   }
+
+  // COUNTY_REP membership enforcement. HR/ADMIN are global tenants and pass.
+  // activeCountySlug=null (e.g. /select-county, /api/auth/me) bypasses — those
+  // surfaces exist precisely so an unrouted COUNTY_REP has somewhere to land.
+  if (role === "COUNTY_REP" && activeCountySlug && !countySlugs.includes(activeCountySlug)) {
+    if (pathname.startsWith("/api/")) {
+      return withCsp(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
+    }
+    return withCsp(NextResponse.redirect(new URL("/select-county", request.url)));
+  }
+
   if (activeCountySlug) {
     requestHeaders.set("x-county-slug", activeCountySlug);
   }

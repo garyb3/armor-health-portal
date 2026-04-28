@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { getClientIp, hashToken } from "@/lib/api-helpers";
+import { pickPostLoginDestination } from "@/lib/auth-redirect";
 
 export async function GET(request: NextRequest) {
   // Rate limit: 10 verification attempts per minute per IP
@@ -34,7 +35,14 @@ export async function GET(request: NextRequest) {
         emailVerified: true,
         verificationToken: null,
       },
+      include: {
+        userCounties: { include: { county: { select: { slug: true } } } },
+      },
     });
+
+    const countySlugs = updated.role === "COUNTY_REP"
+      ? updated.userCounties.map((uc) => uc.county.slug)
+      : [];
 
     const tokenPayload = {
       sub: updated.id,
@@ -45,6 +53,7 @@ export async function GET(request: NextRequest) {
       approved: updated.approved,
       emailVerified: true,
       tokenVersion: updated.tokenVersion,
+      countySlugs,
     };
 
     // Issue fresh access + refresh tokens
@@ -53,14 +62,12 @@ export async function GET(request: NextRequest) {
       createRefreshToken(tokenPayload),
     ]);
 
-    // Determine redirect based on role
-    const role = updated.role;
-    const approved = updated.approved;
-    let redirectPath = "/franklin/pipeline";
-
-    if (role === "HR" && !approved) {
-      redirectPath = "/pending-approval";
-    }
+    const redirectPath = pickPostLoginDestination({
+      role: updated.role,
+      approved: updated.approved,
+      emailVerified: true,
+      countySlugs,
+    });
 
     const response = NextResponse.redirect(new URL(redirectPath, request.url));
     response.cookies.set("auth-token", jwt, ACCESS_COOKIE_OPTIONS);

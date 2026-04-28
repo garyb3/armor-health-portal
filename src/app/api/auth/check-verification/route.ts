@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     approved: user.approved,
     emailVerified: true,
     tokenVersion: user.tokenVersion,
+    countySlugs: Array.isArray(payload.countySlugs) ? payload.countySlugs : [],
   });
 
   const response = NextResponse.json({ emailVerified: true });

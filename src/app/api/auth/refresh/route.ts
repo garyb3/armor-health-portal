@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
       approved: true,
       emailVerified: true,
       tokenVersion: true,
+      userCounties: { select: { county: { select: { slug: true } } } },
     },
   });
 
@@ -62,6 +63,10 @@ export async function POST(request: NextRequest) {
     select: { tokenVersion: true },
   });
 
+  const countySlugs = user.role === "COUNTY_REP"
+    ? user.userCounties.map((uc) => uc.county.slug)
+    : [];
+
   // Issue fresh tokens with current DB state and the NEW tokenVersion
   const newPayload = {
     sub: user.id,
@@ -72,6 +77,7 @@ export async function POST(request: NextRequest) {
     approved: user.approved,
     emailVerified: user.emailVerified,
     tokenVersion: updated.tokenVersion,
+    countySlugs,
   };
 
   const [newAccessToken, newRefreshToken] = await Promise.all([

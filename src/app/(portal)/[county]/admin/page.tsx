@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { XCircle, Loader2, Users, Clock, Trash2, MailCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,6 +22,8 @@ interface StaffUser {
 }
 
 export default function AdminPage() {
+  const routeParams = useParams<{ county: string }>();
+  const county = routeParams?.county ?? "";
   const [users, setUsers] = useState<StaffUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"pending" | "all">("pending");
@@ -184,9 +188,12 @@ export default function AdminPage() {
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="font-medium text-gray-900 truncate">
+                    <Link
+                      href={`/${county}/admin/users/${u.id}`}
+                      className="font-medium text-gray-900 truncate hover:text-accent-700 hover:underline"
+                    >
                       {u.firstName} {u.lastName}
-                    </p>
+                    </Link>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-accent-50 text-accent-700">
                       {u.role}
                     </span>

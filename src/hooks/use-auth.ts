@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { ApplicantProfile } from "@/types";
 import { apiFetch } from "@/lib/api-client";
+import { pickPostLoginDestination } from "@/lib/auth-redirect";
 
 export function useAuth() {
   const router = useRouter();
@@ -27,12 +28,14 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = data.user.role === "ADMIN"
-          ? "/franklin/admin"
-          : data.user.role === "HR" && !data.user.approved
-          ? "/pending-approval"
-          : "/franklin/pipeline";
-        router.push(dest);
+        router.push(
+          pickPostLoginDestination({
+            role: data.user.role,
+            approved: data.user.approved ?? false,
+            emailVerified: data.user.emailVerified ?? false,
+            countySlugs: data.user.countySlugs ?? [],
+          })
+        );
         return true;
       } catch {
         setError("Network error. Please try again.");
@@ -69,12 +72,14 @@ export function useAuth() {
           return false;
         }
         setUser(data.user);
-        const dest = data.user.role === "ADMIN"
-          ? "/franklin/admin"
-          : data.user.role === "HR" && !data.user.approved
-          ? "/pending-approval"
-          : "/franklin/pipeline";
-        router.push(dest);
+        router.push(
+          pickPostLoginDestination({
+            role: data.user.role,
+            approved: data.user.approved ?? false,
+            emailVerified: data.user.emailVerified ?? false,
+            countySlugs: data.user.countySlugs ?? [],
+          })
+        );
         return true;
       } catch {
         setError("Network error. Please try again.");

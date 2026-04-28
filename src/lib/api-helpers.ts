@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "crypto";
 import { prisma } from "./prisma";
 import { isValidCountySlug } from "./counties";
+import { canAccessCounty } from "./auth-county";
 
 /**
  * Hash a token with SHA-256 for safe database storage.
@@ -32,8 +33,10 @@ export function getUserFromRequest(request: NextRequest) {
  * unless an `explicitSlug` is provided (e.g. for cron / API-key callers that pass it
  * via body or query).
  *
- * Currently HR and ADMIN are global tenants — they pass without further checks.
- * COUNTY_REP enforcement lands in PR 4 once `countySlugs` is part of the JWT.
+ * Authorization is delegated to canAccessCounty: HR/ADMIN are global tenants and
+ * pass; COUNTY_REP must have the slug in their `x-user-county-slugs` claim (set
+ * by middleware from the verified JWT and stripped from inbound requests). This
+ * is defense in depth — middleware also gates COUNTY_REP at the page/API boundary.
  */
 export async function requireCountyAccess(
   request: NextRequest,
@@ -51,8 +54,11 @@ export async function requireCountyAccess(
   if (!county || !county.active) {
     return NextResponse.json({ error: "County not found" }, { status: 404 });
   }
-  // PR 4 will check user.countySlugs membership for COUNTY_REP here. HR/ADMIN remain global.
-  if (user.userRole !== "HR" && user.userRole !== "ADMIN") {
+  const userCountySlugs = (request.headers.get("x-user-county-slugs") ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (!canAccessCounty(user.userRole, userCountySlugs, slug)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   return { county };

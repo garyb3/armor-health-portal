@@ -12,6 +12,7 @@ import { getCountyFromPath } from "@/lib/counties";
 const ROLE_LABELS: Record<string, string> = {
   HR: "HR",
   ADMIN: "Admin",
+  COUNTY_REP: "County Rep",
 };
 
 interface NavbarProps {

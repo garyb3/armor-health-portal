@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     const invite = await prisma.invite.findUnique({
       where: { token: hashToken(inviteToken) },
-      include: { county: { select: { slug: true } } },
+      include: { county: { select: { id: true, slug: true } } },
     });
     if (!invite) {
       return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
@@ -61,11 +61,20 @@ export async function POST(request: NextRequest) {
     }
     const role = invite.role;
 
+    // COUNTY_REP invites must specify a county — that's the user's only assignment.
+    if (role === "COUNTY_REP" && !invite.county?.id) {
+      return NextResponse.json(
+        { error: "COUNTY_REP invite is missing a county assignment" },
+        { status: 400 }
+      );
+    }
+
     const hashedPassword = await hashPassword(password);
     const needsApproval = ["HR", "ADMIN"].includes(role);
     const rawVerificationToken = randomBytes(32).toString("hex");
 
-    // Atomic transaction: re-check invite, check existing user, create applicant, mark invite used
+    // Atomic transaction: re-check invite, check existing user, create applicant,
+    // create UserCounty for COUNTY_REP, mark invite used
     const applicant = await prisma.$transaction(async (tx) => {
       const freshInvite = await tx.invite.findUnique({ where: { id: invite.id } });
       if (!freshInvite || freshInvite.used) {
@@ -91,6 +100,12 @@ export async function POST(request: NextRequest) {
           phone: phone || null,
         },
       });
+
+      if (role === "COUNTY_REP" && invite.county?.id) {
+        await tx.userCounty.create({
+          data: { applicantId: created.id, countyId: invite.county.id },
+        });
+      }
 
       await tx.invite.update({
         where: { id: invite.id },
@@ -128,6 +143,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const countySlugs = applicant.role === "COUNTY_REP" && invite.county?.slug
+      ? [invite.county.slug]
+      : [];
+
     const tokenPayload = {
       sub: applicant.id,
       email: applicant.email,
@@ -137,6 +156,7 @@ export async function POST(request: NextRequest) {
       approved: applicant.approved,
       emailVerified: applicant.emailVerified,
       tokenVersion: applicant.tokenVersion,
+      countySlugs,
     };
 
     const [token, refreshToken] = await Promise.all([
@@ -154,6 +174,7 @@ export async function POST(request: NextRequest) {
         phone: applicant.phone,
         approved: applicant.approved,
         emailVerified: applicant.emailVerified,
+        countySlugs,
       },
       ...(emailWarning && { emailWarning }),
     });

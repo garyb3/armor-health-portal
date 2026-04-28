@@ -438,6 +438,43 @@ async function main() {
     }
   }
 
+  // --- COUNTY_REP test users ---
+  // Each rep is tied to specific counties via UserCounty rows so the /select-county
+  // picker, the COUNTY_REP middleware gate, and the empty-state path all have
+  // someone to log in as.
+  const repPassword = await bcrypt.hash("CountyRepPassword123!", 12);
+  const countyReps: { email: string; firstName: string; lastName: string; countyIds: string[] }[] = [
+    { email: "rep-franklin@armorhealthcare.com", firstName: "Frank", lastName: "Reppman", countyIds: ["cnty_franklin_seed"] },
+    { email: "rep-cobb@armorhealthcare.com", firstName: "Cara", lastName: "Cobbson", countyIds: ["cnty_cobb_seed"] },
+    { email: "rep-both@armorhealthcare.com", firstName: "Multi", lastName: "Counter", countyIds: ["cnty_franklin_seed", "cnty_cobb_seed"] },
+    { email: "rep-empty@armorhealthcare.com", firstName: "Zero", lastName: "Counties", countyIds: [] },
+  ];
+
+  for (const rep of countyReps) {
+    const existingRep = await prisma.applicant.findUnique({ where: { email: rep.email } });
+    if (existingRep) {
+      console.log(`Skipping ${rep.email} (already exists)`);
+      continue;
+    }
+    const created = await prisma.applicant.create({
+      data: {
+        email: rep.email,
+        password: repPassword,
+        firstName: rep.firstName,
+        lastName: rep.lastName,
+        role: "COUNTY_REP",
+        approved: true,
+        emailVerified: true,
+      },
+    });
+    for (const countyId of rep.countyIds) {
+      await prisma.userCounty.create({
+        data: { applicantId: created.id, countyId },
+      });
+    }
+    console.log(`Created COUNTY_REP: ${rep.email} [counties: ${rep.countyIds.length || "none"}]`);
+  }
+
   // --- Personal test account ---
   const personalExisting = await prisma.applicant.findUnique({ where: { email: "ncampo305@gmail.com" } });
   if (!personalExisting) {
