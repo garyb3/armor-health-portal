@@ -53,7 +53,7 @@ export default function CategoryPage() {
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => { if (data?.user?.id) setCurrentUserId(data.user.id); })
       .catch(() => {});
-  }, [valid, router]);
+  }, [valid, router, county, countyPrefix]);
 
   if (!valid) return null;
 

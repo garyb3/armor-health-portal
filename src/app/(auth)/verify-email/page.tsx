@@ -26,7 +26,7 @@ function VerifyEmailContent() {
           const data = await res.json();
           if (data.emailVerified) {
             clearInterval(interval);
-            window.location.href = "/franklin/pipeline";
+            window.location.href = "/select-county";
           }
         } else {
           consecutiveFailures += 1;

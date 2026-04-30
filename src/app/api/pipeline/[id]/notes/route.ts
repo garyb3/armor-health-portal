@@ -26,7 +26,7 @@ export async function GET(
 
   try {
     const notes = await prisma.note.findMany({
-      where: { applicantId: id },
+      where: { applicantId: id, countyId: county.id },
       orderBy: { createdAt: "desc" },
       include: { _count: { select: { comments: true } } },
     });

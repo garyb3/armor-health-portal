@@ -16,6 +16,7 @@ interface StaleCandidate {
 }
 
 interface SidebarSummary {
+  countySlug: string;     // tags which county this summary belongs to
   total: number;
   staleCount: number;
   newCount: number;       // 0-10 days
@@ -36,6 +37,10 @@ export function Sidebar({ role }: SidebarProps) {
   const [followUpOpen, setFollowUpOpen] = useState(false);
 
   useEffect(() => {
+    // Skip when no county is in the URL (e.g. /select-county). Render-time
+    // guard below hides any prior county's summary so it can't leak across.
+    if (!countySlug) return;
+    const fetchedFor = countySlug;
     async function loadSummary() {
       try {
         const res = await apiFetch("/api/pipeline");
@@ -60,6 +65,7 @@ export function Sidebar({ role }: SidebarProps) {
         }
         staleCandidates.sort((a, b) => b.days - a.days);
         setSummary({
+          countySlug: fetchedFor,
           total: data.summary.total,
           staleCount: data.summary.staleCount ?? 0,
           newCount,
@@ -72,7 +78,11 @@ export function Sidebar({ role }: SidebarProps) {
       }
     }
     loadSummary();
-  }, []);
+  }, [countySlug]);
+
+  // Only show the summary when it matches the current URL's county. Prevents
+  // briefly flashing one county's counts on another's page mid-fetch.
+  const visibleSummary = summary?.countySlug === countySlug ? summary : null;
 
   return (
     <aside className="no-print w-60 bg-gray-200 dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
@@ -105,12 +115,12 @@ export function Sidebar({ role }: SidebarProps) {
         )}
       </div>
 
-      {summary && (
+      {visibleSummary && (
         <div className="px-3 pt-5 pb-2 space-y-5 flex-1 overflow-y-auto">
           {/* Total candidates */}
           <div className="text-center bg-gray-50 dark:bg-brand-800 rounded-xl p-4">
             <div className="text-4xl font-extrabold text-gray-800 dark:text-gray-100 leading-none">
-              {summary.total}
+              {visibleSummary.total}
             </div>
             <div className="text-sm font-medium text-gray-900 dark:text-gray-50 mt-1">
               Total Candidates
@@ -134,7 +144,7 @@ export function Sidebar({ role }: SidebarProps) {
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
                   <span className="text-sm font-medium text-green-800 dark:text-green-300">0 - 10 days</span>
                 </div>
-                <span className="text-lg font-bold text-green-700 dark:text-green-400">{summary.newCount}</span>
+                <span className="text-lg font-bold text-green-700 dark:text-green-400">{visibleSummary.newCount}</span>
               </Link>
               <Link
                 href={`${countyPrefix}/pipeline/category/attention`}
@@ -147,7 +157,7 @@ export function Sidebar({ role }: SidebarProps) {
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                   <span className="text-sm font-medium text-yellow-800 dark:text-yellow-300">11 - 20 days</span>
                 </div>
-                <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">{summary.attentionCount}</span>
+                <span className="text-lg font-bold text-yellow-700 dark:text-yellow-400">{visibleSummary.attentionCount}</span>
               </Link>
               <Link
                 href={`${countyPrefix}/pipeline/category/overdue`}
@@ -160,13 +170,13 @@ export function Sidebar({ role }: SidebarProps) {
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
                   <span className="text-sm font-medium text-red-800 dark:text-red-300">21+ days</span>
                 </div>
-                <span className="text-lg font-bold text-red-700 dark:text-red-400">{summary.overdueCount}</span>
+                <span className="text-lg font-bold text-red-700 dark:text-red-400">{visibleSummary.overdueCount}</span>
               </Link>
             </div>
           </div>
 
           {/* Follow-up dropdown */}
-          {summary.staleCount > 0 && (
+          {visibleSummary.staleCount > 0 && (
             <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 overflow-hidden">
               <button
                 onClick={() => setFollowUpOpen(!followUpOpen)}
@@ -174,7 +184,7 @@ export function Sidebar({ role }: SidebarProps) {
               >
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="text-sm font-semibold text-amber-800 dark:text-amber-300 flex-1">
-                  {summary.staleCount} Need Follow-up
+                  {visibleSummary.staleCount} Need Follow-up
                 </span>
                 <ChevronDown className={cn(
                   "h-4 w-4 text-amber-600 dark:text-amber-400 transition-transform duration-200",
@@ -183,7 +193,7 @@ export function Sidebar({ role }: SidebarProps) {
               </button>
               {followUpOpen && (
                 <div className="px-2 pb-2 space-y-0.5">
-                  {summary.staleCandidates.map((c) => (
+                  {visibleSummary.staleCandidates.map((c) => (
                     <Link
                       key={c.id}
                       href={`${countyPrefix}/pipeline/${c.id}`}
