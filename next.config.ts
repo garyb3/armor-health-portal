@@ -29,7 +29,6 @@ const nextConfig: NextConfig = {
       { source: "/pipeline/:id", destination: "/franklin/pipeline/:id", permanent: false },
       { source: "/admin", destination: "/franklin/admin", permanent: false },
       { source: "/admin/:path*", destination: "/franklin/admin/:path*", permanent: false },
-      { source: "/dashboard", destination: "/franklin/pipeline", permanent: false },
     ];
   },
 };

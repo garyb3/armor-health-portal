@@ -32,7 +32,7 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
   const router = useRouter();
   const pathname = usePathname();
   const activeCounty = getCountyFromPath(pathname);
-  const dashboardHref = activeCounty ? `/${activeCounty}/pipeline` : "/pipeline";
+  const dashboardHref = "/dashboard";
   const navLinks = [{ href: dashboardHref, label: "Dashboard" }];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sitesOpen, setSitesOpen] = useState(false);

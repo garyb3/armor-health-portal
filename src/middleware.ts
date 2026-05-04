@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, verifyRefreshToken } from "@/lib/auth";
 import type { TokenPayload } from "@/lib/auth";
+import { pickPostLoginDestination } from "@/lib/auth-redirect";
 
 const publicPaths = ["/", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
 
@@ -37,7 +38,7 @@ const USER_HEADERS = [
 ];
 
 /** Valid county slugs. Kept as a static set since middleware runs in Edge (no Prisma). */
-const COUNTY_SLUGS = new Set(["franklin", "cobb"]);
+const COUNTY_SLUGS = new Set(["franklin", "cobb", "dekalb"]);
 
 /**
  * CSRF protection: state-changing requests (POST/PUT/PATCH/DELETE) to API routes
@@ -168,6 +169,28 @@ export async function middleware(request: NextRequest) {
   const csrfError = checkCsrf(request);
   if (csrfError) return withCsp(csrfError);
 
+  // Auth-bounce for the login page: a signed-in user hitting "/" should land
+  // on their post-login destination, not the login form. Same logic as the
+  // login form's success branch so refresh / direct-URL / bookmark all match.
+  if (pathname === "/") {
+    const accessToken = request.cookies.get("auth-token")?.value;
+    const refreshToken = request.cookies.get("refresh-token")?.value;
+    let bouncePayload: TokenPayload | null = null;
+    if (accessToken) bouncePayload = await verifyToken(accessToken);
+    if (!bouncePayload && refreshToken) bouncePayload = await verifyRefreshToken(refreshToken);
+    if (bouncePayload) {
+      const destination = pickPostLoginDestination({
+        role: bouncePayload.role || "",
+        approved: bouncePayload.approved ?? false,
+        emailVerified: bouncePayload.emailVerified ?? false,
+        countySlugs: Array.isArray(bouncePayload.countySlugs) ? bouncePayload.countySlugs : [],
+      });
+      if (destination !== "/") {
+        return withCsp(NextResponse.redirect(new URL(destination, request.url)));
+      }
+    }
+  }
+
   // Public paths — no auth required
   if (
     publicPaths.some((p) => pathname === p) ||
@@ -282,7 +305,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/admin")) {
       return withCsp(NextResponse.json({ error: "Forbidden" }, { status: 403 }));
     }
-    return withCsp(NextResponse.redirect(new URL("/franklin/pipeline", request.url)));
+    return withCsp(NextResponse.redirect(new URL("/select-county", request.url)));
   }
 
   // Set user headers on the (already cleaned) headers

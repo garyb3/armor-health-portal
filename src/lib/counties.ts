@@ -1,4 +1,4 @@
-export const COUNTY_SLUGS = ["franklin", "cobb"] as const;
+export const COUNTY_SLUGS = ["franklin", "cobb", "dekalb"] as const;
 export type CountySlug = (typeof COUNTY_SLUGS)[number];
 
 export interface CountyConfig {
@@ -27,11 +27,20 @@ export const COUNTIES: Record<CountySlug, CountyConfig> = {
     ccwLocation: "Cobb County CCW Office",
     emailFooterName: "Cobb County Background Screening Portal",
   },
+  dekalb: {
+    slug: "dekalb",
+    displayName: "Dekalb County",
+    sheriffOfficeName: "Dekalb County Sheriff's Office",
+    sheriffOfficeAddress: "Decatur, GA",
+    ccwLocation: "Dekalb County CCW Office",
+    emailFooterName: "Dekalb County Background Screening Portal",
+  },
 };
 
 export const COUNTY_DISPLAY_NAMES: Record<CountySlug, string> = {
   franklin: COUNTIES.franklin.displayName,
   cobb: COUNTIES.cobb.displayName,
+  dekalb: COUNTIES.dekalb.displayName,
 };
 
 export function isValidCountySlug(slug: string): slug is CountySlug {
