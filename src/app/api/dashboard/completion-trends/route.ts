@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
+import { canAccessCounty } from "@/lib/auth-county";
+import { isValidCountySlug } from "@/lib/counties";
 
 const ALLOWED_ROLES = new Set(["HR", "ADMIN", "COUNTY_REP"]);
 const WEEK_DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -63,10 +65,25 @@ export async function GET(request: NextRequest) {
       .filter(Boolean);
 
     const isStaffGlobal = user.userRole === "HR" || user.userRole === "ADMIN";
-    const counties = await prisma.county.findMany({
-      where: isStaffGlobal
+
+    const requestedSlug = request.nextUrl.searchParams.get("county");
+    if (requestedSlug !== null) {
+      if (!isValidCountySlug(requestedSlug)) {
+        return NextResponse.json({ error: "Invalid county" }, { status: 400 });
+      }
+      if (!canAccessCounty(user.userRole, userCountySlugs, requestedSlug)) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
+
+    const countyWhere = requestedSlug
+      ? { active: true, slug: requestedSlug }
+      : isStaffGlobal
         ? { active: true }
-        : { active: true, slug: { in: userCountySlugs } },
+        : { active: true, slug: { in: userCountySlugs } };
+
+    const counties = await prisma.county.findMany({
+      where: countyWhere,
       select: { id: true },
     });
 
