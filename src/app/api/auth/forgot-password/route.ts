@@ -60,11 +60,16 @@ export async function POST(request: NextRequest) {
       data: { resetToken: hashToken(rawResetToken), resetTokenExpiresAt },
     });
 
-    await sendPasswordResetEmail({
+    // Fire-and-forget the email so response timing doesn't reveal whether the
+    // address mapped to an account. All three branches (no-account, throttled,
+    // issued) now return after a single DB read + at-most-one DB write.
+    sendPasswordResetEmail({
       userName: `${applicant.firstName} ${applicant.lastName}`,
       userEmail: applicant.email,
       resetToken: rawResetToken,
       countySlug: toCountySlug(applicant.county?.slug),
+    }).catch((err) => {
+      console.error("Password reset email failed:", err);
     });
 
     return successResponse;

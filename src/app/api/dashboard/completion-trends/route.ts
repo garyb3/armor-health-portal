@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     const completions = await prisma.applicant.findMany({
       where: {
         role: null,
-        denied: { not: true },
+        denied: false,
         archivedAt: { not: null, gte: queryFloor },
         countyId: { in: counties.map((c) => c.id) },
       },

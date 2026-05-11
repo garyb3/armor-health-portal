@@ -28,25 +28,30 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     async function load() {
       try {
         const [summaryRes, trendsRes] = await Promise.all([
           apiFetch("/api/dashboard/summary"),
           apiFetch("/api/dashboard/completion-trends"),
         ]);
+        if (cancelled) return;
         if (summaryRes.ok) {
           const data = await summaryRes.json();
-          setSummaries(data.counties as CountySummary[]);
+          if (!cancelled) setSummaries(data.counties as CountySummary[]);
         }
         if (trendsRes.ok) {
           const data = (await trendsRes.json()) as TrendsResponse;
-          setTrends(data);
+          if (!cancelled) setTrends(data);
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const totals = useMemo(() => {

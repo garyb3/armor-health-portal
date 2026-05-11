@@ -40,6 +40,7 @@ export async function POST(
           action: "ADMIN_DELETE_USER",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: applicant.countyId,
         },
       }),
     ]);

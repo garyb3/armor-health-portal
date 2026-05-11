@@ -47,7 +47,26 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
-    loadUsers(filter);
+    // Rapid filter toggles can have responses land out of order. Drop late responses.
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        const res = await apiFetch(`/api/admin/users?filter=${filter}`);
+        if (cancelled) return;
+        if (res.ok) {
+          const data = await res.json();
+          if (!cancelled) setUsers(data.users);
+        }
+      } catch (err) {
+        if (!cancelled) console.error("Failed to load users:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [filter]);
 
   async function approve(id: string) {

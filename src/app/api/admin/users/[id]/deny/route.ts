@@ -50,6 +50,7 @@ export async function POST(
           action: "ADMIN_DENY_USER",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: applicant.countyId,
           metadata: { sensitiveDataPurged: true },
         },
       }),

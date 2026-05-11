@@ -54,14 +54,20 @@ export async function POST(request: NextRequest) {
     return response;
   }
 
-  // Rotate: increment tokenVersion so the current refresh token can never be reused.
-  // This limits sessions to a single device — a stolen token is invalidated on next
-  // legitimate refresh.
-  const updated = await prisma.applicant.update({
-    where: { id: user.id },
+  // Rotate atomically: the expected tokenVersion is in the WHERE clause, so two
+  // concurrent refreshes with the same cookie can't both succeed — only one row
+  // matches `tokenVersion: payload.tokenVersion`, and the loser sees count === 0.
+  const rotated = await prisma.applicant.updateMany({
+    where: { id: user.id, tokenVersion: payload.tokenVersion },
     data: { tokenVersion: { increment: 1 } },
-    select: { tokenVersion: true },
   });
+  if (rotated.count === 0) {
+    const response = NextResponse.json({ error: "Token revoked" }, { status: 401 });
+    response.cookies.delete("auth-token");
+    response.cookies.delete("refresh-token");
+    return response;
+  }
+  const newTokenVersion = payload.tokenVersion + 1;
 
   if (user.role == null) {
     // null-role rows are candidate data records, not portal users.
@@ -81,7 +87,7 @@ export async function POST(request: NextRequest) {
     role: user.role,
     approved: user.approved,
     emailVerified: user.emailVerified,
-    tokenVersion: updated.tokenVersion,
+    tokenVersion: newTokenVersion,
     countySlugs,
   };
 

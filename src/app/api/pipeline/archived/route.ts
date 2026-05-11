@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         ? new Map<string, string>()
         : await prisma.applicant
             .findMany({
-              where: { id: { in: archiverIds }, denied: { not: true } },
+              where: { id: { in: archiverIds }, denied: false },
               select: { id: true, firstName: true, lastName: true },
             })
             .then(

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const applicants = await prisma.applicant.findMany({
       where: {
         role: null,
-        denied: { not: true },
+        denied: false,
         archivedAt: null,
         countyId: { in: counties.map((c) => c.id) },
       },

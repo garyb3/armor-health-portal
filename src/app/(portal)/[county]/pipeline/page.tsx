@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -269,35 +269,38 @@ export default function PipelinePage() {
     );
   }
 
-  const filtered = search
-    ? applicants.filter(
-        (a) =>
-          `${a.firstName} ${a.lastName}`
-            .toLowerCase()
-            .includes(search.toLowerCase()) ||
-          a.email.toLowerCase().includes(search.toLowerCase()) ||
-          (a.phone && a.phone.includes(search))
-      )
-    : applicants;
+  const filtered = useMemo(() => {
+    if (!search) return applicants;
+    const q = search.toLowerCase();
+    return applicants.filter(
+      (a) =>
+        `${a.firstName} ${a.lastName}`.toLowerCase().includes(q) ||
+        a.email.toLowerCase().includes(q) ||
+        (a.phone && a.phone.includes(search))
+    );
+  }, [applicants, search]);
 
-  const avgDays = filtered.length > 0
-    ? Math.round(filtered.reduce((sum, a) => sum + (Date.now() - new Date(a.createdAt).getTime()), 0) / filtered.length / 86_400_000)
-    : 0;
-
-  const buckets = filtered.reduce(
-    (acc, a) => {
-      const d = Math.floor((Date.now() - new Date(a.createdAt).getTime()) / 86_400_000);
-      if (d <= 10) { acc[0].total += d; acc[0].count++; }
-      else if (d <= 20) { acc[1].total += d; acc[1].count++; }
-      else { acc[2].total += d; acc[2].count++; }
-      return acc;
-    },
-    [
+  const { avgDays, buckets } = useMemo(() => {
+    const now = Date.now();
+    const buckets = [
       { label: "1 - 10 days", total: 0, count: 0 },
       { label: "11 - 20 days", total: 0, count: 0 },
       { label: "21+ days", total: 0, count: 0 },
-    ]
-  );
+    ];
+    let totalMs = 0;
+    for (const a of filtered) {
+      const ageMs = now - new Date(a.createdAt).getTime();
+      totalMs += ageMs;
+      const d = Math.floor(ageMs / 86_400_000);
+      if (d <= 10) { buckets[0].total += d; buckets[0].count++; }
+      else if (d <= 20) { buckets[1].total += d; buckets[1].count++; }
+      else { buckets[2].total += d; buckets[2].count++; }
+    }
+    const avgDays = filtered.length > 0
+      ? Math.round(totalMs / filtered.length / 86_400_000)
+      : 0;
+    return { avgDays, buckets };
+  }, [filtered]);
 
   return (
     <div className="space-y-6">
