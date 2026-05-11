@@ -86,6 +86,9 @@ export async function POST(
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
+    if (content.length > 10_000) {
+      return NextResponse.json({ error: "Note is too long" }, { status: 400 });
+    }
 
     const authorName = `${user.userFirstName} ${user.userLastName}`.trim() || user.userEmail;
 

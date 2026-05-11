@@ -10,9 +10,12 @@ export interface PostLoginUser {
   countySlugs: string[];
 }
 
+/** Roles whose accounts are created with approved=false and must wait for admin approval. */
+export const NEEDS_APPROVAL_ROLES: readonly string[] = ["HR", "ADMIN"];
+
 export function pickPostLoginDestination(user: PostLoginUser): string {
   if (!user.emailVerified) return "/verify-email";
-  if (user.role === "HR" && !user.approved) return "/pending-approval";
+  if (NEEDS_APPROVAL_ROLES.includes(user.role) && !user.approved) return "/pending-approval";
 
   // COUNTY_REP with exactly one county skips the dashboard.
   if (user.role === "COUNTY_REP" && user.countySlugs.length === 1) {

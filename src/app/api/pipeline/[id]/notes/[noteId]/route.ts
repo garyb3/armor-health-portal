@@ -25,6 +25,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
+    if (content.length > 10_000) {
+      return NextResponse.json({ error: "Note is too long" }, { status: 400 });
+    }
 
     // Fold ownership + applicant-scoping + tenant-scoping into a single atomic updateMany.
     // count=0 means "not found OR not yours OR wrong county" — return 404 either way (don't leak existence).

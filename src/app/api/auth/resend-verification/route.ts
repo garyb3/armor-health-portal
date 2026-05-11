@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
   try {
     const applicant = await prisma.applicant.findUnique({
       where: { id: userId },
-      include: { county: { select: { slug: true } } },
+      include: {
+        county: { select: { slug: true } },
+        userCounties: { include: { county: { select: { slug: true } } } },
+      },
     });
 
     if (!applicant) {
@@ -42,12 +45,20 @@ export async function POST(request: NextRequest) {
       data: { verificationToken: hashToken(rawVerificationToken) },
     });
 
+    // COUNTY_REP users are joined to a county via UserCounty, not the legacy
+    // Applicant.county FK. Fall back to that FK for HR/ADMIN (currently null
+    // for them — resolves to generic Armor Health footer).
+    const resolvedCountySlug =
+      applicant.role === "COUNTY_REP"
+        ? applicant.userCounties[0]?.county.slug
+        : applicant.county?.slug;
+
     try {
       await sendVerificationEmail({
         userName: `${applicant.firstName} ${applicant.lastName}`,
         userEmail: applicant.email,
         verificationToken: rawVerificationToken,
-        countySlug: toCountySlug(applicant.county?.slug),
+        countySlug: toCountySlug(resolvedCountySlug),
       });
     } catch {
       // email.ts logs the failure internally; just surface a 500 to the caller

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { PipelineList } from "@/components/pipeline/pipeline-list";
@@ -9,6 +9,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { apiFetch } from "@/lib/api-client";
 import { FORM_STEPS } from "@/lib/constants";
 import { isValidBucket, filterByBucket, BUCKET_CONFIG } from "@/lib/time-buckets";
+import { isValidCountySlug } from "@/lib/counties";
 import type { PipelineApplicant, CandidateNote } from "@/types";
 
 export default function CategoryPage() {
@@ -16,6 +17,12 @@ export default function CategoryPage() {
   const router = useRouter();
   const slug = params.slug as string;
   const county = params.county as string;
+  // Defense-in-depth: the parent [county]/layout.tsx already gates on the slug,
+  // but this client component runs independently — re-check so a bypassed render
+  // path can't render with an arbitrary county string in API calls.
+  if (!isValidCountySlug(county)) {
+    notFound();
+  }
   const countyPrefix = `/${county}`;
 
   const [applicants, setApplicants] = useState<PipelineApplicant[]>([]);

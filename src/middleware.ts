@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, verifyRefreshToken } from "@/lib/auth";
 import type { TokenPayload } from "@/lib/auth";
-import { pickPostLoginDestination } from "@/lib/auth-redirect";
+import { pickPostLoginDestination, NEEDS_APPROVAL_ROLES } from "@/lib/auth-redirect";
+import { COUNTY_SLUGS as COUNTY_SLUG_LIST } from "@/lib/counties";
 
 const publicPaths = ["/", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
 
@@ -37,8 +38,9 @@ const USER_HEADERS = [
   "x-user-county-slugs", "x-county-slug",
 ];
 
-/** Valid county slugs. Kept as a static set since middleware runs in Edge (no Prisma). */
-const COUNTY_SLUGS = new Set(["franklin", "cobb", "dekalb"]);
+/** Valid county slugs. Sourced from lib/counties so the list lives in one place;
+ *  wrapped in a Set here because middleware runs in Edge (no Prisma — must be pure data). */
+const COUNTY_SLUGS = new Set<string>(COUNTY_SLUG_LIST);
 
 /**
  * CSRF protection: state-changing requests (POST/PUT/PATCH/DELETE) to API routes
@@ -285,7 +287,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Unapproved staff — block everything except pending-approval and logout
-  if (["HR"].includes(role) && !approved) {
+  if (NEEDS_APPROVAL_ROLES.includes(role) && !approved) {
     if (pathname === "/pending-approval") {
       // allow through
     } else if (pathname === "/api/auth/logout") {

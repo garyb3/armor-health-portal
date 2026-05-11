@@ -40,24 +40,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Registration requires an invite" }, { status: 400 });
     }
 
+    // Return the same generic error for all invite failure modes (missing, used,
+    // expired, email mismatch) so callers can't probe the system to enumerate
+    // which invites exist or which are still active. The legitimate user
+    // already received a precise message from GET /api/invites/[token].
+    const INVALID_INVITE = NextResponse.json(
+      { error: "This invite link is not valid" },
+      { status: 400 }
+    );
+
     const invite = await prisma.invite.findUnique({
       where: { token: hashToken(inviteToken) },
       include: { county: { select: { id: true, slug: true } } },
     });
-    if (!invite) {
-      return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
-    }
-    if (invite.used) {
-      return NextResponse.json({ error: "Invite already used" }, { status: 400 });
-    }
-    if (invite.expiresAt < new Date()) {
-      return NextResponse.json({ error: "Invite expired" }, { status: 400 });
-    }
-    if (invite.email.toLowerCase() !== email) {
-      return NextResponse.json(
-        { error: "Email does not match invite" },
-        { status: 400 }
-      );
+    if (
+      !invite ||
+      invite.used ||
+      invite.expiresAt < new Date() ||
+      invite.email.toLowerCase() !== email
+    ) {
+      return INVALID_INVITE;
     }
     const role = invite.role;
 
@@ -191,7 +193,7 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error));
     if (err.message === "INVITE_ALREADY_USED") {
-      return NextResponse.json({ error: "Invite already used" }, { status: 400 });
+      return NextResponse.json({ error: "This invite link is not valid" }, { status: 400 });
     }
     if (err.message === "ACCOUNT_DENIED") {
       return NextResponse.json({ error: "This account is not eligible for registration" }, { status: 403 });

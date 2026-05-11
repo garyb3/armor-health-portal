@@ -90,6 +90,9 @@ export async function POST(request: NextRequest, { params }: Params) {
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
+    if (content.length > 10_000) {
+      return NextResponse.json({ error: "Comment is too long" }, { status: 400 });
+    }
 
     const authorName = `${user.userFirstName} ${user.userLastName}`.trim() || user.userEmail;
 

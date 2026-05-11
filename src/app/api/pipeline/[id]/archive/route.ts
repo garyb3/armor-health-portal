@@ -109,7 +109,14 @@ export async function DELETE(
   try {
     const applicant = await prisma.applicant.findUnique({
       where: { id },
-      select: { id: true, archivedAt: true },
+      select: {
+        id: true,
+        archivedAt: true,
+        offerAcceptedAt: true,
+        formSubmissions: {
+          select: { formType: true, stepStartedAt: true, stepCompletedAt: true },
+        },
+      },
     });
 
     if (!applicant) {
@@ -117,6 +124,31 @@ export async function DELETE(
     }
     if (!applicant.archivedAt) {
       return NextResponse.json({ error: "Not archived" }, { status: 409 });
+    }
+
+    // Re-verify archival eligibility before restoring — mirrors the POST
+    // checks above. Prevents restore from re-introducing a candidate whose
+    // offer or step completion was cleared while archived.
+    if (!applicant.offerAcceptedAt) {
+      return NextResponse.json(
+        { error: "Offer must be accepted to restore from archive" },
+        { status: 409 }
+      );
+    }
+    const completedStepTypes = new Set(
+      applicant.formSubmissions
+        .filter((s) => s.stepStartedAt && s.stepCompletedAt)
+        .map((s) => s.formType)
+    );
+    const missing = FORM_STEPS.filter((step) => !completedStepTypes.has(step.key));
+    if (missing.length > 0) {
+      return NextResponse.json(
+        {
+          error: "All pipeline steps must have start and end dates to restore from archive",
+          missingSteps: missing.map((s) => s.key),
+        },
+        { status: 409 }
+      );
     }
 
     await prisma.$transaction([

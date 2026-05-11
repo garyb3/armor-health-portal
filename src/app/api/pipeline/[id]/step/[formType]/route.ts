@@ -79,26 +79,36 @@ export async function PATCH(
       data.stepCompletedAt = parsed;
     }
 
-    if (
-      data.stepStartedAt instanceof Date &&
-      data.stepCompletedAt instanceof Date &&
-      data.stepCompletedAt.getTime() < data.stepStartedAt.getTime()
-    ) {
-      return badRequestResponse("stepCompletedAt cannot be before stepStartedAt");
-    }
-
     if (Object.keys(data).length === 0) {
       return badRequestResponse("No date fields provided");
     }
 
-    await prisma.$transaction([
-      prisma.formSubmission.update({
-        where: {
-          applicantId_formType: { applicantId, formType },
-        },
+    // Validate the merged (existing + incoming) date pair inside the tx so a
+    // single-field PATCH can't set stepCompletedAt before the saved stepStartedAt.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const existing = await tx.formSubmission.findUnique({
+        where: { applicantId_formType: { applicantId, formType } },
+        select: { stepStartedAt: true, stepCompletedAt: true },
+      });
+      if (!existing) {
+        return { error: "Form submission not found", status: 404 } as const;
+      }
+
+      const mergedStarted = "stepStartedAt" in data ? (data.stepStartedAt as Date | null) : existing.stepStartedAt;
+      const mergedCompleted = "stepCompletedAt" in data ? (data.stepCompletedAt as Date | null) : existing.stepCompletedAt;
+      if (
+        mergedStarted instanceof Date &&
+        mergedCompleted instanceof Date &&
+        mergedCompleted.getTime() < mergedStarted.getTime()
+      ) {
+        return { error: "stepCompletedAt cannot be before stepStartedAt", status: 400 } as const;
+      }
+
+      await tx.formSubmission.update({
+        where: { applicantId_formType: { applicantId, formType } },
         data,
-      }),
-      prisma.auditLog.create({
+      });
+      await tx.auditLog.create({
         data: {
           userId: user.userId,
           action: "STEP_DATES_UPDATED",
@@ -106,8 +116,13 @@ export async function PATCH(
           metadata: { formType, stepStartedAt, stepCompletedAt },
           ipAddress: getClientIp(request),
         },
-      }),
-    ]);
+      });
+      return null;
+    });
+
+    if (txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

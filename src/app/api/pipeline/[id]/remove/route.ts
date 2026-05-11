@@ -28,7 +28,7 @@ export async function POST(
     await prisma.$transaction([
       prisma.applicant.update({
         where: { id },
-        data: { denied: true, tokenVersion: { increment: 1 } },
+        data: { denied: true },
       }),
       prisma.auditLog.create({
         data: {
