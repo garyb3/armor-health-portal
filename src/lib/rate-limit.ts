@@ -49,11 +49,25 @@ interface RateLimitEntry {
 
 const store = new Map<string, RateLimitEntry>();
 
-// Clean up old entries every 5 minutes
-setInterval(() => {
+// Maximum window the in-memory limiter will retain history for. Sized larger
+// than any expected limit window so the GC never prunes timestamps inside
+// their own window — the precise per-call filter in rateLimitInMemory does
+// the actual pruning. Bump this if you add a longer-window limit.
+const MAX_RETAINED_WINDOW_MS = 24 * 60 * 60_000; // 24 hours
+
+// Module-level interval guard so Next.js HMR doesn't spawn duplicates on every
+// reload — each reload re-runs this file, and without the guard each one would
+// leak another interval reference.
+const intervalGlobal = globalThis as typeof globalThis & {
+  __rl_gc_interval?: ReturnType<typeof setInterval>;
+};
+if (intervalGlobal.__rl_gc_interval) {
+  clearInterval(intervalGlobal.__rl_gc_interval);
+}
+intervalGlobal.__rl_gc_interval = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of store) {
-    entry.timestamps = entry.timestamps.filter((t) => now - t < 60_000);
+    entry.timestamps = entry.timestamps.filter((t) => now - t < MAX_RETAINED_WINDOW_MS);
     if (entry.timestamps.length === 0) store.delete(key);
   }
 }, 5 * 60_000);

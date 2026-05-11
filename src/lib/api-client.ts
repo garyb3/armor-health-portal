@@ -56,6 +56,21 @@ export async function apiFetch(
       // Retry the original request with fresh tokens
       return fetch(input, { ...init, headers });
     }
+    // Terminal: refresh token is expired/revoked. Bounce to the login page so
+    // the user isn't stuck staring at silent 401s from every call site.
+    // Skip if we're already on a public/unauthenticated page.
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const onPublicPage =
+        path === "/" ||
+        path === "/verify-email" ||
+        path === "/reset-password" ||
+        path === "/pending-approval" ||
+        path.startsWith("/register/invite/");
+      if (!onPublicPage) {
+        window.location.href = "/";
+      }
+    }
   }
 
   return response;

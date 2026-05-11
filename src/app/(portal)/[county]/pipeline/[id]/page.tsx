@@ -64,6 +64,9 @@ export default function ApplicantDetailPage() {
   const router = useRouter();
   const countyPrefix = `/${county}`;
   const [applicant, setApplicant] = useState<ApplicantDetail | null>(null);
+  // Monotonic counter for step-date PATCHes. Only the LATEST PATCH refetches,
+  // so an older response can't stomp on a newer optimistic edit.
+  const stepPatchGenRef = useRef(0);
   const [archiving, setArchiving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -503,6 +506,7 @@ export default function ApplicantDetailPage() {
         description: errorMessage,
       });
     };
+    const myGen = ++stepPatchGenRef.current;
     try {
       const res = await apiFetch(`/api/pipeline/${id}/step/${stepKey}`, {
         method: "PATCH",
@@ -510,7 +514,11 @@ export default function ApplicantDetailPage() {
         body: JSON.stringify(dates),
       });
       if (res.ok) {
-        await loadApplicant();
+        // If another PATCH started after us, let it do the refetch — its
+        // server snapshot will include our changes too.
+        if (myGen === stepPatchGenRef.current) {
+          await loadApplicant();
+        }
         return;
       }
       const body = await res.json().catch(() => ({}));
