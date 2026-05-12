@@ -79,6 +79,12 @@ export async function createRefreshToken(payload: TokenPayload): Promise<string>
 export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
+    // Reject refresh tokens used as access tokens. Mirrors the inverse guard in
+    // verifyRefreshToken — limits the blast radius of a stolen refresh cookie.
+    if ((payload as Record<string, unknown>).type === "refresh") {
+      console.warn("[auth] Refresh token presented as access token — rejecting");
+      return null;
+    }
     return payload as unknown as TokenPayload;
   } catch (error) {
     if (error instanceof joseErrors.JWTExpired) {

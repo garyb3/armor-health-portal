@@ -4,23 +4,27 @@ import {
   ACCESS_COOKIE_OPTIONS,
   REFRESH_COOKIE_OPTIONS,
   verifyToken,
+  verifyRefreshToken,
 } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
-  // Increment tokenVersion to invalidate all existing refresh tokens
-  const token = request.cookies.get("auth-token")?.value
-    || request.cookies.get("refresh-token")?.value;
-  if (token) {
-    const payload = await verifyToken(token);
-    if (payload?.sub) {
-      try {
-        await prisma.applicant.update({
-          where: { id: payload.sub },
-          data: { tokenVersion: { increment: 1 } },
-        });
-      } catch {
-        // User may have been deleted — that's fine
-      }
+  // Increment tokenVersion to invalidate all existing refresh tokens. Try the
+  // access cookie first; fall back to verifying the refresh cookie since
+  // verifyToken now rejects refresh-type JWTs.
+  const accessToken = request.cookies.get("auth-token")?.value;
+  const refreshToken = request.cookies.get("refresh-token")?.value;
+  const payload =
+    (accessToken && (await verifyToken(accessToken))) ||
+    (refreshToken && (await verifyRefreshToken(refreshToken))) ||
+    null;
+  if (payload?.sub) {
+    try {
+      await prisma.applicant.update({
+        where: { id: payload.sub },
+        data: { tokenVersion: { increment: 1 } },
+      });
+    } catch {
+      // User may have been deleted — that's fine
     }
   }
 

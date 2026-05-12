@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   const filter = request.nextUrl.searchParams.get("filter");
   const limit = Math.min(
-    parseInt(request.nextUrl.searchParams.get("limit") || "200"),
+    parseInt(request.nextUrl.searchParams.get("limit") || "200") || 200,
     500
   );
   const skip = parseInt(request.nextUrl.searchParams.get("skip") || "0") || 0;

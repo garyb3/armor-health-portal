@@ -3,7 +3,7 @@ import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAcc
 import { prisma } from "@/lib/prisma";
 import { FORM_STEPS } from "@/lib/constants";
 
-const STAFF_ROLES: string[] = ["HR", "ADMIN"];
+const STAFF_ROLES: string[] = ["HR", "ADMIN", "COUNTY_REP"];
 
 export async function POST(
   request: NextRequest,

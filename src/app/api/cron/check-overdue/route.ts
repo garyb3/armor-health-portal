@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     // Skip unverified staff — their email may not be theirs yet.
     const staffUsers = await prisma.applicant.findMany({
       where: {
-        role: { in: ["HR", "ADMIN"] },
+        role: { in: ["HR", "ADMIN", "COUNTY_REP"] },
         approved: true,
         emailVerified: true,
       },
