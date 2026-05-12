@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     // Destructure only safe fields — `role` from the request body is intentionally ignored.
     // Role is determined exclusively by the invite token (registration is invite-only).
     const { email: rawEmail, password, firstName, lastName, phone, inviteToken } = parsed.data;
-    const email = rawEmail.toLowerCase();
+    const email = rawEmail.trim().toLowerCase();
 
     // Registration requires an invite token — self-registration is disabled
     if (!inviteToken) {

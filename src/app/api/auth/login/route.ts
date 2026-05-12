@@ -30,12 +30,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, password } = parsed.data;
+    const { email: rawEmail, password } = parsed.data;
+    const email = rawEmail.trim().toLowerCase();
 
-    // SQLite-safe case-insensitive email lookup.
-    // Prisma's `mode: "insensitive"` is Postgres/Mongo only — not valid on SQLite.
+    // SQLite-safe case-insensitive email lookup. LOWER() is defense-in-depth
+    // against any row that bypassed the at-registration normalization.
     const rows = await prisma.$queryRaw<{ id: string }[]>`
-      SELECT id FROM applicants WHERE LOWER(email) = LOWER(${email}) LIMIT 1
+      SELECT id FROM applicants WHERE LOWER(email) = ${email} LIMIT 1
     `;
     const applicant = rows[0]
       ? await prisma.applicant.findUnique({

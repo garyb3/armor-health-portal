@@ -193,6 +193,17 @@ export async function PATCH(
       return NextResponse.json({ error: "No fields provided" }, { status: 400 });
     }
 
+    const applicantState = await prisma.applicant.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (applicantState?.archivedAt) {
+      return NextResponse.json(
+        { error: "Cannot modify archived applicant" },
+        { status: 409 }
+      );
+    }
+
     try {
       await prisma.$transaction([
         prisma.applicant.update({ where: { id }, data }),

@@ -87,6 +87,14 @@ export async function PATCH(
     // Validate the merged (existing + incoming) date pair inside the tx so a
     // single-field PATCH can't set stepCompletedAt before the saved stepStartedAt.
     const txResult = await prisma.$transaction(async (tx) => {
+      const applicant = await tx.applicant.findUnique({
+        where: { id: applicantId },
+        select: { archivedAt: true },
+      });
+      if (applicant?.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+
       const existing = await tx.formSubmission.findUnique({
         where: { applicantId_formType: { applicantId, formType } },
         select: { stepStartedAt: true, stepCompletedAt: true },
@@ -184,13 +192,19 @@ export async function POST(
 
     const applicant = await prisma.applicant.findUnique({
       where: { id: applicantId },
-      select: { firstName: true, lastName: true, email: true },
+      select: { firstName: true, lastName: true, email: true, archivedAt: true },
     });
 
     if (!applicant) {
       return NextResponse.json(
         { error: "Applicant not found" },
         { status: 404 }
+      );
+    }
+    if (applicant.archivedAt) {
+      return NextResponse.json(
+        { error: "Cannot modify archived applicant" },
+        { status: 409 }
       );
     }
 
