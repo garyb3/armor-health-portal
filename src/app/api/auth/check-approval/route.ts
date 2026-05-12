@@ -27,15 +27,29 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ approved: true });
   }
 
-  // Token says unapproved — check DB for updated status
+  // Token says unapproved — check DB for updated status.
+  // "approved" here means "fully cleared to enter the portal": approved AND emailVerified.
+  // Pending-approval polling depends on this combined gate.
   const user = await prisma.applicant.findUnique({
     where: { id: payload.sub },
-    select: { approved: true, emailVerified: true, tokenVersion: true },
+    select: {
+      role: true,
+      approved: true,
+      emailVerified: true,
+      tokenVersion: true,
+      userCounties: { select: { county: { select: { slug: true } } } },
+    },
   });
 
   if (!user || !user.emailVerified || !user.approved) {
     return NextResponse.json({ approved: false });
   }
+
+  // Rebuild countySlugs from DB, not from the stale JWT — admin assign/unassign
+  // bumps tokenVersion but the old JWT still carries the old slugs.
+  const countySlugs = user.role === "COUNTY_REP"
+    ? user.userCounties.map((uc) => uc.county.slug)
+    : [];
 
   // User was approved since token was issued — create a fresh token
   const newToken = await createToken({
@@ -45,9 +59,9 @@ export async function GET(request: NextRequest) {
     lastName: payload.lastName,
     role: payload.role,
     approved: true,
-    emailVerified: payload.emailVerified ?? false,
+    emailVerified: true,
     tokenVersion: user.tokenVersion,
-    countySlugs: Array.isArray(payload.countySlugs) ? payload.countySlugs : [],
+    countySlugs,
   });
 
   const response = NextResponse.json({ approved: true });

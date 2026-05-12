@@ -47,7 +47,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Length caps prevent adversarial bloat (SQLite TEXT has no implicit limit).
+    if (firstName.length > 100 || lastName.length > 100) {
+      return NextResponse.json(
+        { error: "First name and last name must be 100 characters or fewer" },
+        { status: 400 }
+      );
+    }
+    if (phone && phone.length > 32) {
+      return NextResponse.json(
+        { error: "Phone must be 32 characters or fewer" },
+        { status: 400 }
+      );
+    }
+
+    // RFC 5321: max email length is 254 characters.
+    if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: "A valid email address is required" },
         { status: 400 }

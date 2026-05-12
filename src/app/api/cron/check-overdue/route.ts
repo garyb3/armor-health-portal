@@ -71,11 +71,13 @@ export async function POST(request: NextRequest) {
       submissionsByApplicant.set(s.applicantId, list);
     }
 
-    // Fetch all approved HR/Recruiter staff for personalized emails
+    // Fetch all approved + verified HR/Recruiter staff for personalized emails.
+    // Skip unverified staff — their email may not be theirs yet.
     const staffUsers = await prisma.applicant.findMany({
       where: {
         role: { in: ["HR", "ADMIN"] },
         approved: true,
+        emailVerified: true,
       },
       select: { email: true, firstName: true },
     });

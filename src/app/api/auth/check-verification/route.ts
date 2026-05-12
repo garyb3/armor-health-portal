@@ -30,12 +30,24 @@ export async function GET(request: NextRequest) {
   // Token says unverified — check DB for updated status
   const user = await prisma.applicant.findUnique({
     where: { id: payload.sub },
-    select: { emailVerified: true, approved: true, tokenVersion: true },
+    select: {
+      role: true,
+      emailVerified: true,
+      approved: true,
+      tokenVersion: true,
+      userCounties: { select: { county: { select: { slug: true } } } },
+    },
   });
 
   if (!user || !user.emailVerified) {
     return NextResponse.json({ emailVerified: false });
   }
+
+  // Rebuild countySlugs from DB, not from the stale JWT — admin assign/unassign
+  // bumps tokenVersion but the old JWT still carries the old slugs.
+  const countySlugs = user.role === "COUNTY_REP"
+    ? user.userCounties.map((uc) => uc.county.slug)
+    : [];
 
   // User was verified since token was issued — create a fresh token
   const newToken = await createToken({
@@ -47,7 +59,7 @@ export async function GET(request: NextRequest) {
     approved: user.approved,
     emailVerified: true,
     tokenVersion: user.tokenVersion,
-    countySlugs: Array.isArray(payload.countySlugs) ? payload.countySlugs : [],
+    countySlugs,
   });
 
   const response = NextResponse.json({ emailVerified: true });

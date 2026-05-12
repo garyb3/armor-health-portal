@@ -3,6 +3,11 @@ import { readFile, access } from "fs/promises";
 import path from "path";
 import { getUserFromRequest, unauthorizedResponse } from "@/lib/api-helpers";
 
+// Uploads are HR/ADMIN-only by design. COUNTY_REPs see receipt presence as a
+// `hasReceipt` boolean badge in the pipeline UI but do not have a "view receipt"
+// action — so they never construct an /api/uploads URL. If a future feature
+// grants COUNTY_REPs receipt viewing, add COUNTY_REP here AND county-scope the
+// path (resolve applicantId from segments → applicant.countyId → requireCountyAccess).
 const STAFF_ROLES = ["HR", "ADMIN"];
 
 /** Map file extensions to MIME types for the Content-Type header. */
