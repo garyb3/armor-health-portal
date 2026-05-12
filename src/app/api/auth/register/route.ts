@@ -6,7 +6,7 @@ import { registerSchema } from "@/schemas/auth";
 import type { Role } from "@/types";
 import { sendPendingApprovalEmail, sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp, hashToken } from "@/lib/api-helpers";
+import { getClientIp, hashToken, parseJsonBody } from "@/lib/api-helpers";
 import { toCountySlug } from "@/lib/counties";
 
 export async function POST(request: NextRequest) {
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const parsed = registerSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(

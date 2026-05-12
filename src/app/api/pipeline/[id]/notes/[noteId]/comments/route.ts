@@ -3,7 +3,8 @@ import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySi
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
-const STAFF_ROLES: string[] = ["HR", "ADMIN"];
+// COUNTY_REP allowed: county scoping enforced by upstream checks.
+const STAFF_ROLES: string[] = ["HR", "ADMIN", "COUNTY_REP"];
 
 type Params = { params: Promise<{ id: string; noteId: string }> };
 

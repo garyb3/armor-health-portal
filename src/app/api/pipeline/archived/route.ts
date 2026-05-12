@@ -5,7 +5,8 @@ import { FORM_STEPS } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import type { Role, FormStatus as AppFormStatus } from "@/types";
 
-const STAFF_ROLES: Role[] = ["HR", "ADMIN"];
+// COUNTY_REP allowed: requireCountyAccess enforces tenant scoping.
+const STAFF_ROLES: Role[] = ["HR", "ADMIN", "COUNTY_REP"];
 
 function getCurrentStage(
   submissions: { formType: string; status: string }[]

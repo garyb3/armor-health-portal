@@ -5,7 +5,10 @@ import { FORM_STEPS } from "@/lib/constants";
 import { isApprovedOrCompleted } from "@/lib/pipeline-helpers";
 import type { Role, FormStatus as AppFormStatus } from "@/types";
 
-const STAFF_ROLES: Role[] = ["HR", "ADMIN"];
+// COUNTY_REP is included because requireCountyAccess already scopes them to their
+// assigned counties via canAccessCounty. HR/ADMIN are global, so tenant isolation
+// is enforced regardless of which portal user hits this route.
+const PORTAL_ROLES: Role[] = ["HR", "ADMIN", "COUNTY_REP"];
 const STALE_THRESHOLD_DAYS = 11;
 
 function getCurrentStage(
@@ -27,7 +30,7 @@ export async function GET(request: NextRequest) {
   const user = getUserFromRequest(request);
   if (!user) return unauthorizedResponse();
 
-  if (!STAFF_ROLES.includes(user.userRole as Role)) {
+  if (!PORTAL_ROLES.includes(user.userRole as Role)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

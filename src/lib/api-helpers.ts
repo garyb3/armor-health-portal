@@ -89,6 +89,20 @@ export function badRequestResponse(message: string) {
 }
 
 /**
+ * Parse a request's JSON body, returning null on parse failure so the caller
+ * can issue a 400 instead of letting the SyntaxError bubble into a 500.
+ * Returns `any` to match the ergonomics of `await request.json()` it replaces.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function parseJsonBody(request: NextRequest): Promise<any | null> {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Parse an optional ISO date from a JSON request body.
  * Returns a Date for valid strings, null for null/undefined/empty, or "invalid" for garbage.
  * Callers must check for "invalid" and return a 400 — `new Date("garbage")` silently returns Invalid Date.

@@ -5,7 +5,8 @@ import { FORM_STEPS } from "@/lib/constants";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 
-const STAFF_ROLES: string[] = ["HR", "ADMIN"];
+// COUNTY_REP allowed: requireCountyAccess enforces tenant scoping on the assigned countyId.
+const STAFF_ROLES: string[] = ["HR", "ADMIN", "COUNTY_REP"];
 
 export async function POST(request: NextRequest) {
   try {

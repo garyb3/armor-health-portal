@@ -21,7 +21,8 @@ import { toCountySlug } from "@/lib/counties";
 import type { FormType } from "@/generated/prisma/client";
 import type { FormType as AppFormType } from "@/types";
 
-const STAFF_ROLES = ["HR", "ADMIN"];
+// COUNTY_REP allowed: requireCountyAccess + assertApplicantInCounty enforce tenant scoping.
+const STAFF_ROLES = ["HR", "ADMIN", "COUNTY_REP"];
 
 export async function PATCH(
   request: NextRequest,

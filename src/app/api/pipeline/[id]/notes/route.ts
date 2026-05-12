@@ -3,7 +3,8 @@ import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySi
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
-const STAFF_ROLES: string[] = ["HR", "ADMIN"];
+// COUNTY_REP allowed: requireCountyAccess + assertApplicantInCounty enforce tenant scoping.
+const STAFF_ROLES: string[] = ["HR", "ADMIN", "COUNTY_REP"];
 
 export async function GET(
   request: NextRequest,

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp, hashToken } from "@/lib/api-helpers";
+import { getClientIp, hashToken, parseJsonBody } from "@/lib/api-helpers";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { toCountySlug } from "@/lib/counties";
 
@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
-    const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
+    const body = await parseJsonBody(request);
+    const email = body && typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
 
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });

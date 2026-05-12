@@ -271,8 +271,6 @@ export async function middleware(request: NextRequest) {
   const role = payload.role || "";
   const approved = payload.approved ?? false;
   const emailVerified = payload.emailVerified ?? false;
-  const isStaff = ["HR", "ADMIN"].includes(role);
-
   // Unverified email — block everything except verify-email page and logout
   if (!emailVerified) {
     if (pathname === "/verify-email") {

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp, hashToken } from "@/lib/api-helpers";
+import { getClientIp, hashToken, parseJsonBody } from "@/lib/api-helpers";
 import { z } from "zod/v4";
 import { passwordSchema } from "@/schemas/auth";
 
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const parsed = resetPasswordSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(

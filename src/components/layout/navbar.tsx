@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Building2, Check, ChevronDown, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { apiFetch } from "@/lib/api-client";
 import {
@@ -38,9 +38,13 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
   const [sitesOpen, setSitesOpen] = useState(false);
   const sitesRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  // SSR-safe mounted flag: useSyncExternalStore returns the server snapshot (false)
+  // during SSR and the client snapshot (true) after hydration, with no extra render.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   // Close the Sites dropdown on outside click or Escape.
   useEffect(() => {

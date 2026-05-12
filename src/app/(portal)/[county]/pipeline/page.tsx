@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { PipelineList } from "@/components/pipeline/pipeline-list";
 import { useConfirm } from "@/components/ui/confirm-dialog";
-import { Loader2, Plus, ChevronDown, ChevronRight } from "lucide-react";
+import { Loader2, Plus, ChevronDown } from "lucide-react";
 import type { PipelineApplicant, CandidateNote } from "@/types";
 import { apiFetch } from "@/lib/api-client";
 import { FORM_STEPS } from "@/lib/constants";
@@ -261,14 +261,6 @@ export default function PipelinePage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
-      </div>
-    );
-  }
-
   const filtered = useMemo(() => {
     if (!search) return applicants;
     const q = search.toLowerCase();
@@ -301,6 +293,14 @@ export default function PipelinePage() {
       : 0;
     return { avgDays, buckets };
   }, [filtered]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-accent-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

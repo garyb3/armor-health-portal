@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,8 +33,14 @@ export function PipelineCard({ applicant }: PipelineCardProps) {
   const overdue = isOverdue(stageChangedAt, 24);
   const warning = !overdue && isOverdue(stageChangedAt, 12);
 
-  // Days-in-process urgency indicator
-  const daysInProcess = Math.floor((Date.now() - new Date(applicant.createdAt).getTime()) / 86_400_000);
+  // Days-in-process urgency indicator. Computed client-side via useSyncExternalStore
+  // so SSR stays idempotent (Date.now in render body is impure and flickers at day boundaries).
+  // Server snapshot is 0 (green); client snapshot computes the real value at hydration.
+  const daysInProcess = useSyncExternalStore(
+    () => () => {},
+    () => Math.floor((Date.now() - new Date(applicant.createdAt).getTime()) / 86_400_000),
+    () => 0
+  );
   const urgency: "green" | "yellow" | "red" = daysInProcess >= 21 ? "red" : daysInProcess >= 11 ? "yellow" : "green";
   const urgencyBorder = {
     green: "border-l-[3px] border-l-emerald-500",

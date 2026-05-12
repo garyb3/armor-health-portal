@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword, createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { loginSchema } from "@/schemas/auth";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp } from "@/lib/api-helpers";
+import { getClientIp, parseJsonBody } from "@/lib/api-helpers";
 
 // Pre-computed bcrypt hash used to burn CPU time when the user doesn't exist,
 // preventing timing-based email enumeration.
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
