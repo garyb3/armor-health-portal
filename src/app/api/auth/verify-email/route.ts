@@ -28,27 +28,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/verify-email?error=invalid-token", request.url));
     }
 
-    // Mark email as verified and clear token — use returned record for current approved/tokenVersion
-    const updated = await prisma.applicant.update({
-      where: { id: applicant.id },
-      data: {
-        emailVerified: true,
-        verificationToken: null,
-      },
-      include: {
-        userCounties: { include: { county: { select: { slug: true } } } },
-      },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: updated.id,
-        action: "EMAIL_VERIFIED",
-        targetId: updated.id,
-        ipAddress: ip,
-        countyId: updated.countyId,
-      },
-    });
+    // Mark email as verified and clear token — use returned record for current approved/tokenVersion.
+    // Audit log lives in the same tx so a crash between commit and log can't drop the audit row.
+    const [updated] = await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id: applicant.id },
+        data: {
+          emailVerified: true,
+          verificationToken: null,
+        },
+        include: {
+          userCounties: { include: { county: { select: { slug: true } } } },
+        },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: applicant.id,
+          action: "EMAIL_VERIFIED",
+          targetId: applicant.id,
+          ipAddress: ip,
+          countyId: applicant.countyId,
+        },
+      }),
+    ]);
 
     if (updated.role == null) {
       return NextResponse.json({ error: "Account is not eligible for portal access" }, { status: 500 });

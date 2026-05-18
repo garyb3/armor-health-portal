@@ -155,3 +155,41 @@ Three parallel Explore agents walked categories not previously covered: frontend
 ### Pass result
 
 Success criterion was: <2 new bugs ⇒ matrix walk holds. **This pass: 1 new bug. Holds.** No matrix extension needed.
+
+---
+
+## Pass 4 (same day) — full-diagnosis re-walk
+
+Plan: `C:\Users\acampo\.claude\plans\run-a-full-diagnosis-cosmic-sedgewick.md`
+Three parallel read-only Explore agents re-walked auth/middleware, pipeline, and
+admin/invites/cron/schema/frontend. **0 new bug categories.** Every confirmed finding was
+an *incomplete-coverage gap from this same day's I1 (audit-log) and C5 (body-size)
+batches* — the auth subfamily and a few PUT/archive siblings weren't reached when those
+batches were applied. Matrix holds.
+
+### Findings → Fixes
+
+| ID | Severity | Where | What was wrong | Status |
+|----|----------|-------|----------------|--------|
+| H7-auth (×3) | Medium | auth/verify-email, resend-verification, forgot-password | I1 added `auditLog.create` but as a separate write *after* the state mutation, not in a `$transaction`. Crash between the two drops the audit row (forgot-password: reset token issued with no audit trail) | **FIXED** — wrapped each in `prisma.$transaction([...])`, mirroring the existing reset-password pattern |
+| C5-auth (×2) | Medium | auth/forgot-password, auth/reset-password | POST routes lacked `enforceMaxBodySize` (C5 batch missed the auth subfamily) | **FIXED** — added `enforceMaxBodySize(request, 16*1024)` before `parseJsonBody` |
+| C5-PUT (×2) | Low | notes/[noteId] PUT, comments/[commentId] PUT | create-POST siblings cap body at 256 KB; the edit-PUT handlers had no cap (oversized body fully parsed before the 10 k content check) | **FIXED** — added `enforceMaxBodySize(request, 256*1024)` to both PUT handlers |
+| H-archive (×2) | Medium | pipeline/[id]/archive POST + DELETE | eligibility checks (`archivedAt`/`offerAcceptedAt`/`formSubmissions`) ran *outside* the `$transaction`; concurrent mutation between check and write bypassed the gate | **FIXED** — moved findUnique + checks inside `prisma.$transaction(async (tx)=>…)` with a `{status,body}` sentinel, mirroring notes/[noteId] PUT |
+| I2 (×7 sites) | Low | archive POST+DELETE, step STEP_DATES_UPDATED/STEP_APPROVED/STEP_DENIED, admin verify-email, admin reset | `auditLog.create` missing `countyId` (previously DEFERRED as data-quality; un-deferred — mechanical) | **FIXED** — added `countyId: county.id` / `applicant.countyId` to each |
+
+### False positives — verified clean, logged so next pass doesn't re-flag
+
+- Agents flagged "missing countyId" on `auth/verify-email:49`, `resend-verification:54`, `forgot-password:69` — **wrong**, all three already populate `countyId`.
+- `reset-password` audit log is **already** inside `$transaction([...])` — correct, not changed.
+- `login`/`logout`/`register` audit logs already atomic (logout fixed in `ca646bd`).
+- `pipeline/remove` SensitiveData purge correct (`285db99`); archive correctly does **not** purge (reversible, by design).
+
+### Verification
+
+- `npx tsc --noEmit`: exit 0.
+- `npm run lint`: only pre-existing `test_*` / unrelated `page.tsx`/`stage-stats.tsx` warnings — none in modified files.
+- Spot-checks: 3 auth routes now in `$transaction`; 4 routes have `enforceMaxBodySize`; archive checks inside tx; 7 `countyId` sites populated.
+
+### Pass result
+
+0 new categories — all gaps were incomplete I1/C5 coverage. **Matrix holds; no extension needed.** I2 fully closed (no longer deferred).

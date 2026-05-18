@@ -128,6 +128,7 @@ export async function PATCH(
           targetId: applicantId,
           metadata: { formType, stepStartedAt, stepCompletedAt },
           ipAddress: getClientIp(request),
+          countyId: county.id,
         },
       });
       return null;
@@ -292,6 +293,7 @@ export async function POST(
             targetId: applicantId,
             metadata: { formType, stepTitle, note },
             ipAddress: clientIp,
+            countyId: county.id,
           },
         });
       } else {
@@ -312,6 +314,7 @@ export async function POST(
             targetId: applicantId,
             metadata: { formType, stepTitle, note },
             ipAddress: clientIp,
+            countyId: county.id,
           },
         });
       }

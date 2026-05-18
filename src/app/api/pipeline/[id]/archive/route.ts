@@ -35,58 +35,62 @@ export async function POST(
   if (ownership) return ownership;
 
   try {
-    const applicant = await prisma.applicant.findUnique({
-      where: { id },
-      include: {
-        formSubmissions: {
-          select: { formType: true, stepStartedAt: true, stepCompletedAt: true },
+    // Re-read applicant + form submissions inside the tx so a concurrent
+    // mutation (e.g. offerAcceptedAt being cleared) can't slip between the
+    // eligibility checks and the archive write. Audit log lives in the same tx.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const applicant = await tx.applicant.findUnique({
+        where: { id },
+        include: {
+          formSubmissions: {
+            select: { formType: true, stepStartedAt: true, stepCompletedAt: true },
+          },
         },
-      },
-    });
+      });
 
-    if (!applicant) {
-      return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-    }
-    if (applicant.archivedAt) {
-      return NextResponse.json({ error: "Already archived" }, { status: 409 });
-    }
-    if (!applicant.offerAcceptedAt) {
-      return NextResponse.json(
-        { error: "Offer must be accepted before archiving" },
-        { status: 409 }
+      if (!applicant) {
+        return { status: 404, body: { error: "Applicant not found" } } as const;
+      }
+      if (applicant.archivedAt) {
+        return { status: 409, body: { error: "Already archived" } } as const;
+      }
+      if (!applicant.offerAcceptedAt) {
+        return { status: 409, body: { error: "Offer must be accepted before archiving" } } as const;
+      }
+
+      const completedStepTypes = new Set(
+        applicant.formSubmissions
+          .filter((s) => s.stepStartedAt && s.stepCompletedAt)
+          .map((s) => s.formType)
       );
-    }
+      const missing = FORM_STEPS.filter((step) => !completedStepTypes.has(step.key));
+      if (missing.length > 0) {
+        return {
+          status: 409,
+          body: {
+            error: "All pipeline steps must have start and end dates before archiving",
+            missingSteps: missing.map((s) => s.key),
+          },
+        } as const;
+      }
 
-    const completedStepTypes = new Set(
-      applicant.formSubmissions
-        .filter((s) => s.stepStartedAt && s.stepCompletedAt)
-        .map((s) => s.formType)
-    );
-    const missing = FORM_STEPS.filter((step) => !completedStepTypes.has(step.key));
-    if (missing.length > 0) {
-      return NextResponse.json(
-        {
-          error: "All pipeline steps must have start and end dates before archiving",
-          missingSteps: missing.map((s) => s.key),
-        },
-        { status: 409 }
-      );
-    }
-
-    await prisma.$transaction([
-      prisma.applicant.update({
+      await tx.applicant.update({
         where: { id },
         data: { archivedAt: new Date(), archivedBy: user.userId },
-      }),
-      prisma.auditLog.create({
+      });
+      await tx.auditLog.create({
         data: {
           userId: user.userId,
           action: "PIPELINE_ARCHIVE_CANDIDATE",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: county.id,
         },
-      }),
-    ]);
+      });
+      return null;
+    });
+
+    if (txResult) return NextResponse.json(txResult.body, { status: txResult.status });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -124,64 +128,67 @@ export async function DELETE(
   if (ownership) return ownership;
 
   try {
-    const applicant = await prisma.applicant.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        archivedAt: true,
-        offerAcceptedAt: true,
-        formSubmissions: {
-          select: { formType: true, stepStartedAt: true, stepCompletedAt: true },
+    // Re-read inside the tx so a concurrent mutation can't slip between the
+    // eligibility re-verification and the restore write. Audit log same tx.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const applicant = await tx.applicant.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          archivedAt: true,
+          offerAcceptedAt: true,
+          formSubmissions: {
+            select: { formType: true, stepStartedAt: true, stepCompletedAt: true },
+          },
         },
-      },
-    });
+      });
 
-    if (!applicant) {
-      return NextResponse.json({ error: "Applicant not found" }, { status: 404 });
-    }
-    if (!applicant.archivedAt) {
-      return NextResponse.json({ error: "Not archived" }, { status: 409 });
-    }
+      if (!applicant) {
+        return { status: 404, body: { error: "Applicant not found" } } as const;
+      }
+      if (!applicant.archivedAt) {
+        return { status: 409, body: { error: "Not archived" } } as const;
+      }
 
-    // Re-verify archival eligibility before restoring — mirrors the POST
-    // checks above. Prevents restore from re-introducing a candidate whose
-    // offer or step completion was cleared while archived.
-    if (!applicant.offerAcceptedAt) {
-      return NextResponse.json(
-        { error: "Offer must be accepted to restore from archive" },
-        { status: 409 }
+      // Re-verify archival eligibility before restoring — mirrors the POST
+      // checks above. Prevents restore from re-introducing a candidate whose
+      // offer or step completion was cleared while archived.
+      if (!applicant.offerAcceptedAt) {
+        return { status: 409, body: { error: "Offer must be accepted to restore from archive" } } as const;
+      }
+      const completedStepTypes = new Set(
+        applicant.formSubmissions
+          .filter((s) => s.stepStartedAt && s.stepCompletedAt)
+          .map((s) => s.formType)
       );
-    }
-    const completedStepTypes = new Set(
-      applicant.formSubmissions
-        .filter((s) => s.stepStartedAt && s.stepCompletedAt)
-        .map((s) => s.formType)
-    );
-    const missing = FORM_STEPS.filter((step) => !completedStepTypes.has(step.key));
-    if (missing.length > 0) {
-      return NextResponse.json(
-        {
-          error: "All pipeline steps must have start and end dates to restore from archive",
-          missingSteps: missing.map((s) => s.key),
-        },
-        { status: 409 }
-      );
-    }
+      const missing = FORM_STEPS.filter((step) => !completedStepTypes.has(step.key));
+      if (missing.length > 0) {
+        return {
+          status: 409,
+          body: {
+            error: "All pipeline steps must have start and end dates to restore from archive",
+            missingSteps: missing.map((s) => s.key),
+          },
+        } as const;
+      }
 
-    await prisma.$transaction([
-      prisma.applicant.update({
+      await tx.applicant.update({
         where: { id },
         data: { archivedAt: null, archivedBy: null },
-      }),
-      prisma.auditLog.create({
+      });
+      await tx.auditLog.create({
         data: {
           userId: user.userId,
           action: "PIPELINE_RESTORE_CANDIDATE",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: county.id,
         },
-      }),
-    ]);
+      });
+      return null;
+    });
+
+    if (txResult) return NextResponse.json(txResult.body, { status: txResult.status });
 
     return NextResponse.json({ success: true });
   } catch (error) {

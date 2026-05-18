@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess, parseJsonBody } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess, parseJsonBody, enforceMaxBodySize } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -30,6 +30,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const ip = getClientIp(request);
 
   try {
+    const oversized = enforceMaxBodySize(request, 256 * 1024);
+    if (oversized) return oversized;
+
     const body = await parseJsonBody(request);
     if (!body) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });

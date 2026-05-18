@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp, hashToken, parseJsonBody } from "@/lib/api-helpers";
+import { getClientIp, hashToken, parseJsonBody, enforceMaxBodySize } from "@/lib/api-helpers";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { toCountySlug } from "@/lib/counties";
 
@@ -21,6 +21,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const tooLarge = enforceMaxBodySize(request, 16 * 1024);
+    if (tooLarge) return tooLarge;
+
     const body = await parseJsonBody(request);
     const email = body && typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
 
@@ -55,20 +58,23 @@ export async function POST(request: NextRequest) {
 
     // Overwriting resetToken + resetTokenExpiresAt in a single update atomically
     // invalidates any previously-issued token — the old hash is gone after this write.
-    await prisma.applicant.update({
-      where: { id: applicant.id },
-      data: { resetToken: hashToken(rawResetToken), resetTokenExpiresAt },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: applicant.id,
-        action: "PASSWORD_RESET_REQUESTED",
-        targetId: applicant.id,
-        ipAddress: ip,
-        countyId: applicant.countyId,
-      },
-    });
+    // Audit log lives in the same tx so a crash between commit and log can't issue a
+    // reset token with no audit trail.
+    await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id: applicant.id },
+        data: { resetToken: hashToken(rawResetToken), resetTokenExpiresAt },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId: applicant.id,
+          action: "PASSWORD_RESET_REQUESTED",
+          targetId: applicant.id,
+          ipAddress: ip,
+          countyId: applicant.countyId,
+        },
+      }),
+    ]);
 
     // Fire-and-forget the email so response timing doesn't reveal whether the
     // address mapped to an account. All three branches (no-account, throttled,

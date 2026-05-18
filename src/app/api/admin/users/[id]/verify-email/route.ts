@@ -40,6 +40,7 @@ export async function POST(
           action: "ADMIN_VERIFY_EMAIL",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: applicant.countyId,
         },
       });
       return result;

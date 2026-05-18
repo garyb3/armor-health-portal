@@ -40,20 +40,22 @@ export async function POST(request: NextRequest) {
     }
 
     const rawVerificationToken = randomBytes(32).toString("hex");
-    await prisma.applicant.update({
-      where: { id: userId },
-      data: { verificationToken: hashToken(rawVerificationToken) },
-    });
-
-    await prisma.auditLog.create({
-      data: {
-        userId,
-        action: "VERIFICATION_RESENT",
-        targetId: userId,
-        ipAddress: getClientIp(request),
-        countyId: applicant.countyId,
-      },
-    });
+    // Audit log lives in the same tx so a crash between commit and log can't drop the audit row.
+    await prisma.$transaction([
+      prisma.applicant.update({
+        where: { id: userId },
+        data: { verificationToken: hashToken(rawVerificationToken) },
+      }),
+      prisma.auditLog.create({
+        data: {
+          userId,
+          action: "VERIFICATION_RESENT",
+          targetId: userId,
+          ipAddress: getClientIp(request),
+          countyId: applicant.countyId,
+        },
+      }),
+    ]);
 
     // COUNTY_REP users are joined to a county via UserCounty, not the legacy
     // Applicant.county FK. Fall back to that FK for HR/ADMIN (currently null

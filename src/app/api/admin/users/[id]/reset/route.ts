@@ -56,6 +56,7 @@ export async function POST(
           action: "ADMIN_RESET_PIPELINE",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: applicant.countyId!,
         },
       });
     });
