@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
   try {
     const cutoff = new Date(Date.now() - OVERDUE_DAYS * 24 * 60 * 60 * 1000);
 
-    // Find all overdue form submissions (not completed, status changed > 7 days ago)
+    // Find all overdue form submissions (not completed, status changed > 7 days ago).
+    // Exclude denied or archived applicants — they shouldn't receive alerts.
     const overdueSubmissions = await prisma.formSubmission.findMany({
       where: {
         status: { in: ["NOT_STARTED", "IN_PROGRESS"] },
@@ -42,6 +43,10 @@ export async function POST(request: NextRequest) {
           { lastAlertSentAt: null },
           { lastAlertSentAt: { lt: cutoff } },
         ],
+        applicant: {
+          denied: false,
+          archivedAt: null,
+        },
       },
       include: {
         applicant: {
@@ -131,6 +136,17 @@ export async function POST(request: NextRequest) {
           staffRecipients: staffUsers.map((u) => ({ email: u.email, firstName: u.firstName })),
         }),
       ]);
+
+      // Record the dispatch — use the targeted applicant as both userId and targetId
+      // since cron has no human actor. Lets us reconstruct who was alerted and when.
+      await prisma.auditLog.create({
+        data: {
+          userId: sub.applicantId,
+          action: "OVERDUE_ALERT_SENT",
+          targetId: sub.applicantId,
+          metadata: { formType: sub.formType, adminAlertSent: adminSent, staffAlertSent: staffSent },
+        },
+      });
 
       results.push({
         applicant: applicantName,

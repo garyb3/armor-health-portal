@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { Prisma } from "@/generated/prisma/client";
-import { getUserFromRequest, unauthorizedResponse, getClientIp } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, parseJsonBody, enforceMaxBodySize } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
+
+const assignCountySchema = z.object({
+  countyId: z.string().min(1, "countyId required"),
+});
 
 export async function POST(
   request: NextRequest,
@@ -23,12 +28,16 @@ export async function POST(
     );
   }
 
+  const tooLarge = enforceMaxBodySize(request, 4 * 1024);
+  if (tooLarge) return tooLarge;
+
   const { id } = await params;
-  const body = await request.json().catch(() => null);
-  const countyId = typeof body?.countyId === "string" ? body.countyId : null;
-  if (!countyId) {
+  const body = await parseJsonBody(request);
+  const parsed = assignCountySchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json({ error: "countyId required" }, { status: 400 });
   }
+  const { countyId } = parsed.data;
 
   const [applicant, county] = await Promise.all([
     prisma.applicant.findUnique({

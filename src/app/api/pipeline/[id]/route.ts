@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields, parseOptionalDate, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, stripSsnFields, parseOptionalDate, requireCountyAccess, assertApplicantInCounty, enforceMaxBodySize, parseJsonBody } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 import { FORM_STEPS } from "@/lib/constants";
 import { getCurrentStep } from "@/lib/pipeline-helpers";
 import type { FormType, FormStatus as AppFormStatus } from "@/types";
@@ -120,6 +121,14 @@ export async function PATCH(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const { limited, retryAfterMs } = await rateLimit(`pipeline-patch:${user.userId}`, 30, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+    );
+  }
+
   const countyResult = await requireCountyAccess(request, user);
   if (countyResult instanceof NextResponse) return countyResult;
   const { county } = countyResult;
@@ -129,12 +138,24 @@ export async function PATCH(
   const ownership = await assertApplicantInCounty(id, county.id);
   if (ownership) return ownership;
 
+  const tooLarge = enforceMaxBodySize(request, 16 * 1024);
+  if (tooLarge) return tooLarge;
+
   try {
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
     const data: Record<string, unknown> = {};
     let emailChanged: { from: string; to: string } | null = null;
 
-    if (body.notes !== undefined) data.notes = body.notes || null;
+    if (body.notes !== undefined) {
+      const raw = body.notes === null ? "" : String(body.notes);
+      if (raw.length > 10_000) {
+        return NextResponse.json({ error: "Notes too long (max 10000 chars)" }, { status: 400 });
+      }
+      data.notes = raw ? raw : null;
+    }
     if (body.offerAcceptedAt !== undefined) {
       const parsed = parseOptionalDate(body.offerAcceptedAt);
       if (parsed === "invalid") {

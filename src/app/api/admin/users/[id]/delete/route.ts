@@ -34,6 +34,8 @@ export async function POST(
         where: { id },
         data: { denied: true, tokenVersion: { increment: 1 } },
       }),
+      // Purge SensitiveData to match /deny — denied user no longer needs encrypted SSN retained.
+      prisma.sensitiveData.deleteMany({ where: { applicantId: id } }),
       prisma.auditLog.create({
         data: {
           userId: user.userId,

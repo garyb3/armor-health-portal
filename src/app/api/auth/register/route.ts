@@ -6,7 +6,7 @@ import { registerSchema } from "@/schemas/auth";
 import type { Role } from "@/types";
 import { sendPendingApprovalEmail, sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp, hashToken, parseJsonBody } from "@/lib/api-helpers";
+import { getClientIp, hashToken, parseJsonBody, enforceMaxBodySize } from "@/lib/api-helpers";
 import { toCountySlug } from "@/lib/counties";
 
 export async function POST(request: NextRequest) {
@@ -20,6 +20,9 @@ export async function POST(request: NextRequest) {
         { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs || 60_000) / 1000)) } }
       );
     }
+
+    const tooLarge = enforceMaxBodySize(request, 16 * 1024);
+    if (tooLarge) return tooLarge;
 
     const body = await parseJsonBody(request);
     const parsed = registerSchema.safeParse(body);
@@ -112,6 +115,17 @@ export async function POST(request: NextRequest) {
       await tx.invite.update({
         where: { id: invite.id },
         data: { used: true },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          userId: created.id,
+          action: "ACCOUNT_REGISTERED",
+          targetId: created.id,
+          ipAddress: ip,
+          countyId: invite.county?.id ?? null,
+          metadata: { role, viaInvite: true },
+        },
       });
 
       return created;

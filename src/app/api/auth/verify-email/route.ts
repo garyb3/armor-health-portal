@@ -40,6 +40,16 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    await prisma.auditLog.create({
+      data: {
+        userId: updated.id,
+        action: "EMAIL_VERIFIED",
+        targetId: updated.id,
+        ipAddress: ip,
+        countyId: updated.countyId,
+      },
+    });
+
     if (updated.role == null) {
       return NextResponse.json({ error: "Account is not eligible for portal access" }, { status: 500 });
     }

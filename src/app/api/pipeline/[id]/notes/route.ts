@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize, requireCountyAccess, assertApplicantInCounty, parseJsonBody } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -82,7 +82,10 @@ export async function POST(
   if (ownership) return ownership;
 
   try {
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
     const content = body.content?.trim();
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
@@ -94,7 +97,8 @@ export async function POST(
     const authorName = `${user.userFirstName} ${user.userLastName}`.trim() || user.userEmail;
 
     // Re-read archivedAt inside the tx so a concurrent archive can't slip
-    // between the check and the create.
+    // between the check and the create. Audit log lives in the same tx so a
+    // process crash between commit and log can't drop the audit row.
     const txResult = await prisma.$transaction(async (tx) => {
       const applicant = await tx.applicant.findUnique({
         where: { id },
@@ -113,27 +117,22 @@ export async function POST(
           countyId: county.id,
         },
       });
+      await tx.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "NOTE_ADDED",
+          targetId: id,
+          ipAddress: ip,
+          countyId: county.id,
+          metadata: { contentLength: content.length, noteId: created.id },
+        },
+      });
       return { note: created } as const;
     });
     if ("error" in txResult) {
       return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
     const note = txResult.note;
-
-    // Audit log is best-effort — don't let it block note creation
-    try {
-      await prisma.auditLog.create({
-        data: {
-          userId: user.userId,
-          action: "NOTE_ADDED",
-          targetId: id,
-          ipAddress: getClientIp(request),
-          metadata: { contentLength: content.length },
-        },
-      });
-    } catch (auditErr) {
-      console.error("[AUDIT_LOG_FAIL] NOTE_ADDED:", auditErr);
-    }
 
     return NextResponse.json(
       {

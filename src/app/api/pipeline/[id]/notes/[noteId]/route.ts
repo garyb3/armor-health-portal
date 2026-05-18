@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess, parseJsonBody } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 // COUNTY_REP allowed: updateMany/deleteMany scope by authorId+countyId; non-author or wrong-county = 404.
 const STAFF_ROLES: string[] = ["HR", "ADMIN", "COUNTY_REP"];
@@ -14,14 +15,26 @@ export async function PUT(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const { limited, retryAfterMs } = await rateLimit(`note-edit:${user.userId}`, 30, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+    );
+  }
+
   const countyResult = await requireCountyAccess(request, user);
   if (countyResult instanceof NextResponse) return countyResult;
   const { county } = countyResult;
 
   const { id, noteId } = await params;
+  const ip = getClientIp(request);
 
   try {
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
     const content = body.content?.trim();
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
@@ -33,6 +46,8 @@ export async function PUT(request: NextRequest, { params }: Params) {
     // Re-read archivedAt inside the tx so a concurrent archive can't slip
     // between the check and the update. updateMany still folds
     // ownership + applicant + tenant scoping into the write itself.
+    // Audit log lives in the same tx — a crash between commit and log would
+    // otherwise drop the audit row.
     const txResult = await prisma.$transaction(async (tx) => {
       const applicant = await tx.applicant.findUnique({
         where: { id },
@@ -49,26 +64,22 @@ export async function PUT(request: NextRequest, { params }: Params) {
         return { error: "Note not found", status: 404 } as const;
       }
       const fresh = await tx.note.findUniqueOrThrow({ where: { id: noteId } });
+      await tx.auditLog.create({
+        data: {
+          userId: user.userId,
+          action: "NOTE_EDITED",
+          targetId: id,
+          ipAddress: ip,
+          countyId: county.id,
+          metadata: { noteId, contentLength: content.length },
+        },
+      });
       return { note: fresh } as const;
     });
     if ("error" in txResult) {
       return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
     const updated = txResult.note;
-
-    try {
-      await prisma.auditLog.create({
-        data: {
-          userId: user.userId,
-          action: "NOTE_EDITED",
-          targetId: id,
-          ipAddress: getClientIp(request),
-          metadata: { noteId, contentLength: content.length },
-        },
-      });
-    } catch (auditErr) {
-      console.error("[AUDIT_LOG_FAIL] NOTE_EDITED:", auditErr);
-    }
 
     return NextResponse.json({
       id: updated.id,
@@ -92,16 +103,27 @@ export async function DELETE(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const { limited, retryAfterMs } = await rateLimit(`note-delete:${user.userId}`, 30, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+    );
+  }
+
   const countyResult = await requireCountyAccess(request, user);
   if (countyResult instanceof NextResponse) return countyResult;
   const { county } = countyResult;
 
   const { id, noteId } = await params;
+  const ip = getClientIp(request);
 
   try {
     // Re-read archivedAt inside the tx so a concurrent archive can't slip
     // between the check and the delete. deleteMany still folds
     // ownership + applicant + tenant scoping into the write itself.
+    // Audit log lives in the same tx so a crash between commit and log can't
+    // drop the audit row.
     const txResult = await prisma.$transaction(async (tx) => {
       const applicant = await tx.applicant.findUnique({
         where: { id },
@@ -116,24 +138,20 @@ export async function DELETE(request: NextRequest, { params }: Params) {
       if (count === 0) {
         return { error: "Note not found", status: 404 } as const;
       }
-      return null;
-    });
-    if (txResult) {
-      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
-    }
-
-    try {
-      await prisma.auditLog.create({
+      await tx.auditLog.create({
         data: {
           userId: user.userId,
           action: "NOTE_DELETED",
           targetId: id,
-          ipAddress: getClientIp(request),
+          ipAddress: ip,
+          countyId: county.id,
           metadata: { noteId },
         },
       });
-    } catch (auditErr) {
-      console.error("[AUDIT_LOG_FAIL] NOTE_DELETED:", auditErr);
+      return null;
+    });
+    if (txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
 
     return NextResponse.json({ success: true });

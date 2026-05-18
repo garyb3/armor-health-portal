@@ -3,7 +3,7 @@ import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendVerificationEmail } from "@/lib/email";
 import { rateLimit } from "@/lib/rate-limit";
-import { hashToken } from "@/lib/api-helpers";
+import { getClientIp, hashToken } from "@/lib/api-helpers";
 import { toCountySlug } from "@/lib/counties";
 
 export async function POST(request: NextRequest) {
@@ -43,6 +43,16 @@ export async function POST(request: NextRequest) {
     await prisma.applicant.update({
       where: { id: userId },
       data: { verificationToken: hashToken(rawVerificationToken) },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: "VERIFICATION_RESENT",
+        targetId: userId,
+        ipAddress: getClientIp(request),
+        countyId: applicant.countyId,
+      },
     });
 
     // COUNTY_REP users are joined to a county via UserCounty, not the legacy

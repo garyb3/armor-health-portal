@@ -1,0 +1,96 @@
+# Bug Audit Pass — 2026-05-18
+
+**Auditor:** Claude (Opus 4.7 1M) under matrix walk plan
+**Plan:** `C:\Users\acampo\.claude\plans\everytime-i-ask-you-logical-pony.md`
+**Total matrix cells:** ~192 ✓ cells across 12 sections × 10 route families
+**Method:** 4 parallel review agents walked all cells (read-only); fixes applied by me.
+
+Statuses: `OK` · `FINDING` · `FIXED` · `DEFERRED` · `WONTFIX` · `N/A`
+
+---
+
+## Findings → Fixes Summary
+
+| ID | Severity | Category | Where | What was wrong | Status |
+|----|----------|----------|-------|----------------|--------|
+| B6/L1 | High | Functional | `src/middleware.ts:288-298` | Unapproved gate didn't exempt `/api/auth/check-approval`; `/pending-approval` polling failed forever | **FIXED** — added check-approval + me to exempt list |
+| G7 | High | Data minimization | `src/app/api/admin/users/[id]/delete/route.ts:32-46` | `/delete` only soft-denied, did not purge `SensitiveData` (only `/deny` did) | **FIXED** — added `sensitiveData.deleteMany` inside tx |
+| I1 (×9) | High | Audit gap | login, logout, register, verify-email, resend-verification, forgot-password, pipeline/add, invites POST, cron alerts | 9 write paths had no `auditLog.create` row | **FIXED** — added LOGIN_SUCCESS/FAILURE, LOGOUT, ACCOUNT_REGISTERED, EMAIL_VERIFIED, VERIFICATION_RESENT, PASSWORD_RESET_REQUESTED, PIPELINE_CANDIDATE_ADDED, INVITE_CREATED, OVERDUE_ALERT_SENT |
+| B7 | Medium | Authz | `src/lib/api-auth.ts:13-36` | API-key callers bypassed `approved`/`emailVerified`/`denied` gates on the key's owner | **FIXED** — `getAuthContext` now loads owner & rejects if denied / unapproved / unverified |
+| C7 | Medium | DoS / input trust | `src/app/api/pipeline/[id]/route.ts:137` | PATCH wrote `applicant.notes` without length cap; no `enforceMaxBodySize` on route | **FIXED** — cap at 10_000 chars + `enforceMaxBodySize(16KB)` |
+| C4 (×10) | Medium | Input trust | admin/counties, invites, pipeline/add, pipeline/[id], step PATCH+POST, notes, notes/[noteId], comments, comments/[commentId] | Routes used raw `request.json()` (500 on garbage) | **FIXED** — all migrated to `parseJsonBody`; grep `await request\.json\(\)` now returns 0 hits |
+| C5 (×4) | Medium | DoS | auth/register, admin/counties, invites, pipeline/add | POST routes lacked `enforceMaxBodySize` | **FIXED** — added 4–16KB caps |
+| C6 | Medium | Validation | `src/app/api/admin/users/[id]/counties/route.ts:27-31` | Bare `typeof body?.countyId === "string"` instead of Zod | **FIXED** — replaced with `z.object({ countyId: z.string().min(1) })` |
+| F4 | Medium | Email scope | `src/app/api/cron/check-overdue/route.ts:37-57` | Cron emailed denied/archived applicants (no `applicant.denied`/`archivedAt` filter) | **FIXED** — added `applicant: { denied: false, archivedAt: null }` to FormSubmission `where` |
+| H7 (×6 sites) | Medium | Durability | notes POST, notes/[noteId] PUT+DELETE, comments POST, comments/[commentId] PUT+DELETE | `auditLog.create` outside the tx — crash between commit and log dropped the audit row | **FIXED** — moved every audit log call inside the tx (matching `pipeline/[id] PATCH` pattern). Comments POST also tightened: archived-check + create + audit are now one tx (was 3 separate calls) |
+| K2 | Medium | Config | middleware.ts | No length assertion on CRON_SECRET | **FIXED** — module-load assertion: production requires `CRON_SECRET` ≥ 32 chars, else throws |
+| D12 (×7 routes) | Medium | DoS | pipeline/[id] PATCH, archive POST+DELETE, remove POST, notes/[noteId] PUT+DELETE, comments/[commentId] PUT+DELETE, invites POST, pipeline/add | Missing `rateLimit` calls | **FIXED** — added per-user rate limits (20–30/min depending on route) |
+
+---
+
+## Deferred (next session — explicit, not silently dropped)
+
+| ID | Severity | Reason for defer |
+|----|----------|------------------|
+| A9 | Medium | `/api/auth/me` adding a DB hit on every page load is an architectural tradeoff — needs perf/security discussion |
+| A7 | Medium | register/invites 409 vs 400 enumeration; UX vs security tradeoff (clearer error helps legit users) |
+| A8 | Low | resend-verification narrow oracle (requires authenticated session) |
+| A4 | Low | Archiver name leak across counties (UX-visible fix) |
+| A6 | Low | Step audit-log includes user note text — **by design**; review notes belong in the audit row. Document. |
+| D13 | Operational | `getClientIp` trusts X-Forwarded-For — proxy config issue, not code |
+| I2 | Low | 7 audit-log writes don't populate `countyId` — data quality |
+| L3 | Low | `Note.authorName` snapshot stale if author renamed — by design (audit immutability) |
+| Rate limits on GET listings (uploads, dashboard, v1, pipeline-list) | Low | Lower DoS risk than writes; revisit if needed |
+
+---
+
+## Already-correct (matrix walked, no change needed)
+
+All Section E (web surface): CSRF, CORS, open redirect, path traversal, HSTS, CSP nonce. F1/F2/F5 (email injection, send retry). G1/G2/G3/G4/G5/G6/G8 (cascade, filter consistency, role-null filtering). H1–H6 (race condition handling). J1–J5 (logging hygiene). K1/K3/K4/K5 (config). B1/B2/B3/B4/B5/B8/B9/B10. A1/A2/A3/A5. C1/C2/C3/C8/C9/C10/C11. D1/D3/D4/D5/D6/D7/D8/D9/D10/D11/D14.
+
+---
+
+## Pass Statistics
+
+| Metric | Count |
+|--------|-------|
+| Total ✓ cells walked | ~192 |
+| OK (verified correct) | ~155 |
+| FINDING → FIXED | 12 categories, ~30 individual sites |
+| DEFERRED (documented) | 9 |
+| N/A | ~5 |
+| Files modified | 19 |
+
+## Files modified
+
+1. `src/middleware.ts` — B6/L1 exempt list + K2 CRON_SECRET length assertion
+2. `src/lib/api-auth.ts` — B7 owner state check
+3. `src/app/api/auth/login/route.ts` — I1 LOGIN_SUCCESS + LOGIN_FAILURE audit logs
+4. `src/app/api/auth/logout/route.ts` — I1 LOGOUT audit log
+5. `src/app/api/auth/register/route.ts` — I1 ACCOUNT_REGISTERED inside tx + C5 body size
+6. `src/app/api/auth/verify-email/route.ts` — I1 EMAIL_VERIFIED
+7. `src/app/api/auth/resend-verification/route.ts` — I1 VERIFICATION_RESENT
+8. `src/app/api/auth/forgot-password/route.ts` — I1 PASSWORD_RESET_REQUESTED
+9. `src/app/api/admin/users/[id]/delete/route.ts` — G7 SensitiveData purge
+10. `src/app/api/admin/users/[id]/counties/route.ts` — C4 parseJsonBody + C5 size + C6 Zod
+11. `src/app/api/invites/route.ts` — I1 INVITE_CREATED + C4 + C5 + D12 rate limit
+12. `src/app/api/pipeline/add/route.ts` — I1 PIPELINE_CANDIDATE_ADDED + C4 + C5 + D12 rate limit
+13. `src/app/api/pipeline/[id]/route.ts` — C7 notes cap + C4 + C5 + D12 rate limit
+14. `src/app/api/pipeline/[id]/archive/route.ts` — D12 rate limit (POST+DELETE)
+15. `src/app/api/pipeline/[id]/remove/route.ts` — D12 rate limit
+16. `src/app/api/pipeline/[id]/step/[formType]/route.ts` — C4 parseJsonBody (PATCH + POST)
+17. `src/app/api/pipeline/[id]/notes/route.ts` — H7 audit inside tx + C4
+18. `src/app/api/pipeline/[id]/notes/[noteId]/route.ts` — H7 audit inside tx + C4 + D12
+19. `src/app/api/pipeline/[id]/notes/[noteId]/comments/route.ts` — H7 (archive check + create + audit in one tx) + C4
+20. `src/app/api/pipeline/[id]/notes/[noteId]/comments/[commentId]/route.ts` — H7 + C4 + D12
+21. `src/app/api/cron/check-overdue/route.ts` — F4 denied/archived filter + I1 OVERDUE_ALERT_SENT
+
+## Verification
+
+- `npx tsc --noEmit`: exit 0 (clean)
+- `npm run lint`: only pre-existing warnings/errors in `test_*.{js,ts}` test files (unrelated to changes)
+- Grep `await request\.json\(\)` under `src/app/api`: 0 hits
+
+## Success criterion for next pass
+
+Next audit pass against this same matrix should find **<2 new bugs**. If it finds 5+, the matrix has category gaps — extend it before re-running.

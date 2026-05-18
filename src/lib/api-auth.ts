@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getUserFromRequest } from "@/lib/api-helpers";
 import { validateApiKey } from "@/lib/api-key";
+import { prisma } from "@/lib/prisma";
 
 /**
  * Dual-auth helper: resolves the caller's identity from either
@@ -23,6 +24,15 @@ export async function getAuthContext(request: NextRequest) {
     const apiKey = await validateApiKey(rawKey);
     if (!apiKey) return null;
     if (apiKey.expiresAt && apiKey.expiresAt < new Date()) return null;
+    // Gate the API key on the owner's account state — if the creator was denied
+    // or never approved/verified, their key must not bypass those gates.
+    const owner = await prisma.applicant.findUnique({
+      where: { id: apiKey.createdBy },
+      select: { approved: true, emailVerified: true, denied: true },
+    });
+    if (!owner || owner.denied || !owner.approved || !owner.emailVerified) {
+      return null;
+    }
     return {
       userId: `apikey:${apiKey.id}`,
       userEmail: `apikey:${apiKey.name}`,

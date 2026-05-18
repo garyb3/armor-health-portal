@@ -6,6 +6,18 @@ import { COUNTY_SLUGS as COUNTY_SLUG_LIST } from "@/lib/counties";
 
 const publicPaths = ["/", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
 
+// Fail-fast on weak CRON_SECRET in production. A short secret invites brute force
+// against cron endpoints, which run with elevated privileges.
+const MIN_CRON_SECRET_LENGTH = 32;
+if (process.env.NODE_ENV === "production") {
+  const cs = process.env.CRON_SECRET;
+  if (!cs || cs.length < MIN_CRON_SECRET_LENGTH) {
+    throw new Error(
+      `CRON_SECRET must be set and at least ${MIN_CRON_SECRET_LENGTH} characters in production`
+    );
+  }
+}
+
 /** Static file extensions that can bypass auth */
 const STATIC_EXTENSIONS = new Set([
   ".ico", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp",
@@ -284,12 +296,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Unapproved staff — block everything except pending-approval and logout
+  // Unapproved staff — block everything except pending-approval and a few auth endpoints
   if (NEEDS_APPROVAL_ROLES.includes(role) && !approved) {
     if (pathname === "/pending-approval") {
       // allow through
-    } else if (pathname === "/api/auth/logout") {
-      // allow logout
+    } else if (
+      pathname === "/api/auth/logout" ||
+      pathname === "/api/auth/check-approval" ||
+      pathname === "/api/auth/me"
+    ) {
+      // allow logout, approval polling, and identity check from /pending-approval
     } else if (pathname.startsWith("/api/")) {
       return withCsp(NextResponse.json({ error: "Account pending approval" }, { status: 403 }));
     } else {

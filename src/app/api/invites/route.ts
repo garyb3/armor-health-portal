@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
-import { getUserFromRequest, hashToken, unauthorizedResponse, requireCountyAccess } from "@/lib/api-helpers";
+import { getUserFromRequest, hashToken, unauthorizedResponse, requireCountyAccess, parseJsonBody, enforceMaxBodySize, getClientIp } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 import { createInviteSchema } from "@/schemas/auth";
 
 const INVITE_ROLES = ["HR", "ADMIN"];
@@ -15,11 +16,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { limited, retryAfterMs } = await rateLimit(`invite-create:${user.userId}`, 10, 60_000);
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+      );
+    }
+
+    const tooLarge = enforceMaxBodySize(request, 4 * 1024);
+    if (tooLarge) return tooLarge;
+
     const countyResult = await requireCountyAccess(request, user);
     if (countyResult instanceof NextResponse) return countyResult;
     const { county } = countyResult;
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
     const parsed = createInviteSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
@@ -58,6 +73,17 @@ export async function POST(request: NextRequest) {
         expiresAt,
         createdBy: user.userId,
         countyId: county.id,
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.userId,
+        action: "INVITE_CREATED",
+        targetId: invite.id,
+        ipAddress: getClientIp(request),
+        countyId: county.id,
+        metadata: { role, email },
       },
     });
 

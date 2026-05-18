@@ -60,6 +60,16 @@ export async function POST(request: NextRequest) {
       data: { resetToken: hashToken(rawResetToken), resetTokenExpiresAt },
     });
 
+    await prisma.auditLog.create({
+      data: {
+        userId: applicant.id,
+        action: "PASSWORD_RESET_REQUESTED",
+        targetId: applicant.id,
+        ipAddress: ip,
+        countyId: applicant.countyId,
+      },
+    });
+
     // Fire-and-forget the email so response timing doesn't reveal whether the
     // address mapped to an account. All three branches (no-account, throttled,
     // issued) now return after a single DB read + at-most-one DB write.

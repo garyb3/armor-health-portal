@@ -6,6 +6,7 @@ import {
   verifyToken,
   verifyRefreshToken,
 } from "@/lib/auth";
+import { getClientIp } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
   // Increment tokenVersion to invalidate all existing refresh tokens. Try the
@@ -22,6 +23,14 @@ export async function POST(request: NextRequest) {
       await prisma.applicant.update({
         where: { id: payload.sub },
         data: { tokenVersion: { increment: 1 } },
+      });
+      await prisma.auditLog.create({
+        data: {
+          userId: payload.sub,
+          action: "LOGOUT",
+          targetId: payload.sub,
+          ipAddress: getClientIp(request),
+        },
       });
     } catch {
       // User may have been deleted — that's fine

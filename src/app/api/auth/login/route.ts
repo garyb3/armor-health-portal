@@ -52,6 +52,22 @@ export async function POST(request: NextRequest) {
     if (!applicant || !isValid || applicant.role == null) {
       // null-role rows are candidate data records (no portal access) — same generic
       // error so we don't leak that the row exists.
+      if (applicant) {
+        // Log only when the email maps to a real portal user, to avoid filling the
+        // audit log with brute-force noise against random unknown addresses.
+        await prisma.auditLog.create({
+          data: {
+            userId: applicant.id,
+            action: "LOGIN_FAILURE",
+            targetId: applicant.id,
+            ipAddress: ip,
+            countyId: applicant.countyId,
+            metadata: {
+              reason: applicant.role == null ? "no_portal_access" : !isValid ? "invalid_password" : "unknown",
+            },
+          },
+        });
+      }
       return NextResponse.json(
         { error: "Invalid email or password" },
         { status: 401 }
@@ -78,6 +94,17 @@ export async function POST(request: NextRequest) {
       createToken(tokenPayload),
       createRefreshToken(tokenPayload),
     ]);
+
+    await prisma.auditLog.create({
+      data: {
+        userId: applicant.id,
+        action: "LOGIN_SUCCESS",
+        targetId: applicant.id,
+        ipAddress: ip,
+        countyId: applicant.countyId,
+        metadata: { method: "password" },
+      },
+    });
 
     const response = NextResponse.json({
       user: {

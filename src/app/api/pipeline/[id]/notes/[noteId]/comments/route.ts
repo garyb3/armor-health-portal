@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, getClientIp, enforceMaxBodySize, requireCountyAccess, assertApplicantInCounty, parseJsonBody } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -81,21 +81,10 @@ export async function POST(request: NextRequest, { params }: Params) {
   if (ownership) return ownership;
 
   try {
-    const note = await prisma.note.findUnique({
-      where: { id: noteId },
-      include: { applicant: { select: { archivedAt: true } } },
-    });
-    if (!note || note.applicantId !== id || note.countyId !== county.id) {
-      return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    const body = await parseJsonBody(request);
+    if (!body) {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
-    if (note.applicant.archivedAt) {
-      return NextResponse.json(
-        { error: "Cannot modify archived applicant" },
-        { status: 409 }
-      );
-    }
-
-    const body = await request.json();
     const content = body.content?.trim();
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
@@ -106,29 +95,45 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     const authorName = `${user.userFirstName} ${user.userLastName}`.trim() || user.userEmail;
 
-    const comment = await prisma.noteComment.create({
-      data: {
-        content,
-        authorId: user.userId,
-        authorName,
-        noteId,
-        updatedAt: new Date(),
-      },
-    });
-
-    try {
-      await prisma.auditLog.create({
+    // Bundle the note/archive check, comment create, and audit log into one tx
+    // so a concurrent archive (or process crash mid-write) can't yield a comment
+    // without an audit row or against an archived applicant.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const note = await tx.note.findUnique({
+        where: { id: noteId },
+        include: { applicant: { select: { archivedAt: true } } },
+      });
+      if (!note || note.applicantId !== id || note.countyId !== county.id) {
+        return { error: "Note not found", status: 404 } as const;
+      }
+      if (note.applicant.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+      const created = await tx.noteComment.create({
+        data: {
+          content,
+          authorId: user.userId,
+          authorName,
+          noteId,
+          updatedAt: new Date(),
+        },
+      });
+      await tx.auditLog.create({
         data: {
           userId: user.userId,
           action: "NOTE_COMMENT_ADDED",
           targetId: id,
           ipAddress: getClientIp(request),
-          metadata: { noteId, commentId: comment.id, contentLength: content.length },
+          countyId: county.id,
+          metadata: { noteId, commentId: created.id, contentLength: content.length },
         },
       });
-    } catch (auditErr) {
-      console.error("[AUDIT_LOG_FAIL] NOTE_COMMENT_ADDED:", auditErr);
+      return { comment: created } as const;
+    });
+    if ("error" in txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
+    const comment = txResult.comment;
 
     return NextResponse.json(
       {

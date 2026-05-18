@@ -9,6 +9,7 @@ import {
   enforceMaxBodySize,
   requireCountyAccess,
   assertApplicantInCounty,
+  parseJsonBody,
 } from "@/lib/api-helpers";
 import { FORM_STEPS } from "@/lib/constants";
 import { getNextStep } from "@/lib/pipeline-helpers";
@@ -61,7 +62,10 @@ export async function PATCH(
     const ownership = await assertApplicantInCounty(applicantId, county.id);
     if (ownership) return ownership;
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body || typeof body !== "object") {
+      return badRequestResponse("Invalid JSON body");
+    }
     const { stepStartedAt, stepCompletedAt } = body as {
       stepStartedAt?: string | null;
       stepCompletedAt?: string | null;
@@ -180,7 +184,10 @@ export async function POST(
     const ownership = await assertApplicantInCounty(applicantId, county.id);
     if (ownership) return ownership;
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body || typeof body !== "object") {
+      return badRequestResponse("Invalid JSON body");
+    }
     const { action, note } = body as {
       action: "approve" | "deny";
       note?: string;

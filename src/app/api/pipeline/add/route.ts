@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromRequest, unauthorizedResponse, parseOptionalDate, requireCountyAccess } from "@/lib/api-helpers";
+import { getUserFromRequest, unauthorizedResponse, parseOptionalDate, requireCountyAccess, getClientIp, parseJsonBody, enforceMaxBodySize } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 import { FORM_STEPS } from "@/lib/constants";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
@@ -17,11 +18,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { limited, retryAfterMs } = await rateLimit(`pipeline-add:${user.userId}`, 20, 60_000);
+    if (limited) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+      );
+    }
+
+    const tooLarge = enforceMaxBodySize(request, 8 * 1024);
+    if (tooLarge) return tooLarge;
+
     const countyResult = await requireCountyAccess(request, user);
     if (countyResult instanceof NextResponse) return countyResult;
     const { county } = countyResult;
 
-    const body = await request.json();
+    const body = await parseJsonBody(request);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+    }
     const firstName = String(body.firstName ?? "").trim();
     const lastName = String(body.lastName ?? "").trim();
     const email = String(body.email ?? "").trim().toLowerCase();
@@ -107,6 +122,16 @@ export async function POST(request: NextRequest) {
             countyId: county.id,
           })),
         },
+      },
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: user.userId,
+        action: "PIPELINE_CANDIDATE_ADDED",
+        targetId: applicant.id,
+        ipAddress: getClientIp(request),
+        countyId: county.id,
       },
     });
 

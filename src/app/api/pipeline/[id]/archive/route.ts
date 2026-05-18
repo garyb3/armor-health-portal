@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest, unauthorizedResponse, getClientIp, requireCountyAccess, assertApplicantInCounty } from "@/lib/api-helpers";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 import { FORM_STEPS } from "@/lib/constants";
 
 const STAFF_ROLES: string[] = ["HR", "ADMIN", "COUNTY_REP"];
@@ -14,6 +15,14 @@ export async function POST(
 
   if (!STAFF_ROLES.includes(user.userRole)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { limited, retryAfterMs } = await rateLimit(`pipeline-archive:${user.userId}`, 20, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+    );
   }
 
   const countyResult = await requireCountyAccess(request, user);
@@ -95,6 +104,14 @@ export async function DELETE(
 
   if (!STAFF_ROLES.includes(user.userRole)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { limited, retryAfterMs } = await rateLimit(`pipeline-archive:${user.userId}`, 20, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs ?? 60_000) / 1000)) } }
+    );
   }
 
   const countyResult = await requireCountyAccess(request, user);
