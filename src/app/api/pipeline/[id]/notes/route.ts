@@ -82,17 +82,6 @@ export async function POST(
   if (ownership) return ownership;
 
   try {
-    const applicant = await prisma.applicant.findUnique({
-      where: { id },
-      select: { archivedAt: true },
-    });
-    if (applicant?.archivedAt) {
-      return NextResponse.json(
-        { error: "Cannot modify archived applicant" },
-        { status: 409 }
-      );
-    }
-
     const body = await request.json();
     const content = body.content?.trim();
     if (!content) {
@@ -104,16 +93,32 @@ export async function POST(
 
     const authorName = `${user.userFirstName} ${user.userLastName}`.trim() || user.userEmail;
 
-    const note = await prisma.note.create({
-      data: {
-        content,
-        authorId: user.userId,
-        authorName,
-        applicantId: id,
-        updatedAt: new Date(),
-        countyId: county.id,
-      },
+    // Re-read archivedAt inside the tx so a concurrent archive can't slip
+    // between the check and the create.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const applicant = await tx.applicant.findUnique({
+        where: { id },
+        select: { archivedAt: true },
+      });
+      if (applicant?.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+      const created = await tx.note.create({
+        data: {
+          content,
+          authorId: user.userId,
+          authorName,
+          applicantId: id,
+          updatedAt: new Date(),
+          countyId: county.id,
+        },
+      });
+      return { note: created } as const;
     });
+    if ("error" in txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
+    }
+    const note = txResult.note;
 
     // Audit log is best-effort — don't let it block note creation
     try {

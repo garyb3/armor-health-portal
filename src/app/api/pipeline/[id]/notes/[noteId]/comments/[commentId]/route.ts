@@ -20,28 +20,42 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id, noteId, commentId } = await params;
 
   try {
-    const comment = await prisma.noteComment.findUnique({ where: { id: commentId } });
-    if (!comment || comment.noteId !== noteId) {
-      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
-    }
-    const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id || note.countyId !== county.id) {
-      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
-    }
-    if (comment.authorId !== user.userId) {
-      return NextResponse.json({ error: "You can only edit your own comments" }, { status: 403 });
-    }
-
     const body = await request.json();
     const content = body.content?.trim();
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 });
     }
 
-    const updated = await prisma.noteComment.update({
-      where: { id: commentId },
-      data: { content, updatedAt: new Date() },
+    // Re-read note + applicant.archivedAt inside the tx so a concurrent
+    // archive can't slip between the check and the update.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const comment = await tx.noteComment.findUnique({ where: { id: commentId } });
+      if (!comment || comment.noteId !== noteId) {
+        return { error: "Comment not found", status: 404 } as const;
+      }
+      const note = await tx.note.findUnique({
+        where: { id: noteId },
+        include: { applicant: { select: { archivedAt: true } } },
+      });
+      if (!note || note.applicantId !== id || note.countyId !== county.id) {
+        return { error: "Comment not found", status: 404 } as const;
+      }
+      if (note.applicant.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+      if (comment.authorId !== user.userId) {
+        return { error: "You can only edit your own comments", status: 403 } as const;
+      }
+      const fresh = await tx.noteComment.update({
+        where: { id: commentId },
+        data: { content, updatedAt: new Date() },
+      });
+      return { comment: fresh } as const;
     });
+    if ("error" in txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
+    }
+    const updated = txResult.comment;
 
     try {
       await prisma.auditLog.create({
@@ -86,19 +100,32 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const { id, noteId, commentId } = await params;
 
   try {
-    const comment = await prisma.noteComment.findUnique({ where: { id: commentId } });
-    if (!comment || comment.noteId !== noteId) {
-      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    // Re-read note + applicant.archivedAt inside the tx so a concurrent
+    // archive can't slip between the check and the delete.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const comment = await tx.noteComment.findUnique({ where: { id: commentId } });
+      if (!comment || comment.noteId !== noteId) {
+        return { error: "Comment not found", status: 404 } as const;
+      }
+      const note = await tx.note.findUnique({
+        where: { id: noteId },
+        include: { applicant: { select: { archivedAt: true } } },
+      });
+      if (!note || note.applicantId !== id || note.countyId !== county.id) {
+        return { error: "Comment not found", status: 404 } as const;
+      }
+      if (note.applicant.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+      if (comment.authorId !== user.userId) {
+        return { error: "You can only delete your own comments", status: 403 } as const;
+      }
+      await tx.noteComment.delete({ where: { id: commentId } });
+      return null;
+    });
+    if (txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
-    const note = await prisma.note.findUnique({ where: { id: noteId } });
-    if (!note || note.applicantId !== id || note.countyId !== county.id) {
-      return NextResponse.json({ error: "Comment not found" }, { status: 404 });
-    }
-    if (comment.authorId !== user.userId) {
-      return NextResponse.json({ error: "You can only delete your own comments" }, { status: 403 });
-    }
-
-    await prisma.noteComment.delete({ where: { id: commentId } });
 
     try {
       await prisma.auditLog.create({

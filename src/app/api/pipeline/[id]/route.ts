@@ -193,21 +193,19 @@ export async function PATCH(
       return NextResponse.json({ error: "No fields provided" }, { status: 400 });
     }
 
-    const applicantState = await prisma.applicant.findUnique({
-      where: { id },
-      select: { archivedAt: true },
-    });
-    if (applicantState?.archivedAt) {
-      return NextResponse.json(
-        { error: "Cannot modify archived applicant" },
-        { status: 409 }
-      );
-    }
-
     try {
-      await prisma.$transaction([
-        prisma.applicant.update({ where: { id }, data }),
-        prisma.auditLog.create({
+      // Re-read archivedAt inside the transaction so a concurrent archive
+      // can't slip between the check and the update.
+      const txResult = await prisma.$transaction(async (tx) => {
+        const applicantState = await tx.applicant.findUnique({
+          where: { id },
+          select: { archivedAt: true },
+        });
+        if (applicantState?.archivedAt) {
+          return { error: "Cannot modify archived applicant", status: 409 } as const;
+        }
+        await tx.applicant.update({ where: { id }, data });
+        await tx.auditLog.create({
           data: {
             userId: user.userId,
             action: "APPLICANT_UPDATED",
@@ -218,8 +216,12 @@ export async function PATCH(
               ...(emailChanged ? { emailChanged } : {}),
             },
           },
-        }),
-      ]);
+        });
+        return null;
+      });
+      if (txResult) {
+        return NextResponse.json({ error: txResult.error }, { status: txResult.status });
+      }
     } catch (e: unknown) {
       if (e && typeof e === "object" && "code" in e && (e as { code?: string }).code === "P2002") {
         return NextResponse.json({ error: "Email already in use" }, { status: 409 });

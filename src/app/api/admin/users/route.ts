@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         emailVerified: true,
         createdAt: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       take: limit,
       skip,
     }),

@@ -399,7 +399,7 @@ export function PipelineList({ applicants, notesMap, currentUserId, onFetchNotes
                     <span className="text-xs text-gray-900 dark:text-gray-50">Offer accepted:</span>
                     {applicant.offerAcceptedAt ? (
                       <span className="text-xs text-gray-700 dark:text-gray-50">
-                        {new Date(applicant.offerAcceptedAt).toLocaleDateString()}
+                        {new Date(applicant.offerAcceptedAt).toLocaleDateString('en-CA', { timeZone: 'UTC' })}
                       </span>
                     ) : (
                       <span className="text-xs text-gray-900 italic">Not set</span>

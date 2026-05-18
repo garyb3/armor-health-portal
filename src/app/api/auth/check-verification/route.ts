@@ -43,6 +43,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ emailVerified: false });
   }
 
+  // If admin bumped tokenVersion since this token was issued (role change,
+  // denial, etc.), force re-login rather than re-issuing with stale payload
+  // claims like role/email.
+  if (payload.tokenVersion !== user.tokenVersion) {
+    return NextResponse.json({ emailVerified: false }, { status: 401 });
+  }
+
   // Rebuild countySlugs from DB, not from the stale JWT — admin assign/unassign
   // bumps tokenVersion but the old JWT still carries the old slugs.
   const countySlugs = user.role === "COUNTY_REP"

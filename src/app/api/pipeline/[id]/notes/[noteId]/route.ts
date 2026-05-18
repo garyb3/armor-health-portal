@@ -21,17 +21,6 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id, noteId } = await params;
 
   try {
-    const applicant = await prisma.applicant.findUnique({
-      where: { id },
-      select: { archivedAt: true },
-    });
-    if (applicant?.archivedAt) {
-      return NextResponse.json(
-        { error: "Cannot modify archived applicant" },
-        { status: 409 }
-      );
-    }
-
     const body = await request.json();
     const content = body.content?.trim();
     if (!content) {
@@ -41,17 +30,31 @@ export async function PUT(request: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Note is too long" }, { status: 400 });
     }
 
-    // Fold ownership + applicant-scoping + tenant-scoping into a single atomic updateMany.
-    // count=0 means "not found OR not yours OR wrong county" — return 404 either way (don't leak existence).
-    const { count } = await prisma.note.updateMany({
-      where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },
-      data: { content, updatedAt: new Date() },
+    // Re-read archivedAt inside the tx so a concurrent archive can't slip
+    // between the check and the update. updateMany still folds
+    // ownership + applicant + tenant scoping into the write itself.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const applicant = await tx.applicant.findUnique({
+        where: { id },
+        select: { archivedAt: true },
+      });
+      if (applicant?.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+      const { count } = await tx.note.updateMany({
+        where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },
+        data: { content, updatedAt: new Date() },
+      });
+      if (count === 0) {
+        return { error: "Note not found", status: 404 } as const;
+      }
+      const fresh = await tx.note.findUniqueOrThrow({ where: { id: noteId } });
+      return { note: fresh } as const;
     });
-    if (count === 0) {
-      return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    if ("error" in txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
-
-    const updated = await prisma.note.findUniqueOrThrow({ where: { id: noteId } });
+    const updated = txResult.note;
 
     try {
       await prisma.auditLog.create({
@@ -96,23 +99,27 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const { id, noteId } = await params;
 
   try {
-    const applicant = await prisma.applicant.findUnique({
-      where: { id },
-      select: { archivedAt: true },
+    // Re-read archivedAt inside the tx so a concurrent archive can't slip
+    // between the check and the delete. deleteMany still folds
+    // ownership + applicant + tenant scoping into the write itself.
+    const txResult = await prisma.$transaction(async (tx) => {
+      const applicant = await tx.applicant.findUnique({
+        where: { id },
+        select: { archivedAt: true },
+      });
+      if (applicant?.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+      const { count } = await tx.note.deleteMany({
+        where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },
+      });
+      if (count === 0) {
+        return { error: "Note not found", status: 404 } as const;
+      }
+      return null;
     });
-    if (applicant?.archivedAt) {
-      return NextResponse.json(
-        { error: "Cannot modify archived applicant" },
-        { status: 409 }
-      );
-    }
-
-    // Fold ownership + applicant-scoping + tenant-scoping into a single atomic deleteMany.
-    const { count } = await prisma.note.deleteMany({
-      where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },
-    });
-    if (count === 0) {
-      return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    if (txResult) {
+      return NextResponse.json({ error: txResult.error }, { status: txResult.status });
     }
 
     try {
