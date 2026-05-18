@@ -21,6 +21,7 @@ const STEP_TITLE_MAP: Record<string, string> = Object.fromEntries(
   FORM_STEPS.map((s) => [s.key, s.title])
 );
 
+// invariant-ignore: scheduler-invoked, gated by constant-time CRON_SECRET check; per-IP rate limiting is meaningless for a single trusted caller
 export async function POST(request: NextRequest) {
   // Authenticate with CRON_SECRET
   const authHeader = request.headers.get("authorization");

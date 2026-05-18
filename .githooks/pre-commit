@@ -1,0 +1,10 @@
+#!/bin/sh
+# Route-invariant gate. Blocks commits that introduce a route which omits a
+# required security/audit/validation step. Enable once per clone with:
+#   git config core.hooksPath .githooks
+npm test --silent || {
+  echo ""
+  echo "Commit blocked: route-invariant violation(s) above."
+  echo "Fix them, or add '// invariant-ignore: <reason>' for a reviewed exception."
+  exit 1
+}

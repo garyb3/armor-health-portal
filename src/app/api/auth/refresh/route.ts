@@ -7,8 +7,21 @@ import {
   ACCESS_COOKIE_OPTIONS,
   REFRESH_COOKIE_OPTIONS,
 } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/api-helpers";
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 30 refreshes per minute per IP — token rotation is an abuse
+  // target; legitimate clients refresh only on access-token expiry.
+  const ip = getClientIp(request);
+  const { limited, retryAfterMs } = await rateLimit(`refresh:${ip}`, 30, 60_000);
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs || 60_000) / 1000)) } }
+    );
+  }
+
   const refreshToken = request.cookies.get("refresh-token")?.value;
 
   if (!refreshToken) {

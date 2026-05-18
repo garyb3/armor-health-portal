@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth";
 import { getClientIp } from "@/lib/api-helpers";
 
+// invariant-ignore: logout clears the caller's own cookies + bumps their own tokenVersion; no credential check, no body, abuse is self-inflicted
 export async function POST(request: NextRequest) {
   // Increment tokenVersion to invalidate all existing refresh tokens. Try the
   // access cookie first; fall back to verifying the refresh cookie since

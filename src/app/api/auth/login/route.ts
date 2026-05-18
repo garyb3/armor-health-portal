@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword, createToken, createRefreshToken, ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "@/lib/auth";
 import { loginSchema } from "@/schemas/auth";
 import { rateLimit } from "@/lib/rate-limit";
-import { getClientIp, parseJsonBody } from "@/lib/api-helpers";
+import { getClientIp, parseJsonBody, enforceMaxBodySize } from "@/lib/api-helpers";
 
 // Pre-computed bcrypt hash used to burn CPU time when the user doesn't exist,
 // preventing timing-based email enumeration.
@@ -20,6 +20,9 @@ export async function POST(request: NextRequest) {
         { status: 429, headers: { "Retry-After": String(Math.ceil((retryAfterMs || 60_000) / 1000)) } }
       );
     }
+
+    const tooLarge = enforceMaxBodySize(request, 16 * 1024);
+    if (tooLarge) return tooLarge;
 
     const body = await parseJsonBody(request);
     const parsed = loginSchema.safeParse(body);

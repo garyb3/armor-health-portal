@@ -232,6 +232,7 @@ export async function PATCH(
             action: "APPLICANT_UPDATED",
             targetId: id,
             ipAddress: getClientIp(request),
+            countyId: county.id,
             metadata: {
               updatedFields: Object.keys(data),
               ...(emailChanged ? { emailChanged } : {}),
