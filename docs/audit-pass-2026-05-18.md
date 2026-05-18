@@ -126,3 +126,32 @@ Spawned 2 review agents: one for **regressions** introduced by the 12-category f
 - **Met success criterion** (<2 truly new bugs found in double-check). Matrix walk holds.
 
 Final commit: regression fixes after `563d2c5`.
+
+---
+
+## Second-Pass (same day, after commit `ca646bd`) — matrix extension
+
+Plan: `C:\Users\acampo\.claude\plans\go-through-my-code-rosy-shore.md`
+
+Three parallel Explore agents walked categories not previously covered: frontend (React/client), schema+migrations, business-logic edge cases. Findings verified against current code (not agent summaries) before keeping.
+
+### Findings → Fixes (1)
+
+| ID | Severity | Where | What was wrong | Status |
+|----|----------|-------|----------------|--------|
+| G7-sibling | High | `src/app/api/pipeline/[id]/remove/route.ts:37-50` | `denied=true` set without `sensitiveData.deleteMany` — sibling of the G7 admin-deny/delete fix, broader audience (HR/ADMIN/COUNTY_REP vs ADMIN-only). Also missing `countyId` on the audit row. | **FIXED** — added `sensitiveData.deleteMany` inside tx + `countyId: county.id` + `metadata.sensitiveDataPurged: true` to match deny/delete pattern |
+
+### False positives — verified clean, documented so next pass doesn't re-flag
+
+- **`<input type="date">` UTC display claimed as data corruption** at `pipeline-list.tsx:359,373,402,410` and `[county]/pipeline/[id]/page.tsx:740,863,876`. Round-trip is consistent: display `toLocaleDateString('en-CA', { timeZone: 'UTC' })` and save `new Date("YYYY-MM-DD").toISOString()` both anchor to UTC midnight. UX-debatable, not corruption.
+- **Schema `onDelete` drift on `FormSubmission.county` / `Invite.county`**. Prisma's implicit default for required (non-nullable) FK = `Restrict`, which matches the migration's hand-written `RESTRICT`. No drift.
+- **FormSubmission needs `[countyId, createdAt]` index for `pipeline/route.ts:80`**. The query at that line is on `Applicant`, not `FormSubmission`. Applicant already has `@@index([countyId])` and `@@index([archivedAt])`.
+
+### Deferred / by-design
+
+- `/pending-approval` + `/verify-email` poll every 5s without `visibilitychange` gate. Low; defensive only; backend rate-limit mitigates.
+- `AuditLog.userId` bare String (no `@relation`). Intentional — audit rows survive hard-deletes for compliance.
+
+### Pass result
+
+Success criterion was: <2 new bugs ⇒ matrix walk holds. **This pass: 1 new bug. Holds.** No matrix extension needed.

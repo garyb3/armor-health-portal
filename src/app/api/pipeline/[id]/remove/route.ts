@@ -39,12 +39,17 @@ export async function POST(
         where: { id },
         data: { denied: true },
       }),
+      // Match /admin/users/[id]/deny + /delete: purge SSN on denial. Same data-minimization
+      // rationale, more-exposed endpoint (HR/ADMIN/COUNTY_REP, not ADMIN-only).
+      prisma.sensitiveData.deleteMany({ where: { applicantId: id } }),
       prisma.auditLog.create({
         data: {
           userId: user.userId,
           action: "PIPELINE_REMOVE_CANDIDATE",
           targetId: id,
           ipAddress: getClientIp(request),
+          countyId: county.id,
+          metadata: { sensitiveDataPurged: true },
         },
       }),
     ]);
