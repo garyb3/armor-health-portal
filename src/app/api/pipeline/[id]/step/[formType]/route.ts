@@ -219,6 +219,16 @@ export async function POST(
     // Wrap read + status check + writes in a transaction to prevent
     // concurrent requests from both passing the PENDING_REVIEW check
     const result = await prisma.$transaction(async (tx) => {
+      // Re-read archivedAt inside the tx so a concurrent archive can't slip
+      // through between the outer line-194 check and the writes below.
+      const freshApplicant = await tx.applicant.findUnique({
+        where: { id: applicantId },
+        select: { archivedAt: true },
+      });
+      if (freshApplicant?.archivedAt) {
+        return { error: "Cannot modify archived applicant", status: 409 } as const;
+      }
+
       // Fresh read inside the transaction — if another request already
       // changed the status, we'll see it here and bail out
       const submission = await tx.formSubmission.findUnique({
@@ -304,10 +314,10 @@ export async function POST(
 
     // If the transaction returned an error, send it back
     if (result) {
-      if (result.status === 404) {
-        return NextResponse.json({ error: result.error }, { status: 404 });
+      if (result.status === 400) {
+        return badRequestResponse(result.error);
       }
-      return badRequestResponse(result.error);
+      return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
     // Send emails after transaction commits (fire-and-forget)

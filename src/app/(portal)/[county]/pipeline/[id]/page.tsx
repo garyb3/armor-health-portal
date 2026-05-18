@@ -737,7 +737,7 @@ export default function ApplicantDetailPage() {
                   <Calendar className="h-4 w-4 text-gray-900 dark:text-gray-50" />
                   Offer accepted{" "}
                   {applicant.offerAcceptedAt
-                    ? new Date(applicant.offerAcceptedAt).toLocaleDateString()
+                    ? new Date(applicant.offerAcceptedAt).toLocaleDateString("en-CA", { timeZone: "UTC" })
                     : "—"}
                 </div>
               </div>

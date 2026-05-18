@@ -21,6 +21,17 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const { id, noteId } = await params;
 
   try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (applicant?.archivedAt) {
+      return NextResponse.json(
+        { error: "Cannot modify archived applicant" },
+        { status: 409 }
+      );
+    }
+
     const body = await request.json();
     const content = body.content?.trim();
     if (!content) {
@@ -85,6 +96,17 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   const { id, noteId } = await params;
 
   try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (applicant?.archivedAt) {
+      return NextResponse.json(
+        { error: "Cannot modify archived applicant" },
+        { status: 409 }
+      );
+    }
+
     // Fold ownership + applicant-scoping + tenant-scoping into a single atomic deleteMany.
     const { count } = await prisma.note.deleteMany({
       where: { id: noteId, applicantId: id, authorId: user.userId, countyId: county.id },

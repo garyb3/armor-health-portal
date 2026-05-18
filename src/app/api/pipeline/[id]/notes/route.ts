@@ -82,6 +82,17 @@ export async function POST(
   if (ownership) return ownership;
 
   try {
+    const applicant = await prisma.applicant.findUnique({
+      where: { id },
+      select: { archivedAt: true },
+    });
+    if (applicant?.archivedAt) {
+      return NextResponse.json(
+        { error: "Cannot modify archived applicant" },
+        { status: 409 }
+      );
+    }
+
     const body = await request.json();
     const content = body.content?.trim();
     if (!content) {

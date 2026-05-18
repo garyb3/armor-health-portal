@@ -81,9 +81,18 @@ export async function POST(request: NextRequest, { params }: Params) {
   if (ownership) return ownership;
 
   try {
-    const note = await prisma.note.findUnique({ where: { id: noteId } });
+    const note = await prisma.note.findUnique({
+      where: { id: noteId },
+      include: { applicant: { select: { archivedAt: true } } },
+    });
     if (!note || note.applicantId !== id || note.countyId !== county.id) {
       return NextResponse.json({ error: "Note not found" }, { status: 404 });
+    }
+    if (note.applicant.archivedAt) {
+      return NextResponse.json(
+        { error: "Cannot modify archived applicant" },
+        { status: 409 }
+      );
     }
 
     const body = await request.json();
