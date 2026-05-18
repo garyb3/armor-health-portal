@@ -6,14 +6,16 @@ import { COUNTY_SLUGS as COUNTY_SLUG_LIST } from "@/lib/counties";
 
 const publicPaths = ["/", "/pending-approval", "/verify-email", "/reset-password", "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/v1/health", "/api/v1/docs"];
 
-// Fail-fast on weak CRON_SECRET in production. A short secret invites brute force
-// against cron endpoints, which run with elevated privileges.
+// Refuse weak CRON_SECRET in production. Enforced PER-REQUEST against the cron
+// path, not at module load — throwing at module load would crash the entire
+// middleware (and thus every request to the site) on misconfig. With per-request
+// enforcement, only /api/cron/* fails closed; the rest of the site stays up.
 const MIN_CRON_SECRET_LENGTH = 32;
 if (process.env.NODE_ENV === "production") {
   const cs = process.env.CRON_SECRET;
   if (!cs || cs.length < MIN_CRON_SECRET_LENGTH) {
-    throw new Error(
-      `CRON_SECRET must be set and at least ${MIN_CRON_SECRET_LENGTH} characters in production`
+    console.warn(
+      `[CRON_SECRET] WARNING: in production, CRON_SECRET must be set and at least ${MIN_CRON_SECRET_LENGTH} characters. Cron routes will 503.`
     );
   }
 }
@@ -218,6 +220,14 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/api/cron/")) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
+    // Fail closed in production if the secret is missing or too short — refusing
+    // cron requests is safer than accepting a brute-forceable Bearer token.
+    if (
+      process.env.NODE_ENV === "production" &&
+      (!cronSecret || cronSecret.length < MIN_CRON_SECRET_LENGTH)
+    ) {
+      return withCsp(NextResponse.json({ error: "Service unavailable" }, { status: 503 }));
+    }
     if (!cronSecret || !authHeader || !timingSafeEqualStr(authHeader, `Bearer ${cronSecret}`)) {
       return withCsp(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
     }

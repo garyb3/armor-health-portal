@@ -19,19 +19,24 @@ export async function POST(request: NextRequest) {
     (refreshToken && (await verifyRefreshToken(refreshToken))) ||
     null;
   if (payload?.sub) {
+    // Wrap tokenVersion bump + audit in a single tx so a DB hiccup can't bump
+    // the version without an audit row (or vice versa). User-deleted case still
+    // falls through to the catch — the outer logout flow still clears cookies.
     try {
-      await prisma.applicant.update({
-        where: { id: payload.sub },
-        data: { tokenVersion: { increment: 1 } },
-      });
-      await prisma.auditLog.create({
-        data: {
-          userId: payload.sub,
-          action: "LOGOUT",
-          targetId: payload.sub,
-          ipAddress: getClientIp(request),
-        },
-      });
+      await prisma.$transaction([
+        prisma.applicant.update({
+          where: { id: payload.sub },
+          data: { tokenVersion: { increment: 1 } },
+        }),
+        prisma.auditLog.create({
+          data: {
+            userId: payload.sub,
+            action: "LOGOUT",
+            targetId: payload.sub,
+            ipAddress: getClientIp(request),
+          },
+        }),
+      ]);
     } catch {
       // User may have been deleted — that's fine
     }
