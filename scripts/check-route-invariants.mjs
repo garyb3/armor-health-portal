@@ -8,6 +8,9 @@
  *   (c) no raw <request>.json() (must use parseJsonBody)
  *   (d) write handlers must call rateLimit
  *   (e) auditLog.create data must include countyId when county is in scope
+ *   (f) applicant.update with data.denied=true must purge SensitiveData
+ *   (g) outside-tx reads of archivedAt/offerAcceptedAt/denied need a matching
+ *       inside-tx read when the handler uses $transaction(async (tx) => …)
  *
  * Why this exists: every route hand-rolls the same security/audit ceremony with
  * no shared wrapper and there was no automated gate, so the same bug classes
@@ -254,6 +257,101 @@ for (const file of findRouteFiles(API_DIR)) {
           continue;
         }
         record(ac, "e", "auditLog.create data is missing countyId (county is in scope via requireCountyAccess/assertApplicantInCounty)");
+      }
+    }
+
+    // (f) applicant.update with data.denied=true must purge SensitiveData.
+    // G7 / G7-sibling regression class: the deny/delete/remove routes all
+    // need to drop the encrypted SSN row when marking a candidate denied.
+    const applicantUpdates = nodes.filter((n) => {
+      if (!ts.isCallExpression(n)) return false;
+      const e = n.expression;
+      return (
+        ts.isPropertyAccessExpression(e) &&
+        (e.name.text === "update" || e.name.text === "updateMany") &&
+        ts.isPropertyAccessExpression(e.expression) &&
+        e.expression.name.text === "applicant"
+      );
+    });
+    const hasSensitivePurge = nodes.some((n) => {
+      if (!ts.isCallExpression(n)) return false;
+      const e = n.expression;
+      return (
+        ts.isPropertyAccessExpression(e) &&
+        e.name.text === "deleteMany" &&
+        ts.isPropertyAccessExpression(e.expression) &&
+        e.expression.name.text === "sensitiveData"
+      );
+    });
+    for (const au of applicantUpdates) {
+      const arg0 = au.arguments[0];
+      if (!arg0 || !ts.isObjectLiteralExpression(arg0)) continue;
+      const dataProp = arg0.properties.find((p) => propKeyName(p) === "data");
+      if (!dataProp || !ts.isPropertyAssignment(dataProp) || !ts.isObjectLiteralExpression(dataProp.initializer)) {
+        // data is dynamic — too noisy to flag, but worth surfacing
+        const hasDeniedKey = nodes.some((n) =>
+          ts.isPropertyAssignment(n) &&
+          propKeyName(n) === "denied" &&
+          n.initializer.kind === ts.SyntaxKind.TrueKeyword
+        );
+        if (hasDeniedKey && !hasSensitivePurge) {
+          unverifiable.push({ file: rel, ...at(au), method, code: "f", message: "applicant.update data is dynamic but handler has a literal `denied: true` somewhere and no sensitiveData.deleteMany — manual review" });
+        }
+        continue;
+      }
+      const setsDeniedTrue = dataProp.initializer.properties.some(
+        (p) => propKeyName(p) === "denied" &&
+          ts.isPropertyAssignment(p) &&
+          p.initializer.kind === ts.SyntaxKind.TrueKeyword
+      );
+      if (!setsDeniedTrue) continue;
+      if (hasSensitivePurge) continue;
+      record(au, "f", "applicant.update sets denied:true but handler has no sensitiveData.deleteMany — SSN must be purged on denial");
+    }
+
+    // (g) outside-tx reads of mutable eligibility flags need an inside-tx
+    // re-read when the handler uses $transaction(async (tx) => …).
+    // H-archive class: read archivedAt/offerAcceptedAt/denied before the tx,
+    // then mutate inside — concurrent mutation slips between check and write.
+    // Receivers like `body`, `data`, `payload`, `input`, `req`, `request` are
+    // request-body parses or Prisma write payloads, not DB record reads.
+    const ELIGIBILITY_FLAGS = new Set(["archivedAt", "offerAcceptedAt", "denied"]);
+    const NON_DB_RECEIVERS = new Set(["body", "data", "payload", "input", "req", "request"]);
+    const callbackTxBodies = txCalls
+      .map((tx) => tx.arguments[0])
+      .filter((a) => a && (ts.isArrowFunction(a) || ts.isFunctionExpression(a)))
+      .map((a) => a.body);
+    if (callbackTxBodies.length > 0) {
+      const isAssignmentTarget = (access) => {
+        const p = access.parent;
+        return (
+          p &&
+          ts.isBinaryExpression(p) &&
+          p.left === access &&
+          p.operatorToken.kind === ts.SyntaxKind.EqualsToken
+        );
+      };
+      const isNonDbReceiver = (access) => {
+        const recv = access.expression;
+        return ts.isIdentifier(recv) && NON_DB_RECEIVERS.has(recv.text);
+      };
+      const flagAccesses = nodes.filter(
+        (n) =>
+          ts.isPropertyAccessExpression(n) &&
+          ELIGIBILITY_FLAGS.has(n.name.text) &&
+          !isAssignmentTarget(n) &&
+          !isNonDbReceiver(n)
+      );
+      const insideFlagNames = new Set();
+      const outsideAccesses = [];
+      for (const access of flagAccesses) {
+        const inside = callbackTxBodies.some((body) => isInside(access, body) || access === body);
+        if (inside) insideFlagNames.add(access.name.text);
+        else outsideAccesses.push(access);
+      }
+      for (const access of outsideAccesses) {
+        if (insideFlagNames.has(access.name.text)) continue;
+        record(access, "g", `outside-tx access to .${access.name.text} with no matching inside-tx re-read — TOCTOU race (read inside tx or re-read inside)`);
       }
     }
   }
