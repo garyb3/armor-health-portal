@@ -36,9 +36,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { token, password } = parsed.data;
+    const hashedToken = hashToken(token);
 
     const applicant = await prisma.applicant.findUnique({
-      where: { resetToken: hashToken(token) },
+      where: { resetToken: hashedToken },
     });
 
     if (!applicant || !applicant.resetTokenExpiresAt || applicant.resetTokenExpiresAt < new Date()) {
@@ -50,25 +51,37 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await hashPassword(password);
 
-    await prisma.$transaction([
-      prisma.applicant.update({
-        where: { id: applicant.id },
+    // Guard the consume with `resetToken: hashedToken` in WHERE so two concurrent
+    // requests carrying the same token can't both succeed — the loser sees count===0.
+    // Mirrors the refresh-route pattern at src/app/api/auth/refresh/route.ts.
+    const consumed = await prisma.$transaction(async (tx) => {
+      const result = await tx.applicant.updateMany({
+        where: { id: applicant.id, resetToken: hashedToken },
         data: {
           password: hashedPassword,
           resetToken: null,
           resetTokenExpiresAt: null,
           tokenVersion: { increment: 1 }, // Invalidate all existing sessions
         },
-      }),
-      prisma.auditLog.create({
+      });
+      if (result.count === 0) return false;
+      await tx.auditLog.create({
         data: {
           userId: applicant.id,
           action: "PASSWORD_RESET",
           targetId: applicant.id,
           ipAddress: ip,
         },
-      }),
-    ]);
+      });
+      return true;
+    });
+
+    if (!consumed) {
+      return NextResponse.json(
+        { error: "This reset link is invalid or has expired." },
+        { status: 400 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

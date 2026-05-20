@@ -20,28 +20,29 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const hashedToken = hashToken(token);
     const applicant = await prisma.applicant.findUnique({
-      where: { verificationToken: hashToken(token) },
+      where: { verificationToken: hashedToken },
+      include: {
+        userCounties: { include: { county: { select: { slug: true } } } },
+      },
     });
 
     if (!applicant) {
       return NextResponse.redirect(new URL("/verify-email?error=invalid-token", request.url));
     }
 
-    // Mark email as verified and clear token — use returned record for current approved/tokenVersion.
-    // Audit log lives in the same tx so a crash between commit and log can't drop the audit row.
-    const [updated] = await prisma.$transaction([
-      prisma.applicant.update({
-        where: { id: applicant.id },
-        data: {
-          emailVerified: true,
-          verificationToken: null,
-        },
-        include: {
-          userCounties: { include: { county: { select: { slug: true } } } },
-        },
-      }),
-      prisma.auditLog.create({
+    // Mark email as verified and clear token. Guard the consume with
+    // `verificationToken: hashedToken` in WHERE so two concurrent clicks on
+    // the same link can't both succeed (token-replay race). Audit log lives
+    // in the same tx so a crash between commit and log can't drop the audit row.
+    const consumed = await prisma.$transaction(async (tx) => {
+      const result = await tx.applicant.updateMany({
+        where: { id: applicant.id, verificationToken: hashedToken },
+        data: { emailVerified: true, verificationToken: null },
+      });
+      if (result.count === 0) return false;
+      await tx.auditLog.create({
         data: {
           userId: applicant.id,
           action: "EMAIL_VERIFIED",
@@ -49,26 +50,31 @@ export async function GET(request: NextRequest) {
           ipAddress: ip,
           countyId: applicant.countyId,
         },
-      }),
-    ]);
+      });
+      return true;
+    });
 
-    if (updated.role == null) {
+    if (!consumed) {
+      return NextResponse.redirect(new URL("/verify-email?error=invalid-token", request.url));
+    }
+
+    if (applicant.role == null) {
       return NextResponse.json({ error: "Account is not eligible for portal access" }, { status: 500 });
     }
 
-    const countySlugs = updated.role === "COUNTY_REP"
-      ? updated.userCounties.map((uc) => uc.county.slug)
+    const countySlugs = applicant.role === "COUNTY_REP"
+      ? applicant.userCounties.map((uc) => uc.county.slug)
       : [];
 
     const tokenPayload = {
-      sub: updated.id,
-      email: updated.email,
-      firstName: updated.firstName,
-      lastName: updated.lastName,
-      role: updated.role,
-      approved: updated.approved,
+      sub: applicant.id,
+      email: applicant.email,
+      firstName: applicant.firstName,
+      lastName: applicant.lastName,
+      role: applicant.role,
+      approved: applicant.approved,
       emailVerified: true,
-      tokenVersion: updated.tokenVersion,
+      tokenVersion: applicant.tokenVersion,
       countySlugs,
     };
 
@@ -79,8 +85,8 @@ export async function GET(request: NextRequest) {
     ]);
 
     const redirectPath = pickPostLoginDestination({
-      role: updated.role,
-      approved: updated.approved,
+      role: applicant.role,
+      approved: applicant.approved,
       emailVerified: true,
       countySlugs,
     });

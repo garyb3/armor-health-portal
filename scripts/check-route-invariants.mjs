@@ -11,6 +11,9 @@
  *   (f) applicant.update with data.denied=true must purge SensitiveData
  *   (g) outside-tx reads of archivedAt/offerAcceptedAt/denied need a matching
  *       inside-tx read when the handler uses $transaction(async (tx) => …)
+ *   (h) single-use token clearing must use updateMany guarded by the same
+ *       token field — `update` lets two concurrent requests with the same
+ *       token both pass the outer findUnique check and both consume it
  *
  * Why this exists: every route hand-rolls the same security/audit ceremony with
  * no shared wrapper and there was no automated gate, so the same bug classes
@@ -352,6 +355,66 @@ for (const file of findRouteFiles(API_DIR)) {
       for (const access of outsideAccesses) {
         if (insideFlagNames.has(access.name.text)) continue;
         record(access, "g", `outside-tx access to .${access.name.text} with no matching inside-tx re-read — TOCTOU race (read inside tx or re-read inside)`);
+      }
+    }
+
+    // (h) single-use token clearing must use updateMany guarded by the token.
+    // Pattern: `findUnique({ where: { resetToken: ... } })` outside the tx,
+    // then `applicant.update({ data: { resetToken: null } })` inside — two
+    // concurrent requests with the same token both pass the outer check and
+    // both consume. Fix: `updateMany({ where: { id, resetToken: <hashed> } })`
+    // and bail when count===0. Pattern proven by /api/auth/refresh's tokenVersion guard.
+    const SINGLE_USE_TOKEN_FIELDS = new Set(["resetToken", "verificationToken"]);
+    // Collect token fields that any findUnique/findFirst keyed off — those are
+    // the credentials, and clearing them needs the atomic guard.
+    const tokenLookups = new Set();
+    for (const n of nodes) {
+      if (!ts.isCallExpression(n)) continue;
+      const e = n.expression;
+      if (
+        !ts.isPropertyAccessExpression(e) ||
+        (e.name.text !== "findUnique" && e.name.text !== "findFirst")
+      ) continue;
+      const arg0 = n.arguments[0];
+      if (!arg0 || !ts.isObjectLiteralExpression(arg0)) continue;
+      const whereProp = arg0.properties.find((p) => propKeyName(p) === "where");
+      if (
+        !whereProp ||
+        !ts.isPropertyAssignment(whereProp) ||
+        !ts.isObjectLiteralExpression(whereProp.initializer)
+      ) continue;
+      for (const wp of whereProp.initializer.properties) {
+        const key = propKeyName(wp);
+        if (key && SINGLE_USE_TOKEN_FIELDS.has(key)) tokenLookups.add(key);
+      }
+    }
+    if (callbackTxBodies.length > 0 && tokenLookups.size > 0) {
+      for (const au of applicantUpdates) {
+        const callExpr = au.expression;
+        if (!ts.isPropertyAccessExpression(callExpr)) continue;
+        // Only flag singular `update` — `updateMany` is the fix.
+        if (callExpr.name.text !== "update") continue;
+        if (!callbackTxBodies.some((body) => isInside(au, body))) continue;
+        const arg0 = au.arguments[0];
+        if (!arg0 || !ts.isObjectLiteralExpression(arg0)) continue;
+        const dataProp = arg0.properties.find((p) => propKeyName(p) === "data");
+        if (
+          !dataProp ||
+          !ts.isPropertyAssignment(dataProp) ||
+          !ts.isObjectLiteralExpression(dataProp.initializer)
+        ) continue;
+        for (const dp of dataProp.initializer.properties) {
+          const key = propKeyName(dp);
+          if (!key || !SINGLE_USE_TOKEN_FIELDS.has(key)) continue;
+          if (!ts.isPropertyAssignment(dp)) continue;
+          if (dp.initializer.kind !== ts.SyntaxKind.NullKeyword) continue;
+          if (!tokenLookups.has(key)) continue;
+          record(
+            au,
+            "h",
+            `applicant.update clears ${key} but a findUnique/findFirst looked up by ${key} — use updateMany guarded by ${key} in WHERE to prevent token-replay race`
+          );
+        }
       }
     }
   }
