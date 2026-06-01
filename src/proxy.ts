@@ -144,7 +144,7 @@ function addCorsHeaders(request: NextRequest, response: NextResponse): NextRespo
   return response;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Generate a per-request nonce for Content-Security-Policy

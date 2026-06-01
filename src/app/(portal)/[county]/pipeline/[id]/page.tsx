@@ -589,7 +589,7 @@ export default function ApplicantDetailPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Back link */}
       <Link
-        href={`${countyPrefix}/pipeline`}
+        href="/dashboard"
         className="inline-flex items-center gap-1 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />

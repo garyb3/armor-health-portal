@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { Building2, Check, ChevronDown, LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
@@ -86,9 +87,8 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
   return (
     <nav className="no-print bg-brand-900 shadow-lg sticky top-0 z-30">
       <div className="flex items-center justify-between h-16 px-4 md:px-6">
-        <button
-          type="button"
-          onClick={() => router.push(dashboardHref)}
+        <Link
+          href={dashboardHref}
           aria-label="Go to dashboard"
           className="flex items-center hover:opacity-80 transition-opacity"
         >
@@ -102,15 +102,14 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
               priority
             />
           </div>
-        </button>
+        </Link>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
-            <button
+            <Link
               key={link.href}
-              type="button"
-              onClick={() => router.push(link.href)}
+              href={link.href}
               className={`text-sm px-3 py-1.5 rounded-md transition-all duration-150 ${
                 pathname === link.href
                   ? "text-white bg-white/15 font-semibold"
@@ -118,7 +117,7 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
               }`}
             >
               {link.label}
-            </button>
+            </Link>
           ))}
 
           {showSites && (
@@ -229,13 +228,10 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-brand-700 px-4 py-3 space-y-1 bg-brand-800">
           {navLinks.map((link) => (
-            <button
+            <Link
               key={link.href}
-              type="button"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                router.push(link.href);
-              }}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
               className={`block w-full text-left text-sm px-3 py-2.5 rounded-lg transition-colors ${
                 pathname === link.href
                   ? "text-white bg-white/15 font-semibold"
@@ -243,7 +239,7 @@ export function Navbar({ firstName, lastName, role, countySlugs }: NavbarProps) 
               }`}
             >
               {link.label}
-            </button>
+            </Link>
           ))}
 
           {showSites && (

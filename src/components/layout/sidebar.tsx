@@ -88,10 +88,10 @@ export function Sidebar({ role }: SidebarProps) {
     <aside className="no-print w-60 bg-gray-200 dark:bg-brand-900 border-r border-gray-100 dark:border-brand-800 hidden md:flex flex-col">
       <div className="p-3 pt-4">
         <Link
-          href={`${countyPrefix}/pipeline`}
+          href="/dashboard"
           className={cn(
             "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
-            pathname === `${countyPrefix}/pipeline`
+            pathname === "/dashboard"
               ? "bg-brand-900 text-white shadow-sm"
               : "text-gray-900 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-brand-800"
           )}

@@ -235,7 +235,7 @@ export default function CategoryPage() {
       {/* Header */}
       <div>
         <Link
-          href={`${countyPrefix}/pipeline`}
+          href="/dashboard"
           className="inline-flex items-center gap-1.5 text-sm text-gray-900 dark:text-gray-50 hover:text-gray-700 dark:hover:text-gray-200 transition-colors mb-3"
         >
           <ArrowLeft className="h-4 w-4" />
